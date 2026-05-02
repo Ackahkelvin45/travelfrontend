@@ -1,7 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { RootState } from '../store/store'
 
-export const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/'
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://azuratravelsbackend.cc/api/'
+console.log(BASE_URL)
 
 export const baseApi = createApi({
   reducerPath: 'api',

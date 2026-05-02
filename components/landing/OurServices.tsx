@@ -3,6 +3,9 @@ import { type StaticImageData } from "next/image";
 import nightlife from "../../assets/images/services/osu.png";
 import culture from "../../assets/images/services/culture.png";
 import food from "../../assets/images/services/food.jpeg";
+import Image from "next/image";
+import cooperate from "../../assets/images/cooperate.png";
+import structure from "../../assets/images/structure.jpeg";
 
 function imgUrl(image: string | StaticImageData): string {
   return typeof image === "string" ? image : image.src;
@@ -37,13 +40,13 @@ const services = [
     label: "Fashion & Lifestyle Access",
     description:
       "Exclusive access to local designers and fashion hubs, personalized styling and shopping experiences, and lifestyle events that celebrate African creativity and innovation.",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
+    image:structure,
   },
   {
     label: "Corporate & Group Experiences",
     description:
       "Tailored team retreats and executive travel programs, curated itineraries for corporate groups, and unique experiences designed to foster connection and collaboration.",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
+    image: cooperate,
   },
   
 ];
@@ -52,9 +55,9 @@ export default function OurServices() {
   const [s1, s2, s3, s4, s5, s6] = services;
 
   return (
-    <section className="w-full px-20 py-16 mt-25 bg-[#fbfbfb]">
+    <section className="w-full px-4 md:px-10 lg:px-20 py-10 md:py-16 mt-20 md:mt-25 bg-[#fbfbfb]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div>
           <h2 className="text-3xl font-bold font-raleway text-text-primary">
             Our Services
@@ -72,13 +75,13 @@ export default function OurServices() {
       </div>
 
       {/* Main grid — 4 cols × 2 rows (6 cards) */}
-      <div className="grid grid-cols-4 grid-rows-2 gap-3 h-155">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-3 auto-rows-[250px] lg:auto-rows-auto lg:h-155">
         {/* Col 1, row 1 — Luxury Travel Packages */}
         <ServiceCard label={s1.label} image={s1.image} />
 
         {/* Col 2, rows 1–2 — Nightlife (featured tall) */}
         <div
-          className="row-span-2 relative rounded-2xl overflow-hidden cursor-pointer group"
+          className="sm:row-span-2 relative rounded-2xl overflow-hidden cursor-pointer group"
           style={{ backgroundImage: `url(${imgUrl(s2.image)})`, backgroundSize: "cover", backgroundPosition: "center" }}
         >
           <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent group-hover:from-black/70 transition-all duration-300" />
@@ -89,7 +92,7 @@ export default function OurServices() {
 
         {/* Cols 3–4, row 1 — Cultural Immersion (wide) */}
         <div
-          className="col-span-2 relative rounded-2xl overflow-hidden cursor-pointer group"
+          className="sm:col-span-2 relative rounded-2xl overflow-hidden cursor-pointer group"
           style={{ backgroundImage: `url(${imgUrl(s3.image)})`, backgroundSize: "cover", backgroundPosition: "center" }}
         >
           <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent group-hover:from-black/70 transition-all duration-300" />

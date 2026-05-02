@@ -6,15 +6,14 @@ import Image from "next/image";
 export default function Footer() {
   return (
     <footer
-      className="w-full font-open-sans bg-cover bg-center mt-25 bg-no-repeat"
+      className="w-full font-open-sans bg-cover bg-center mt-12 md:mt-25 bg-no-repeat"
       style={{ backgroundImage: `url(${footerBg.src})` }}
     >
       {/* Top bar */}
-      <div className="px-20 py-6 flex items-center justify-between">
+      <div className="px-4 md:px-10 lg:px-20 py-10 md:py-6 flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
         <Image src={logofull} alt="Azura Travels" className="w-48 h-auto" />
    
-
-        <div className="flex gap-4 h-full items-end justify-end mt-30">
+        <div className="flex gap-4 h-full items-end justify-center md:justify-end mt-4 md:mt-30">
           <span className="text-text-primary font-semibold font-montserrat text-sm">
             Follow Us
           </span>
@@ -48,11 +47,10 @@ export default function Footer() {
           </a>
         </div>
       </div>
-
-      <hr className="border-gray-200 mx-20" />
+      <hr className="border-gray-200 mx-4 md:mx-10 lg:mx-20" />
 
       {/* Main footer */}
-      <div className="px-20 py-14 grid grid-cols-[2fr_1fr_1fr_1.5fr] gap-12">
+      <div className="px-4 md:px-10 lg:px-20 py-10 md:py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1.5fr] gap-10 lg:gap-12">
         {/* Contact */}
         <div className="flex flex-col gap-4">
           <h3 className="text-lg font-bold font-raleway text-text-primary">Contact</h3>
@@ -112,8 +110,8 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <hr className="border-gray-200 mx-20" />
-      <div className="px-20 py-5 flex items-center justify-between">
+      <hr className="border-gray-200 mx-4 md:mx-10 lg:mx-20" />
+      <div className="px-4 md:px-10 lg:px-20 py-6 md:py-5 flex flex-col md:flex-row items-center justify-between gap-4">
         <p className="text-gray-400 text-xs font-open-sans">
           © {new Date().getFullYear()} Azuratravels. All rights reserved.
         </p>

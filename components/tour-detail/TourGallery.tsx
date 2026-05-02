@@ -7,12 +7,12 @@ interface TourGalleryProps {
 
 export default function TourGallery({ images, title }: TourGalleryProps) {
   return (
-    <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden ]">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 rounded-2xl overflow-hidden ">
       {/* Left — single tall image */}
       <img src={images[0]} alt={title} className="w-full h-full object-cover" />
 
       {/* Right — top image + two bottom images */}
-      <div className="grid grid-rows-[1fr_1fr] gap-2">
+      <div className="hidden md:grid grid-rows-[1fr_1fr] gap-2">
         <img src={images[1]} alt={title} className="w-full h-full object-cover" />
 
         <div className="grid grid-cols-2 gap-2">

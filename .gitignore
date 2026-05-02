@@ -17,6 +17,15 @@
 /.next/
 /out/
 
+.env
+.env.local
+.claude
+.cursor
+.agents
+.env.prod
+.next
+.next.*
+
 # production
 /build
 

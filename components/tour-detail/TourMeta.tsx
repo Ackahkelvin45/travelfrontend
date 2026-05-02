@@ -32,12 +32,11 @@ const MetaIcon = ({ type }: { type: string }) => {
   );
 };
 
-export default function TourMeta({ duration, groupSize, ages, languages }: TourMetaProps) {
+export default function TourMeta({ duration, groupSize, ages }: TourMetaProps) {
   const items = [
     { type: "duration", label: "Duration", value: duration },
     { type: "group", label: "Group Size", value: groupSize },
     { type: "ages", label: "Ages", value: ages },
-    { type: "lang", label: "Languages", value: languages.join(", ") },
   ];
 
   return (

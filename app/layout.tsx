@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "../components/landing/Navbar";
-import Footer from "../components/landing/Footer"
+import Footer from "../components/landing/Footer";
+import StoreProvider from "../components/providers/StoreProvider";
 
 export const metadata: Metadata = {
   title: "Azura Travels - Curated Luxury Travel Experiences",
@@ -28,9 +29,11 @@ export default function RootLayout({
         />
       </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-[#fbfbfb]">
-        <Navbar />
-        {children}
-        <Footer />
+        <StoreProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </StoreProvider>
       </body>
     </html>
   );

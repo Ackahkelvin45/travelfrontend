@@ -1,10 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Image, { StaticImageData } from "next/image";
+import image1 from "../../assets/images/profile/1.jpeg";
+import image2 from "../../assets/images/profile/2.jpeg";
+import image3 from "../../assets/images/profile/3.jpeg";
+import image4 from "../../assets/images/profile/4.jpeg";
+import image5 from "../../assets/images/profile/5.jpeg";
 
-const testimonials = [
+const testimonials: {
+  image: StaticImageData;
+  headline: string;
+  review: string;
+  name: string;
+  role: string;
+}[] = [
   {
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
+    image: image1,
     headline: "Excellent Service!",
     review:
       "I had an amazing experience with Azuratravels. The service was top-notch, and the team was incredibly attentive. Every detail was perfectly curated — I highly recommend them!",
@@ -12,7 +24,7 @@ const testimonials = [
     role: "Traveler",
   },
   {
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
+    image: image2,
     headline: "Truly Unforgettable!",
     review:
       "From the safari at dawn to the rooftop dinner in Lagos, every moment felt intentional and luxurious. Azuratravels doesn't just plan trips — they craft memories.",
@@ -20,7 +32,7 @@ const testimonials = [
     role: "Business Traveler",
   },
   {
-    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&q=80",
+    image: image3,
     headline: "Beyond Expectations!",
     review:
       "The cultural immersion tour in Marrakech was a life-changing experience. The local guides, the food, the hospitality — everything exceeded what I could have imagined.",
@@ -28,7 +40,7 @@ const testimonials = [
     role: "Lifestyle Blogger",
   },
   {
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
+    image: image4,
     headline: "World-Class Luxury!",
     review:
       "Our corporate retreat in Cape Town was flawlessly organised. The team handled every detail — accommodation, transport, activities — with total professionalism.",
@@ -36,7 +48,7 @@ const testimonials = [
     role: "CEO, Tech Startup",
   },
   {
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
+    image: image5,
     headline: "A Dream Come True!",
     review:
       "I've always wanted to reconnect with my African roots. Azuratravels made that journey so personal and meaningful. The Zanzibar retreat was pure magic.",
@@ -49,6 +61,13 @@ export default function Testimonials() {
   const [active, setActive] = useState(0);
   const t = testimonials[active];
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActive((prev) => (prev + 1) % testimonials.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section className="w-full px-20 py-20 bg-[#fbfbfb] mt-25 flex flex-col items-center">
       {/* Title */}
@@ -58,7 +77,7 @@ export default function Testimonials() {
 
       {/* Avatar with quote badge */}
       <div className="relative w-24 h-24 mb-8">
-        <img
+        <Image
           src={t.image}
           alt={t.name}
           className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md"

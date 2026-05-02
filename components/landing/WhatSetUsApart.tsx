@@ -3,19 +3,18 @@ import bg from "../../assets/images/bg.png";
 function WhatSetUsApart() {
   return (
     <div
-    className="  my-10 w-full px-10   "
+    className="  my-10 w-full px-4 md:px-10   "
   
     >
 
         <div
-        
-            className=" flex w-full   flex-row bg-cover  mt-25 rounded-2xl  h-[700px]  bg-center bg-no-repeat"
+            className=" flex w-full flex-col lg:flex-row bg-cover mt-12 md:mt-25 rounded-2xl h-auto lg:h-[700px] bg-center bg-no-repeat overflow-hidden"
       style={{ backgroundImage: `url(${bg.src})` }}
       >
 
       
-      <div className="w-[40%] px-10  h-full justify-center    flex flex-col py-16">
-        <div className="text-3xl font-bold font-raleway text-text-primary">
+      <div className="w-full lg:w-[40%] px-6 md:px-10 h-full justify-center flex flex-col py-10 lg:py-16 bg-white/60 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none">
+        <div className="text-2xl md:text-3xl font-bold font-raleway text-text-primary">
           What Sets Us Apart
         </div>
 
@@ -27,9 +26,9 @@ function WhatSetUsApart() {
         </div>
       </div>
 
-      <div className="w-[60%] px-10 flex flex-col  justify-center items-center">
+      <div className="w-full lg:w-[60%] px-4 md:px-10 py-10 lg:py-0 flex flex-col justify-center items-center bg-white/30 lg:bg-transparent backdrop-blur-sm lg:backdrop-blur-none">
 
-      <div className="flex flex-row gap-6 "> 
+      <div className="flex flex-col sm:flex-row gap-6 "> 
 
         <div className="flex flex-col gap-4 h-fit  bg-white/80 p-10 rounded-lg shadow-lg">
 
@@ -47,7 +46,7 @@ insight.
             </p>
 
         </div>
- <div className="flex flex-col gap-4 bg-white/80 p-10 rounded-lg shadow-lg mt-10">
+ <div className="flex flex-col gap-4 bg-white/90 p-10 rounded-lg shadow-lg mt-0 sm:mt-10">
 
 
             <span className="font-bold text-primary font-raleway">
@@ -64,7 +63,7 @@ insight.
         </div>
 
       </div>
-        <div className="flex flex-row gap-6 "> 
+        <div className="flex flex-col sm:flex-row gap-6 mt-6 lg:mt-0"> 
 
         <div className="flex flex-col gap-4 h-fit  bg-white/80 p-10 rounded-lg shadow-lg">
 
@@ -82,7 +81,7 @@ journey
             </p>
 
         </div>
- <div className="flex flex-col gap-4 bg-white/80 p-10 rounded-lg shadow-lg mt-10">
+ <div className="flex flex-col gap-4 bg-white/90 p-10 rounded-lg shadow-lg mt-0 sm:mt-10">
 
 
             <span className="font-bold text-primary font-raleway">

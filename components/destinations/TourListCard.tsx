@@ -17,17 +17,19 @@ interface TourListCardProps {
   description: string;
   tags?: string[];
   duration: string;
-  originalPrice?: number;
-  price: number;
+  priceShared: number;
+  pricePrivate: number;
+  priceVip: number;
+  currency: string;
 }
 
-function Stars({ rating }: { rating: number }) {
+function Stars({ rating, cardId }: { rating: number; cardId: string | number }) {
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map((i) => {
         const fill = Math.min(1, Math.max(0, rating - (i - 1)));
         const pct = Math.round(fill * 100);
-        const id = `list-star-${i}-${Math.random().toString(36).slice(2)}`;
+        const id = `star-${cardId}-${i}`;
         return (
           <svg key={i} width="13" height="13" viewBox="0 0 24 24">
             <defs>
@@ -50,12 +52,12 @@ function Stars({ rating }: { rating: number }) {
 export default function TourListCard({
   id, image, badge, badgeVariant = "discount",
   location, title, rating, reviews, description, tags,
-  duration, originalPrice, price,
+  duration, priceShared, pricePrivate, priceVip, currency,
 }: TourListCardProps) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row overflow-hidden hover:shadow-md transition-shadow">
       {/* Image */}
-      <div className="relative w-64  h-52 shrink-0">
+      <div className="relative w-full sm:w-56 md:w-64 h-48 sm:h-52 shrink-0">
         <img src={imgUrl(image)} alt={title} className="w-full h-full object-cover" />
         {badge && (
           <span
@@ -76,14 +78,14 @@ export default function TourListCard({
       </div>
 
       {/* Content */}
-      <div className="flex flex-1 p-4 gap-4">
+      <div className="flex flex-col sm:flex-row flex-1 p-4 gap-4">
         <div className="flex flex-col flex-1 gap-1.5">
           <p className="text-xs text-gray-400 font-open-sans">{location}</p>
           <Link href={`/tour/${id}`} className="text-base font-bold font-raleway text-text-primary leading-snug hover:text-primary transition-colors line-clamp-2">
             {title}
           </Link>
           <div className="flex items-center gap-1.5">
-            <Stars rating={rating} />
+            <Stars rating={rating} cardId={id} />
             <span className="text-xs text-gray-400 font-open-sans">{rating.toFixed(1)} ({reviews})</span>
           </div>
           <p className="text-xs text-gray-500 font-open-sans leading-relaxed line-clamp-2">{description}</p>
@@ -99,20 +101,15 @@ export default function TourListCard({
         </div>
 
         {/* Price + CTA */}
-        <div className="flex flex-col items-end justify-between shrink-0 min-w-28">
+        <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0 min-w-28">
           <p className="text-xs text-gray-400 font-open-sans">{duration}</p>
-          <div className="flex flex-col items-end gap-1">
-            {originalPrice && (
-              <p className="text-xs text-gray-400 font-open-sans line-through">
-                ${originalPrice.toLocaleString()}
+          <div className="flex flex-col items-end gap-1.5">
+            <div className="flex flex-col gap-0.5 items-end">
+              <p className="text-xs font-open-sans text-gray-400">Starting from</p>
+              <p className="text-lg font-bold font-raleway text-primary">
+                {currency} {priceShared.toLocaleString()}
               </p>
-            )}
-            <p className="text-sm font-open-sans text-gray-400">
-              From{" "}
-              <strong className="text-base font-bold font-raleway text-primary">
-                ${price.toLocaleString()}
-              </strong>
-            </p>
+            </div>
             <Link
               href={`/tour/${id}`}
               className="mt-1 px-4 py-2 border border-primary text-primary text-xs font-semibold font-open-sans rounded-xl hover:bg-primary hover:text-white transition-colors whitespace-nowrap"

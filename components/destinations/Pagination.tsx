@@ -20,8 +20,8 @@ export default function Pagination({ currentPage, totalPages, totalResults, perP
   };
 
   return (
-    <div className="flex flex-col items-end  justify-center  gap-3 pt-8">
-      <div className="flex items-center gap-1">
+    <div className="flex flex-col items-end justify-center gap-3 pt-8">
+      <div className="flex flex-wrap items-center justify-end gap-1">
         {pages().map((p, i) =>
           p === "…" ? (
             <span key={`ellipsis-${i}`} className="w-9 h-9 flex items-center justify-center text-sm text-gray-400 font-open-sans">

@@ -265,25 +265,6 @@ function StepBookingDetails({
       </div>
     </div>
   );
-}div>
- </div>
-
- {/* Right */}
- <div className="w-full lg:w-80 shrink-0">
- <OrderSummary
- imageUrl={imageUrl}
- title={title}
- tiers={tiers}
- counts={counts}
- currency={currency}
- availableFrom={availableFrom}
- availableTo={availableTo}
- onNext={() => { if (hasTickets) onNext(); }}
- nextLabel={!hasTickets ? "Select at least one ticket" : "Next"}
- />
- </div>
- </div>
- );
 }
 
 // -- Step 2 - Your Details -----------------------------------------------------
@@ -313,19 +294,18 @@ interface Step2Props {
 }
 
 function StepYourDetails({
- form,
- setForm,
- tiers,
- counts,
- currency,
- imageUrl,
- title,
- availableFrom,
- availableTo,
- onNext,
- onBack,
- isPaying,
- error,
+  form,
+  setForm,
+  tiers,
+  counts,
+  currency,
+  imageUrl,
+  title,
+  travelDate,
+  onNext,
+  onBack,
+  isPaying,
+  error,
 }: Step2Props) {
  const update = (key: keyof ContactForm, value: string) => setForm({ ...form, [key]: value });
 

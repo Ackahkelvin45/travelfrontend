@@ -24,7 +24,7 @@ function fmt(amount: number, currency: string) {
  return `${currency} ${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-// ── Stepper ──────────────────────────────────────────────────────────────────
+// -- Stepper ------------------------------------------------------------------
 
 function Stepper({ current }: { current: number }) {
  return (
@@ -66,7 +66,7 @@ function Stepper({ current }: { current: number }) {
  );
 }
 
-// ── Order Summary ─────────────────────────────────────────────────────────────
+// -- Order Summary -------------------------------------------------------------
 
 interface SummaryProps {
   imageUrl: string;
@@ -171,7 +171,8 @@ function OrderSummary({
   );
 }
 
-// ── Step 1 — Booking Details ──────────────────────────────────────────�function StepBookingDetails({
+// --- Step 1 - Booking Details ---
+function StepBookingDetails({
   tiers,
   counts,
   adjust,
@@ -285,7 +286,7 @@ function OrderSummary({
  );
 }
 
-// ── Step 2 — Your Details ─────────────────────────────────────────────────────
+// -- Step 2 - Your Details -----------------------------------------------------
 
 interface ContactForm {
  firstName: string;
@@ -452,7 +453,7 @@ function StepYourDetails({
  );
 }
 
-// ── Main content ──────────────────────────────────────────────────────────────
+// -- Main content --------------------------------------------------------------
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1562016600-ece13e8ba570?w=400&q=80";
 
@@ -604,7 +605,7 @@ function BookingContent() {
  );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// -- Page ----------------------------------------------------------------------
 
 export default function BookingPage() {
  return (

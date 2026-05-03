@@ -171,6 +171,20 @@ function OrderSummary({
   );
 }
 
+interface Step1Props {
+  tiers: { tier: PriceTier; label: string; price: number }[];
+  counts: number[];
+  adjust: (i: number, delta: number) => void;
+  travelDate: string;
+  setTravelDate: (date: string) => void;
+  availableFrom?: string;
+  availableTo?: string;
+  currency: string;
+  imageUrl: string;
+  title: string;
+  onNext: () => void;
+}
+
 // --- Step 1 - Booking Details ---
 function StepBookingDetails({
   tiers,

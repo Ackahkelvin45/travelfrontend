@@ -36,7 +36,7 @@ function CallbackContent() {
   useEffect(() => {
     if (!data) return;
     if (data.status === "success") {
-      router.replace(`/booking/${data.booking_reference}/confirmed`);
+      router.replace(`/payment/success?reference=${data.booking_reference}`);
     }
   }, [data, router]);
 
@@ -64,7 +64,7 @@ function CallbackContent() {
         <p className="text-text-primary font-semibold font-raleway text-base">
           {data?.status === "success" ? "Redirecting to confirmation…" : "Verifying your payment…"}
         </p>
-        <p className="text-gray-400 font-open-sans text-sm">Please wait, do not close this page.</p>
+        <p className="text-gray-700 font-open-sans text-sm">Please wait, do not close this page.</p>
       </div>
     );
   }

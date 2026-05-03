@@ -75,6 +75,7 @@ export default function Trending() {
               reviews={tour.review_count ?? 0}
               days={tour.duration_days}
               price={parseFloat(tour.price_shared)}
+              currency={tour.currency}
             />
           ))}
         </div>

@@ -80,13 +80,13 @@ export default function TourListCard({
       {/* Content */}
       <div className="flex flex-col sm:flex-row flex-1 p-4 gap-4">
         <div className="flex flex-col flex-1 gap-1.5">
-          <p className="text-xs text-gray-400 font-open-sans">{location}</p>
+          <p className="text-xs text-gray-700 font-open-sans">{location}</p>
           <Link href={`/tour/${id}`} className="text-base font-bold font-raleway text-text-primary leading-snug hover:text-primary transition-colors line-clamp-2">
             {title}
           </Link>
           <div className="flex items-center gap-1.5">
             <Stars rating={rating} cardId={id} />
-            <span className="text-xs text-gray-400 font-open-sans">{rating.toFixed(1)} ({reviews})</span>
+            <span className="text-xs text-gray-700 font-open-sans">{rating.toFixed(1)} ({reviews})</span>
           </div>
           <p className="text-xs text-gray-500 font-open-sans leading-relaxed line-clamp-2">{description}</p>
           {tags && tags.length > 0 && (
@@ -102,10 +102,10 @@ export default function TourListCard({
 
         {/* Price + CTA */}
         <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0 min-w-28">
-          <p className="text-xs text-gray-400 font-open-sans">{duration}</p>
+          <p className="text-xs text-gray-700 font-open-sans">{duration}</p>
           <div className="flex flex-col items-end gap-1.5">
             <div className="flex flex-col gap-0.5 items-end">
-              <p className="text-xs font-open-sans text-gray-400">Starting from</p>
+              <p className="text-xs font-open-sans text-gray-700">Starting from</p>
               <p className="text-lg font-bold font-raleway text-primary">
                 {currency} {priceShared.toLocaleString()}
               </p>

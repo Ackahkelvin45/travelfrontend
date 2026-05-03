@@ -51,7 +51,7 @@ export default function BlogSidebar({
         <p className="text-white text-xs font-semibold font-open-sans mb-3">Search Articles</p>
         <div className="relative">
           <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700 pointer-events-none"
             width="13" height="13" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
           >
@@ -63,7 +63,7 @@ export default function BlogSidebar({
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
             placeholder="Search..."
-            className="w-full pl-8 pr-3 py-2 rounded-lg text-sm font-open-sans text-text-primary placeholder-gray-400 outline-none bg-white"
+            className="w-full pl-8 pr-3 py-2 rounded-lg text-sm font-open-sans text-text-primary placeholder-gray-700 outline-none bg-white"
           />
         </div>
       </div>
@@ -130,7 +130,7 @@ export default function BlogSidebar({
                   <p className="text-xs font-bold font-raleway text-text-primary leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                     {post.title}
                   </p>
-                  <p className="text-xs font-open-sans text-gray-400">
+                  <p className="text-xs font-open-sans text-gray-700">
                     {new Date(post.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </p>
                 </div>

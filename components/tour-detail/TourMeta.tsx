@@ -45,7 +45,7 @@ export default function TourMeta({ duration, groupSize, ages }: TourMetaProps) {
         <div key={item.type} className="flex items-center gap-3">
           <MetaIcon type={item.type} />
           <div>
-            <p className="text-xs text-gray-400 font-open-sans">{item.label}</p>
+            <p className="text-xs text-gray-800 font-open-sans">{item.label}</p>
             <p className="text-sm font-semibold font-open-sans text-text-primary">{item.value}</p>
           </div>
         </div>

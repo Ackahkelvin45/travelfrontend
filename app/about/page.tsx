@@ -104,19 +104,19 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold font-raleway text-text-primary leading-snug">
               Born in Africa, Curated for the World
             </h2>
-            <p className="text-sm font-open-sans text-gray-600 leading-relaxed">
+            <p className="text-sm font-open-sans text-gray-700 leading-relaxed">
               Azuratravels was founded in Accra, Ghana, with a vision that was both personal and ambitious —
               to redefine how Africa is experienced by travellers from around the world. We saw a gap between
               what luxury travel looked like globally and what Africa truly had to offer: depth, vibrancy, and
               an unmatched sense of living heritage.
             </p>
-            <p className="text-sm font-open-sans text-gray-600 leading-relaxed">
+            <p className="text-sm font-open-sans text-gray-700 leading-relaxed">
               Today, we operate across 32 destinations, crafting journeys that span safaris at dawn,
               rooftop dinners in Lagos, spice market walks in Zanzibar, and homecoming trips for the
               African diaspora that leave travellers forever changed. Every detail is intentional.
               Every experience is earned.
             </p>
-            <p className="text-sm font-open-sans text-gray-600 leading-relaxed">
+            <p className="text-sm font-open-sans text-gray-700 leading-relaxed">
               We are not a mass-market travel agency. We are curators, storytellers, and connectors —
               dedicated to the belief that travel, done right, is one of the most transformative
               things a person can do.
@@ -155,7 +155,7 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold font-raleway text-text-primary">32 Destinations</p>
-                  <p className="text-xs font-open-sans text-gray-400">Across the African continent</p>
+                  <p className="text-xs font-open-sans text-gray-700">Across the African continent</p>
                 </div>
               </div>
             </div>
@@ -179,7 +179,7 @@ export default function AboutPage() {
               </svg>
             </div>
             <h3 className="text-xl font-bold font-raleway text-text-primary">Our Mission</h3>
-            <p className="text-sm font-open-sans text-gray-600 leading-relaxed">
+            <p className="text-sm font-open-sans text-gray-700 leading-relaxed">
               To provide structured, high-quality, and culturally authentic travel experiences that
               celebrate Africa's rich tapestry of culture, lifestyle, and heritage — making them
               accessible to a global audience who are hungry for something real.

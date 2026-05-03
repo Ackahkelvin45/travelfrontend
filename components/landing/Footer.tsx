@@ -18,7 +18,7 @@ export default function Footer() {
             Follow Us
           </span>
           {/* Instagram */}
-          <a href="#" aria-label="Instagram" className="text-gray-400 hover:text-primary transition-colors">
+          <a href="#" aria-label="Instagram" className="text-gray-700 hover:text-primary transition-colors">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
               <circle cx="12" cy="12" r="4" />
@@ -26,19 +26,19 @@ export default function Footer() {
             </svg>
           </a>
           {/* Facebook */}
-          <a href="#" aria-label="Facebook" className="text-gray-400 hover:text-primary transition-colors">
+          <a href="#" aria-label="Facebook" className="text-gray-700 hover:text-primary transition-colors">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
             </svg>
           </a>
           {/* Twitter / X */}
-          <a href="#" aria-label="Twitter" className="text-gray-400 hover:text-primary transition-colors">
+          <a href="#" aria-label="Twitter" className="text-gray-700 hover:text-primary transition-colors">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
             </svg>
           </a>
           {/* LinkedIn */}
-          <a href="#" aria-label="LinkedIn" className="text-gray-400 hover:text-primary transition-colors">
+          <a href="#" aria-label="LinkedIn" className="text-gray-700 hover:text-primary transition-colors">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
               <rect x="2" y="9" width="4" height="12" />
@@ -54,7 +54,7 @@ export default function Footer() {
         {/* Contact */}
         <div className="flex flex-col gap-4">
           <h3 className="text-lg font-bold font-raleway text-text-primary">Contact</h3>
-          <p className="text-gray-500 text-sm leading-relaxed">
+          <p className="text-text-primary text-sm leading-relaxed">
             14 Adeola Odeku Street,<br />
             Accra,<br />
             Ghana.
@@ -64,7 +64,7 @@ export default function Footer() {
             +233 24 123 4567<br />
             +233 20 987 6543
           </p>
-          <a href="mailto:hello@azuratravels.com" className="text-gray-500 text-sm hover:text-primary transition-colors">
+          <a href="mailto:hello@azuratravels.com" className="text-text-primary text-sm hover:text-primary transition-colors">
             hello@azuratravels.com
           </a>
         </div>
@@ -73,7 +73,7 @@ export default function Footer() {
         <div className="flex flex-col gap-3">
           <h3 className="text-lg font-bold font-raleway text-text-primary mb-1">Company</h3>
           {["About Us", "Reviews", "Contact Us", "Travel Guides"].map((item) => (
-            <Link key={item} href="#" className="text-gray-500 text-sm hover:text-primary transition-colors">
+            <Link key={item} href="#" className="text-text-primary text-sm hover:text-primary transition-colors">
               {item}
             </Link>
           ))}
@@ -83,7 +83,7 @@ export default function Footer() {
         <div className="flex flex-col gap-3">
           <h3 className="text-lg font-bold font-raleway text-text-primary mb-1">Support</h3>
           {["Get in Touch", "Help Center"].map((item) => (
-            <Link key={item} href="#" className="text-gray-500 text-sm hover:text-primary transition-colors">
+            <Link key={item} href="#" className="text-text-primary text-sm hover:text-primary transition-colors">
               {item}
             </Link>
           ))}
@@ -92,7 +92,7 @@ export default function Footer() {
         {/* Newsletter + Mobile Apps */}
         <div className="flex flex-col gap-4">
           <h3 className="text-lg font-bold font-raleway text-text-primary">Newsletter</h3>
-          <p className="text-gray-500 text-sm leading-relaxed">
+          <p className="text-text-primary text-sm leading-relaxed">
             Subscribe to the free newsletter and stay up to date
           </p>
           <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden pr-1 bg-white">
@@ -112,12 +112,12 @@ export default function Footer() {
       {/* Bottom bar */}
       <hr className="border-gray-200 mx-4 md:mx-10 lg:mx-20" />
       <div className="px-4 md:px-10 lg:px-20 py-6 md:py-5 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p className="text-gray-400 text-xs font-open-sans">
+        <p className="text-gray-700 text-xs font-open-sans">
           © {new Date().getFullYear()} Azuratravels. All rights reserved.
         </p>
         <div className="flex gap-6">
-          <Link href="#" className="text-gray-400 text-xs hover:text-primary transition-colors">Privacy Policy</Link>
-          <Link href="#" className="text-gray-400 text-xs hover:text-primary transition-colors">Terms of Service</Link>
+          <Link href="#" className="text-gray-700 text-xs hover:text-primary transition-colors">Privacy Policy</Link>
+          <Link href="#" className="text-gray-700 text-xs hover:text-primary transition-colors">Terms of Service</Link>
         </div>
       </div>
     </footer>

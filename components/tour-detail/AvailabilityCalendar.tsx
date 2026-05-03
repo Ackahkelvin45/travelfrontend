@@ -12,14 +12,18 @@ function getFirstDayOfMonth(year: number, month: number) {
 }
 
 interface AvailabilityCalendarProps {
-  availableDates?: string[]; // ISO date strings e.g. ["2025-03-15"]
+  availableFrom?: string;
+  availableTo?: string;
 }
 
-export default function AvailabilityCalendar({ availableDates = [] }: AvailabilityCalendarProps) {
+export default function AvailabilityCalendar({ availableFrom, availableTo }: AvailabilityCalendarProps) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [selected, setSelected] = useState<string | null>(null);
+
+  const fromDate = availableFrom ? new Date(availableFrom + "T00:00:00") : null;
+  const toDate = availableTo ? new Date(availableTo + "T00:00:00") : null;
 
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
@@ -41,7 +45,7 @@ export default function AvailabilityCalendar({ availableDates = [] }: Availabili
       <div className="max-w-sm">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <button onClick={prevMonth} className="p-1 hover:text-primary transition-colors text-gray-400">
+          <button onClick={prevMonth} className="p-1 hover:text-primary transition-colors text-gray-700">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
@@ -49,7 +53,7 @@ export default function AvailabilityCalendar({ availableDates = [] }: Availabili
           <p className="text-sm font-semibold font-raleway text-text-primary">
             {MONTHS[month]}, {year}
           </p>
-          <button onClick={nextMonth} className="p-1 hover:text-primary transition-colors text-gray-400">
+          <button onClick={nextMonth} className="p-1 hover:text-primary transition-colors text-gray-700">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6" />
             </svg>
@@ -59,7 +63,7 @@ export default function AvailabilityCalendar({ availableDates = [] }: Availabili
         {/* Day labels */}
         <div className="grid grid-cols-7 mb-2">
           {DAYS.map(d => (
-            <div key={d} className="text-center text-xs font-semibold font-open-sans text-gray-400 py-1">{d}</div>
+            <div key={d} className="text-center text-xs font-semibold font-open-sans text-gray-700 py-1">{d}</div>
           ))}
         </div>
 
@@ -68,9 +72,11 @@ export default function AvailabilityCalendar({ availableDates = [] }: Availabili
           {Array.from({ length: firstDay }).map((_, i) => <div key={`empty-${i}`} />)}
           {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
             const iso = toISO(day);
-            const isAvailable = availableDates.length === 0 || availableDates.includes(iso);
+            const dateObj = new Date(iso + "T00:00:00");
+            
+            const isAvailable = (!fromDate || dateObj >= fromDate) && (!toDate || dateObj <= toDate);
             const isSelected = selected === iso;
-            const isPast = new Date(iso) < new Date(today.toDateString());
+            const isPast = dateObj < new Date(today.toDateString());
             return (
               <button
                 key={day}
@@ -79,7 +85,7 @@ export default function AvailabilityCalendar({ availableDates = [] }: Availabili
                 className={`
                   mx-auto w-8 h-8 rounded-full text-xs font-open-sans transition-colors
                   ${isSelected ? "bg-primary text-white font-semibold" : ""}
-                  ${!isSelected && isAvailable && !isPast ? "hover:bg-orange-50 text-text-primary" : ""}
+                  ${!isSelected && isAvailable && !isPast ? "bg-orange-50 text-primary font-medium hover:bg-orange-100" : ""}
                   ${isPast ? "text-gray-300 cursor-default" : ""}
                   ${!isAvailable && !isPast ? "text-gray-300 cursor-default" : ""}
                 `}

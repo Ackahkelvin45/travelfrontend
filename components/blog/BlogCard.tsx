@@ -41,7 +41,7 @@ export default function BlogCard({
             <img src={authorImage} alt={author} className="w-6 h-6 rounded-full object-cover" />
             <span className="text-xs font-open-sans text-gray-500">{author}</span>
             <span className="text-gray-300">·</span>
-            <span className="text-xs font-open-sans text-gray-400">{date}</span>
+            <span className="text-xs font-open-sans text-gray-700">{date}</span>
           </div>
 
           <p className="text-xs text-gray-500 font-open-sans leading-relaxed line-clamp-3">{excerpt}</p>
@@ -59,7 +59,7 @@ export default function BlogCard({
 
         {/* Read time + CTA */}
         <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0 min-w-28">
-          <div className="flex items-center gap-1 text-xs font-open-sans text-gray-400">
+          <div className="flex items-center gap-1 text-xs font-open-sans text-gray-700">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />

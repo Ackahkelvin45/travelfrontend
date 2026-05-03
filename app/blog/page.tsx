@@ -71,7 +71,7 @@ export default function BlogPage() {
     <div className="w-full px-4 md:px-10 mt-20 py-6 bg-[#fbfbfb] min-h-screen">
       {/* Top bar */}
       <div className="flex items-center justify-between mb-1">
-        <nav className="flex items-center gap-1.5 text-xs text-gray-400 font-open-sans">
+        <nav className="flex items-center gap-1.5 text-xs text-gray-700 font-open-sans">
           <a href="/" className="hover:text-primary transition-colors">Home</a>
           <span>{">"}</span>
           <span className="text-text-primary">Blog</span>
@@ -134,14 +134,14 @@ export default function BlogPage() {
 
           {/* Error state */}
           {isError && (
-            <div className="text-center py-16 text-gray-400 font-open-sans text-sm">
+            <div className="text-center py-16 text-gray-700 font-open-sans text-sm">
               Failed to load articles. Please try again.
             </div>
           )}
 
           {/* Empty state */}
           {!isLoading && !isFetching && !isError && blogs.length === 0 && (
-            <div className="text-center py-16 text-gray-400 font-open-sans text-sm">
+            <div className="text-center py-16 text-gray-700 font-open-sans text-sm">
               No articles found.
             </div>
           )}
@@ -174,7 +174,7 @@ export default function BlogPage() {
                 <button
                   onClick={() => handlePageChange(Math.max(1, page - 1))}
                   disabled={page === 1}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-primary hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="15 18 9 12 15 6" />
@@ -203,7 +203,7 @@ export default function BlogPage() {
                 <button
                   onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
                   disabled={page === totalPages}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-primary hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="9 18 15 12 9 6" />

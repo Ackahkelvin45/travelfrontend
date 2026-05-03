@@ -36,7 +36,7 @@ export default function TourFAQ({ items }: TourFAQProps) {
             </button>
             {open === i && (
               <div className="px-4 pb-4">
-                <p className="text-sm text-gray-500 font-open-sans leading-relaxed">{item.answer}</p>
+                <p className="text-sm text-gray-700 font-open-sans leading-relaxed">{item.answer}</p>
               </div>
             )}
           </div>

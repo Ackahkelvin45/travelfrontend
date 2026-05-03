@@ -51,7 +51,7 @@ export default function LeaveReply({ packageId, bookingReference: initialBooking
   return (
     <section className="py-6 border-b border-gray-100">
       <h2 className="text-xl font-bold font-raleway text-text-primary mb-1">Leave a Reply</h2>
-      <p className="text-xs text-gray-400 font-open-sans mb-5">
+      <p className="text-xs text-gray-700 font-open-sans mb-5">
         Your email address will not be published. Required fields are marked *
       </p>
 
@@ -95,7 +95,7 @@ export default function LeaveReply({ packageId, bookingReference: initialBooking
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold font-open-sans text-gray-600">Full Name *</label>
+          <label className="text-xs font-semibold font-open-sans text-gray-700">Full Name *</label>
           <input
             type="text"
             required
@@ -106,7 +106,7 @@ export default function LeaveReply({ packageId, bookingReference: initialBooking
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold font-open-sans text-gray-600">Email *</label>
+          <label className="text-xs font-semibold font-open-sans text-gray-700">Email *</label>
           <input
             type="email"
             required
@@ -117,7 +117,7 @@ export default function LeaveReply({ packageId, bookingReference: initialBooking
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold font-open-sans text-gray-600"> Title</label>
+          <label className="text-xs font-semibold font-open-sans text-gray-700"> Title</label>
           <input
             type="text"
             value={title}
@@ -129,7 +129,7 @@ export default function LeaveReply({ packageId, bookingReference: initialBooking
 
 
         <div className="md:col-span-2 flex flex-col gap-1">
-          <label className="text-xs font-semibold font-open-sans text-gray-600">Body *</label>
+          <label className="text-xs font-semibold font-open-sans text-gray-700">Body *</label>
           <textarea
             required
             rows={4}

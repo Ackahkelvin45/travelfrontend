@@ -43,7 +43,7 @@ export default function BookingConfirmedPage() {
     return (
       <main className="w-full px-10 mt-24 py-10 flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <p className="text-gray-400 font-open-sans text-sm mb-4">
+          <p className="text-gray-700 font-open-sans text-sm mb-4">
             Could not load your booking details.
           </p>
           <button
@@ -147,7 +147,7 @@ export default function BookingConfirmedPage() {
 function DetailRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <span className="text-sm font-open-sans text-gray-400 shrink-0">{label}</span>
+      <span className="text-sm font-open-sans text-gray-700 shrink-0">{label}</span>
       <span className={`text-sm font-open-sans text-right ${bold ? "font-bold text-text-primary" : "text-text-primary"}`}>
         {value}
       </span>
@@ -162,7 +162,7 @@ const COLOR_CLASSES: Record<Color, string> = {
   yellow: "bg-yellow-100 text-yellow-700",
   red: "bg-red-100 text-red-700",
   blue: "bg-blue-100 text-blue-700",
-  gray: "bg-gray-100 text-gray-600",
+  gray: "bg-gray-100 text-gray-700",
 };
 
 function StatusBadge({
@@ -177,7 +177,7 @@ function StatusBadge({
   const color = colorMap[value] ?? "gray";
   return (
     <div className="flex-1 border border-gray-200 rounded-xl p-4">
-      <p className="text-xs font-open-sans text-gray-400 mb-1.5">{label}</p>
+      <p className="text-xs font-open-sans text-gray-700 mb-1.5">{label}</p>
       <span
         className={`inline-block px-3 py-1 rounded-full text-xs font-semibold font-open-sans capitalize ${COLOR_CLASSES[color]}`}
       >

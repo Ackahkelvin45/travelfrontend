@@ -44,7 +44,7 @@ function ReviewItem({ review }: { review: PackageReview }) {
           <p className="text-sm font-semibold font-raleway text-text-primary">{review.reviewer_name || "Anonymous"}</p>
           <div className="flex items-center gap-2">
             <StarRow score={review.rating} />
-            <p className="text-xs text-gray-400 font-open-sans">
+            <p className="text-xs text-gray-700 font-open-sans">
               {new Date(review.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
@@ -55,7 +55,7 @@ function ReviewItem({ review }: { review: PackageReview }) {
         <h4 className="text-sm font-bold font-raleway text-text-primary mt-3 mb-1">{review.title}</h4>
       )}
       
-      <p className="text-sm text-gray-500 font-open-sans leading-relaxed mb-3">
+      <p className="text-sm text-gray-700 font-open-sans leading-relaxed mb-3">
         {isLong && !expanded ? `${body.substring(0, 40)}...` : body}
         {isLong && (
           <button
@@ -94,14 +94,14 @@ export default function CustomerReviews({ overallRating, totalReviews, categoryR
           <span className="text-4xl font-bold font-raleway text-primary">{overallRating.toFixed(1)}</span>
           <div>
             <StarRow score={overallRating} />
-            <p className="text-xs text-gray-400 font-open-sans mt-1">Overall Rating · {totalReviews} reviews</p>
+            <p className="text-xs text-gray-700 font-open-sans mt-1">Overall Rating · {totalReviews} reviews</p>
           </div>
         </div>
         {categoryRatings.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {categoryRatings.map((cat) => (
               <div key={cat.label}>
-                <div className="flex justify-between text-xs font-open-sans text-gray-500 mb-1">
+                <div className="flex justify-between text-xs font-open-sans text-gray-700 mb-1">
                   <span>{cat.label}</span>
                   <span className="font-semibold text-text-primary">{cat.score.toFixed(1)}</span>
                 </div>
@@ -125,7 +125,7 @@ export default function CustomerReviews({ overallRating, totalReviews, categoryR
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-400 font-open-sans">No reviews yet. Be the first to leave one!</p>
+        <p className="text-sm text-gray-700 font-open-sans">No reviews yet. Be the first to leave one!</p>
       )}
 
       {reviews.length > VISIBLE_COUNT && (

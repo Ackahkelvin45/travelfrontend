@@ -24,7 +24,7 @@ export default function Pagination({ currentPage, totalPages, totalResults, perP
       <div className="flex flex-wrap items-center justify-end gap-1">
         {pages().map((p, i) =>
           p === "…" ? (
-            <span key={`ellipsis-${i}`} className="w-9 h-9 flex items-center justify-center text-sm text-gray-400 font-open-sans">
+            <span key={`ellipsis-${i}`} className="w-9 h-9 flex items-center justify-center text-sm text-gray-700 font-open-sans">
               …
             </span>
           ) : (
@@ -42,7 +42,7 @@ export default function Pagination({ currentPage, totalPages, totalResults, perP
           )
         )}
       </div>
-      <p className="text-xs text-gray-400 font-open-sans">
+      <p className="text-xs text-gray-700 font-open-sans">
         Showing results {start}–{end} of {totalResults.toLocaleString()}
       </p>
     </div>

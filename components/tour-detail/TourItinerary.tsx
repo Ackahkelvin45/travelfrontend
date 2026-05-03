@@ -108,10 +108,10 @@ export default function TourItinerary({ days, tourTitle = "Tour Itinerary" }: To
                 {!isLast && <div className="w-0.5 bg-gray-200 flex-1 my-1" />}
               </div>
               <div className="pb-6">
-                <p className="text-xs text-gray-400 font-open-sans mb-0.5">Day {item.day}</p>
+                <p className="text-xs text-gray-700 font-open-sans mb-0.5">Day {item.day}</p>
                 <p className="text-sm font-semibold font-raleway text-text-primary">{item.title}</p>
                 {item.description && (
-                  <p className="text-xs text-gray-500 font-open-sans mt-1 leading-relaxed">{item.description}</p>
+                  <p className="text-xs text-gray-700 font-open-sans mt-1 leading-relaxed">{item.description}</p>
                 )}
               </div>
             </div>

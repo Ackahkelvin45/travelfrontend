@@ -15,14 +15,6 @@ import BookingSidebar from "@/components/tour-detail/BookingSidebar";
 import TourDetailSkeleton from "@/components/tour-detail/TourDetailSkeleton";
 import { useGetPackageDetailQuery, useGetPackageReviewsQuery } from "@/lib/api/packagesApi";
 
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1562016600-ece13e8ba570?w=900&q=80";
-
-function padImages(urls: string[]): [string, string, string, string] {
-  const padded = [...urls];
-  while (padded.length < 4) padded.push(FALLBACK_IMAGE);
-  return padded.slice(0, 4) as [string, string, string, string];
-}
-
 interface Props {
   id: string;
 }
@@ -36,14 +28,14 @@ export default function TourDetailClient({ id }: Props) {
   if (isError || !pkg) {
     return (
       <main className="w-full px-10 mt-20 py-6 flex items-center justify-center min-h-[60vh]">
-        <p className="text-gray-400 font-open-sans text-sm">
+        <p className="text-gray-700 font-open-sans text-sm">
           Failed to load this package. Please go back and try again.
         </p>
       </main>
     );
   }
 
-  const imageUrls = padImages(pkg.images.map((img) => img.image));
+  const imageUrls = pkg.images.map((img) => img.image);
   const ticketTypes = [
     { label: "Shared/Couple", ageRange: "Group", price: parseFloat(pkg.price_shared), tier: "shared" as const },
     { label: "Private", ageRange: "Solo", price: parseFloat(pkg.price_private), tier: "private" as const },
@@ -56,7 +48,7 @@ export default function TourDetailClient({ id }: Props) {
       : undefined;
 
   return (
-    <main className="w-full px-4 md:px-10 mt-20 py-6 overflow-hidden">
+    <main className="w-full px-4 flex flex-col  md:px-10 mt-20 py-6 overflow-hidden">
       <TourHeader
         title={pkg.title}
         badges={[pkg.category_display].filter(Boolean)}
@@ -67,9 +59,8 @@ export default function TourDetailClient({ id }: Props) {
         ]}
       />
 
-      <div className="mb-6">
         <TourGallery images={imageUrls} title={pkg.title} />
-      </div>
+    
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Left column */}
@@ -104,7 +95,10 @@ export default function TourDetailClient({ id }: Props) {
 
           <TourMap embedUrl={embedUrl} />
 
-          <AvailabilityCalendar />
+          <AvailabilityCalendar 
+            availableFrom={pkg.available_from} 
+            availableTo={pkg.available_to} 
+          />
 
           {pkg.faqs.length > 0 && (
             <TourFAQ
@@ -135,6 +129,7 @@ export default function TourDetailClient({ id }: Props) {
             addOns={[]}
             availableFrom={pkg.available_from}
             availableTo={pkg.available_to}
+            currency={pkg.currency}
           />
         </div>
       </div>

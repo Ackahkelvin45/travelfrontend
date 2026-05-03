@@ -19,7 +19,7 @@ export default function TourMap({ embedUrl }: TourMapProps) {
             title="Tour Map"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-open-sans">
+          <div className="w-full h-full flex items-center justify-center text-gray-700 text-sm font-open-sans">
             Map unavailable
           </div>
         )}

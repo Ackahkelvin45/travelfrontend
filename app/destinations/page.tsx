@@ -122,7 +122,7 @@ function DestinationsContent() {
     <div className="w-full px-4 md:px-10 mt-20 py-6">
       {/* Top bar */}
       <div className="flex items-center justify-between mb-1">
-        <nav className="flex items-center gap-1.5 text-xs text-gray-400 font-open-sans">
+        <nav className="flex items-center gap-1.5 text-xs text-gray-700 font-open-sans">
           <a href="/" className="hover:text-primary transition-colors">Home</a>
           <span>{">"}</span>
           <a href="/destinations" className="hover:text-primary transition-colors">Tours</a>
@@ -182,7 +182,7 @@ function DestinationsContent() {
 
           {/* Error state */}
           {isError && (
-            <div className="text-center py-16 text-gray-400 font-open-sans text-sm">
+            <div className="text-center py-16 text-gray-700 font-open-sans text-sm">
               Failed to load packages. Please try again.
             </div>
           )}
@@ -200,7 +200,7 @@ function DestinationsContent() {
 
           {/* Empty state */}
           {!isLoading && !isFetching && !isError && packages.length === 0 && (
-            <div className="text-center py-16 text-gray-400 font-open-sans text-sm">
+            <div className="text-center py-16 text-gray-700 font-open-sans text-sm">
               No packages found for the selected filters.
             </div>
           )}

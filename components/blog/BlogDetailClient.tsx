@@ -44,7 +44,7 @@ export default function BlogDetailClient({ id }: Props) {
   if (isError || !post) {
     return (
       <main className="w-full px-10 mt-20 py-6 flex items-center justify-center min-h-[60vh]">
-        <p className="text-gray-400 font-open-sans text-sm">
+        <p className="text-gray-700 font-open-sans text-sm">
           Failed to load this article. Please go back and try again.
         </p>
       </main>
@@ -64,7 +64,7 @@ export default function BlogDetailClient({ id }: Props) {
     <div className="w-full px-4 md:px-10 mt-20 py-6 bg-[#fbfbfb] min-h-screen">
       {/* Breadcrumb */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
-        <nav className="flex flex-wrap items-center gap-1.5 text-xs text-gray-400 font-open-sans">
+        <nav className="flex flex-wrap items-center gap-1.5 text-xs text-gray-700 font-open-sans">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <span>{">"}</span>
           <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
@@ -143,7 +143,7 @@ export default function BlogDetailClient({ id }: Props) {
                 prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-5
                 prose-blockquote:bg-primary/5 prose-blockquote:py-4 prose-blockquote:pr-4
                 prose-blockquote:rounded-r-xl prose-blockquote:my-6 prose-blockquote:not-italic
-                prose-blockquote:text-gray-600 prose-blockquote:text-sm
+                prose-blockquote:text-gray-700 prose-blockquote:text-sm
                 prose-ul:flex prose-ul:flex-col prose-ul:gap-2 prose-ul:mb-5
                 prose-li:text-sm prose-li:text-gray-700 prose-li:leading-6
                 prose-a:text-primary prose-a:no-underline hover:prose-a:underline
@@ -162,11 +162,11 @@ export default function BlogDetailClient({ id }: Props) {
               />
               <div>
                 <p className="text-sm font-semibold font-raleway text-text-primary">{authorName}</p>
-                <p className="text-xs font-open-sans text-gray-400">Travel Writer</p>
+                <p className="text-xs font-open-sans text-gray-700">Travel Writer</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-open-sans text-gray-400 mr-1">Share:</span>
+              <span className="text-xs font-open-sans text-gray-700 mr-1">Share:</span>
               {[
                 { label: "Twitter / X", path: "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" },
                 { label: "Facebook", path: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" },
@@ -175,7 +175,7 @@ export default function BlogDetailClient({ id }: Props) {
                 <button
                   key={label}
                   aria-label={`Share on ${label}`}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-primary hover:text-primary transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d={path} />

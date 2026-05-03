@@ -39,14 +39,14 @@ function Stepper({ current }: { current: number }) {
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold font-raleway transition-colors ${
                   done || active
                     ? "bg-primary text-white"
-                    : "bg-white border-2 border-gray-300 text-gray-400"
+                    : "bg-white border-2 border-gray-300 text-gray-700"
                 }`}
               >
                 {step.id}
               </div>
               <span
                 className={`text-xs font-open-sans font-semibold ${
-                  done || active ? "text-primary" : "text-gray-400"
+                  done || active ? "text-primary" : "text-gray-700"
                 }`}
               >
                 {step.label}
@@ -119,9 +119,9 @@ function OrderSummary({
                   <span className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold font-raleway text-text-primary shrink-0">
                     {counts[i]}
                   </span>
-                  <span className="text-sm font-open-sans text-gray-600">
+                  <span className="text-sm font-open-sans text-gray-700">
                     {TIER_LABELS[t.tier]}{" "}
-                    <span className="text-gray-400">({fmt(t.price, currency)}/person)</span>
+                    <span className="text-gray-700">({fmt(t.price, currency)}/person)</span>
                   </span>
                 </div>
                 <span className="text-sm font-semibold font-open-sans text-text-primary shrink-0">
@@ -131,14 +131,14 @@ function OrderSummary({
             );
           })
         ) : (
-          <p className="text-sm text-gray-400 font-open-sans">No tickets selected yet.</p>
+          <p className="text-sm text-gray-700 font-open-sans">No tickets selected yet.</p>
         )}
       </div>
 
       {(availableFrom || availableTo) && (
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-open-sans text-gray-600 flex items-center gap-2">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-400">
+          <span className="text-sm font-open-sans text-gray-700 flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-700">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
               <line x1="16" y1="2" x2="16" y2="6"/>
               <line x1="8" y1="2" x2="8" y2="6"/>
@@ -216,16 +216,16 @@ function StepBookingDetails({
         <div className="flex flex-col gap-4">
           {tiers.map(({ tier, label, price }, i) => (
             <div key={tier} className="flex items-center justify-between gap-2">
-              <p className="text-sm font-open-sans text-gray-600 leading-snug">
+              <p className="text-sm font-open-sans text-gray-700 leading-snug">
                 {label}{" "}
-                <span className="text-gray-400">({TIER_LABELS[tier]})</span>{" "}
+                <span className="text-gray-700">({TIER_LABELS[tier]})</span>{" "}
                 <span className="font-semibold text-text-primary">{fmt(price, currency)}</span>
               </p>
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => adjust(i, -1)}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary transition-colors text-base leading-none"
+                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:border-primary hover:text-primary transition-colors text-base leading-none"
                 >
                   −
                 </button>
@@ -235,7 +235,7 @@ function StepBookingDetails({
                 <button
                   type="button"
                   onClick={() => adjust(i, 1)}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary transition-colors text-base leading-none"
+                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:border-primary hover:text-primary transition-colors text-base leading-none"
                 >
                   +
                 </button>
@@ -404,7 +404,7 @@ function StepYourDetails({
 
         <button
           onClick={onBack}
-          className="mt-8 text-sm font-semibold font-open-sans text-gray-400 hover:text-text-primary transition-colors flex items-center gap-1.5"
+          className="mt-8 text-sm font-semibold font-open-sans text-gray-700 hover:text-text-primary transition-colors flex items-center gap-1.5"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 5l-7 7 7 7" />
@@ -467,7 +467,7 @@ function BookingContent() {
   if (!packageId) {
     return (
       <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-5xl mx-auto flex items-center justify-center min-h-[40vh]">
-        <p className="text-gray-400 font-open-sans text-sm">
+        <p className="text-gray-700 font-open-sans text-sm">
           No package selected.{" "}
           <button onClick={() => router.push("/destinations")} className="text-primary underline">
             Browse tours
@@ -491,7 +491,7 @@ function BookingContent() {
   if (isError || !pkg) {
     return (
       <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-5xl mx-auto flex items-center justify-center min-h-[40vh]">
-        <p className="text-gray-400 font-open-sans text-sm">
+        <p className="text-gray-700 font-open-sans text-sm">
           Failed to load package.{" "}
           <button onClick={() => router.back()} className="text-primary underline">Go back</button>
         </p>

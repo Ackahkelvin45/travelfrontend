@@ -24,6 +24,7 @@ interface BookingSidebarProps {
   addOns?: AddOn[];
   availableFrom?: string;
   availableTo?: string;
+  currency: string;
 }
 
 function formatDate(iso: string) {
@@ -37,6 +38,7 @@ export default function BookingSidebar({
   addOns,
   availableFrom,
   availableTo,
+  currency,
 }: BookingSidebarProps) {
   const router = useRouter();
   const [counts, setCounts] = useState<number[]>(ticketTypes.map(() => 0));
@@ -67,9 +69,9 @@ export default function BookingSidebar({
     <div className="bg-white w-90 rounded-2xl shadow-md border border-gray-100 p-6 sticky top-24">
       {/* Header */}
       <div className="flex items-baseline gap-2 mb-5">
-        <span className="text-sm text-gray-400 font-open-sans">From</span>
+        <span className="text-sm text-gray-700 font-open-sans">From</span>
         <span className="text-2xl font-bold font-raleway text-text-primary">
-          GHS {basePrice.toLocaleString()}
+          {currency} {basePrice.toLocaleString()}
         </span>
       </div>
 
@@ -86,7 +88,7 @@ export default function BookingSidebar({
           </div>
           <div>
             <p className="text-sm font-semibold font-raleway text-text-primary leading-tight">From</p>
-            <p className="text-xs text-gray-400 font-open-sans mt-0.5">
+            <p className="text-xs text-gray-700 font-open-sans mt-0.5">
               {availableFrom && availableTo
                 ? `${formatDate(availableFrom)} ~ ${formatDate(availableTo)}`
                 : "Check availability"}
@@ -102,7 +104,7 @@ export default function BookingSidebar({
           </div>
           <div>
             <p className="text-sm font-semibold font-raleway text-text-primary leading-tight">Time</p>
-            <p className="text-xs text-gray-400 font-open-sans mt-0.5">Choose time</p>
+            <p className="text-xs text-gray-700 font-open-sans mt-0.5">Choose time</p>
           </div>
         </div>
       </div>
@@ -113,15 +115,15 @@ export default function BookingSidebar({
         <div className="flex flex-col gap-4">
           {ticketTypes.map((ticket, i) => (
             <div key={i} className="flex items-center justify-between gap-2">
-              <p className="text-sm font-open-sans text-gray-600 leading-snug">
+              <p className="text-sm font-open-sans text-gray-700 leading-snug">
                 {ticket.label}{" "}
-                <span className="text-gray-400">({ticket.ageRange})</span>{" "}
-                <span className="font-semibold text-text-primary">GHS {ticket.price.toFixed(2)}</span>
+                <span className="text-gray-700">({ticket.ageRange})</span>{" "}
+                <span className="font-semibold text-text-primary">{currency} {ticket.price.toFixed(2)}</span>
               </p>
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => adjust(i, -1)}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary transition-colors text-base leading-none"
+                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:border-primary hover:text-primary transition-colors text-base leading-none"
                 >
                   −
                 </button>
@@ -130,7 +132,7 @@ export default function BookingSidebar({
                 </span>
                 <button
                   onClick={() => adjust(i, 1)}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary transition-colors text-base leading-none"
+                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:border-primary hover:text-primary transition-colors text-base leading-none"
                 >
                   +
                 </button>
@@ -155,14 +157,14 @@ export default function BookingSidebar({
                     className="mt-0.5 w-4 h-4 cursor-pointer accent-primary shrink-0"
                   />
                   <div>
-                    <p className="text-sm font-open-sans text-gray-600">{addon.label}</p>
+                    <p className="text-sm font-open-sans text-gray-700">{addon.label}</p>
                     {addon.subLabel && (
-                      <p className="text-xs text-gray-400 font-open-sans mt-0.5">{addon.subLabel}</p>
+                      <p className="text-xs text-gray-700 font-open-sans mt-0.5">{addon.subLabel}</p>
                     )}
                   </div>
                 </div>
                 <span className="text-sm font-semibold font-open-sans text-text-primary shrink-0">
-                  GHS {addon.price}
+                  {currency} {addon.price}
                 </span>
               </label>
             ))}
@@ -174,7 +176,7 @@ export default function BookingSidebar({
       <div className="border-t border-gray-200 pt-4 mb-5 flex justify-between items-center">
         <span className="text-base font-bold font-raleway text-text-primary">Total:</span>
         <span className="text-xl font-bold font-raleway text-text-primary">
-          GHS {total.toFixed(2)}
+          {currency} {total.toFixed(2)}
         </span>
       </div>
 

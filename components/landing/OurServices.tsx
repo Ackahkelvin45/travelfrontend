@@ -62,7 +62,7 @@ export default function OurServices() {
           <h2 className="text-3xl font-bold font-raleway text-text-primary">
             Our Services
           </h2>
-          <p className="text-sm font-open-sans text-gray-600 mt-2">
+          <p className="text-base font-open-sans text-text-primary mt-2">
             Azuratravels offers curated luxury across Africa — from seamless journeys and exclusive nightlife to cultural depth and exceptional dining.
           </p>
         </div>

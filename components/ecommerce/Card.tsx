@@ -9,13 +9,14 @@ interface CardProps {
   reviews: number;
   days: number;
   price: number;
+  currency: string;
 }
 
 function imgUrl(image: string | StaticImageData): string {
   return typeof image === "string" ? image : image.src;
 }
 
-export default function Card({ id, image, location, title, rating, reviews, days, price }: CardProps) {
+export default function Card({ id, image, location, title, rating, reviews, days, price, currency }: CardProps) {
   return (
     <div className="bg-white rounded-2xl shadow-md flex flex-col min-w-72 max-w-72 shrink-0">
       {/* Image */}
@@ -34,7 +35,7 @@ export default function Card({ id, image, location, title, rating, reviews, days
 
       {/* Content */}
       <div className="p-4 flex flex-col gap-2 flex-1">
-        <p className="text-xs text-gray-400 font-open-sans">{location}</p>
+        <p className="text-xs text-gray-700 font-open-sans">{location}</p>
         <Link href={`/tour/${id ?? title.toLowerCase().replace(/\s+/g, "-")}`} className="text-base font-bold font-raleway text-text-primary leading-snug line-clamp-2 hover:text-primary transition-colors">
           {title}
         </Link>
@@ -58,15 +59,15 @@ export default function Card({ id, image, location, title, rating, reviews, days
               </svg>
             );
           })}
-          <span className="text-xs text-gray-400 font-open-sans ml-1">{rating} ({reviews})</span>
+          <span className="text-xs text-gray-700 font-open-sans ml-1">{rating} ({reviews})</span>
         </div>
         <hr className="border-gray-100" />
-        <div className="flex justify-between items-center text-sm font-open-sans text-gray-400">
+        <div className="flex justify-between items-center text-sm font-open-sans text-gray-700">
           <span>{days} days</span>
           <span>
             From{" "}
             <strong className="text-text-primary font-montserrat">
-              ${price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+              {currency} {price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
             </strong>
           </span>
         </div>

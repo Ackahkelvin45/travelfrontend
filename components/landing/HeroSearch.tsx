@@ -63,14 +63,14 @@ export default function HeroSearch() {
           <circle cx="8" cy="6" r="1.5" stroke="#c9a96e" strokeWidth="1.2" />
         </svg>
         <div className="flex flex-col flex-1 min-w-0">
-          <span className="text-xs text-gray-400 font-open-sans">Where</span>
+          <span className="text-xs text-gray-700 font-open-sans">Where</span>
           <input
             type="text"
             value={where}
             onChange={(e) => setWhere(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="Search destinations"
-            className="text-sm text-gray-600 font-open-sans outline-none bg-transparent w-full placeholder-gray-400 truncate"
+            className="text-sm text-gray-700 font-open-sans outline-none bg-transparent w-full placeholder-gray-700 truncate"
           />
         </div>
       </div>
@@ -84,10 +84,10 @@ export default function HeroSearch() {
           <path d="M5 1.5V4M11 1.5V4M2 7H14" stroke="#c9a96e" strokeWidth="1.2" strokeLinecap="round" />
         </svg>
         <div className="flex flex-col flex-1 min-w-0">
-          <span className="text-xs text-gray-400 font-open-sans">When</span>
+          <span className="text-xs text-gray-700 font-open-sans">When</span>
           <button
             onClick={() => setDateOpen((v) => !v)}
-            className="text-sm text-gray-600 font-open-sans text-left truncate"
+            className="text-sm text-gray-700 font-open-sans text-left truncate"
           >
             {dateLabel}
           </button>
@@ -96,22 +96,22 @@ export default function HeroSearch() {
         {dateOpen && (
           <div className="absolute top-full left-0 w-full md:w-auto mt-2 bg-white rounded-xl shadow-lg border border-gray-100 p-4 z-50 flex flex-col sm:flex-row gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-400 font-open-sans">From</label>
+              <label className="text-xs text-gray-700 font-open-sans">From</label>
               <input
                 type="date"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                className="text-sm font-open-sans text-gray-600 border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-primary"
+                className="text-sm font-open-sans text-gray-700 border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-primary"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-400 font-open-sans">To</label>
+              <label className="text-xs text-gray-700 font-open-sans">To</label>
               <input
                 type="date"
                 value={toDate}
                 min={fromDate}
                 onChange={(e) => setToDate(e.target.value)}
-                className="text-sm font-open-sans text-gray-600 border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-primary"
+                className="text-sm font-open-sans text-gray-700 border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-primary"
               />
             </div>
           </div>
@@ -126,10 +126,10 @@ export default function HeroSearch() {
           <path d="M3 5H13M3 8H10M3 11H8" stroke="#c9a96e" strokeWidth="1.2" strokeLinecap="round" />
         </svg>
         <div className="flex flex-col flex-1 min-w-0">
-          <span className="text-xs text-gray-400 font-open-sans">Tour Type</span>
+          <span className="text-xs text-gray-700 font-open-sans">Tour Type</span>
           <button
             onClick={() => setTypeOpen((v) => !v)}
-            className="text-sm text-gray-600 font-open-sans text-left truncate"
+            className="text-sm text-gray-700 font-open-sans text-left truncate"
           >
             {typeLabel}
           </button>
@@ -142,7 +142,7 @@ export default function HeroSearch() {
                 key={t.value}
                 onClick={() => { setTourType(t.value); setTypeOpen(false); }}
                 className={`w-full text-left px-4 py-2 text-sm font-open-sans hover:bg-gray-50 transition-colors ${
-                  tourType === t.value ? "text-primary font-semibold" : "text-gray-600"
+                  tourType === t.value ? "text-primary font-semibold" : "text-gray-700"
                 }`}
               >
                 {t.label}

@@ -62,12 +62,12 @@ export default function Home() {
           Why Choose AzuraTravel?
         </div>
 
-        <div className="mt-4 text-sm md:text-base font-open-sans max-w-5xl text-center md:text-left mx-auto md:mx-0">
+        <div className="mt-4 text-sm md:text-base font-open-sans max-w-5xl text-text-primary  text-center md:text-left mx-auto md:mx-0">
           At the heart of Azuratravels lies a commitment to providing access to extraordinary experiences that celebrate Africa's rich tapestry of culture, 
 lifestyle, and heritage. We address a critical market need: the demand for structured, high-quality, and culturally authentic travel experiences.
         </div>
 
-        <div className="mt-12 md:mt-20 flex flex-col lg:flex-row gap-10">
+        <div className="mt-12 md:mt-20 flex  text-text-primary flex-col lg:flex-row gap-10">
 
           <div className="flex flex-col gap-4 items-center md:items-start text-center md:text-left">
             <div className="flex px-4 md:px-10">
@@ -77,7 +77,7 @@ lifestyle, and heritage. We address a critical market need: the demand for struc
             <div className="flex flex-col ">
               <span className="font-bold mb-4 font-raleway">Cultural Authenticity</span>
 
-              <p className=" font-open-sans">
+              <p className=" font-open-sans text-text-primary  ">
                 Curated journeys that go deep into Africa's heritage, art, music, 
 and community life — not surface-level tourism.
 
@@ -99,7 +99,7 @@ and community life — not surface-level tourism.
             <div className="flex flex-col ">
               <span className="font-bold mb-4 font-raleway">Luxury Positioning </span>
 
-              <p className=" font-open-sans">
+              <p className=" font-open-sans text-text-primary ">
                 Curated journeys that go deep into Africa's heritage, art, music, 
 and community life — not surface-level tourism.
 
@@ -120,9 +120,9 @@ and community life — not surface-level tourism.
             </div>
 
             <div className="flex flex-col ">
-              <span className="font-bold mb-4 font-raleway">Diaspora Bridge </span>
+              <span className="font-bold mb-4 font-raleway ">Diaspora Bridge </span>
 
-              <p className="font-open-sans">
+              <p className="font-open-sans text-text-primary ">
                 Uniquely positioned to connect the global African diaspora to 
 their roots through meaningful, immersive experiences.
 
@@ -158,7 +158,7 @@ their roots through meaningful, immersive experiences.
             <div className="flex flex-col ">
               <span className="font-bold mb-4 font-raleway">Experience-Driven</span>
 
-              <p className=" font-open-sans">
+              <p className=" font-open-sans text-text-primary ">
                 Appealing to individuals who value exclusivity and cultural 
 immersion over conventional, mass-market travel packages.
 

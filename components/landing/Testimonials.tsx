@@ -95,13 +95,13 @@ export default function Testimonials() {
       </p>
 
       {/* Review text */}
-      <p className="text-text-primary font-open-sans text-sm text-center max-w-2xl leading-relaxed mb-6">
+      <p className="text-text-primary font-open-sans text-base  text-center max-w-2xl leading-relaxed mb-6">
         {t.review}
       </p>
 
       {/* Name & role */}
       <p className="font-bold font-raleway text-text-primary">{t.name}</p>
-      <p className="text-gray-400 font-open-sans text-sm mt-1">{t.role}</p>
+      <p className="text-gray-700 font-open-sans text-sm mt-1">{t.role}</p>
 
       {/* Dots */}
       <div className="flex items-center gap-2 mt-10">
@@ -112,7 +112,7 @@ export default function Testimonials() {
             className={`rounded-full transition-all duration-300 ${
               i === active
                 ? "w-6 h-2 bg-text-primary"
-                : "w-3 h-2 bg-gray-300 hover:bg-gray-400"
+                : "w-3 h-2 bg-gray-300 hover:bg-gray-700"
             }`}
           />
         ))}

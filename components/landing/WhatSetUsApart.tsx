@@ -18,7 +18,7 @@ function WhatSetUsApart() {
           What Sets Us Apart
         </div>
 
-        <div className="text-base font-open-sans text-gray-600 mt-8">
+        <div className="text-base font-open-sans text-text-primary  mt-8">
           Azuratravels does not merely present Africa,{" "}
           <strong>we interpret and elevate it</strong>, transforming travel into
           a curated luxury experience that connects people to culture, lifestyle,

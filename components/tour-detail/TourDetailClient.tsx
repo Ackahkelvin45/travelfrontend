@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 
 import TourHeader from "@/components/tour-detail/TourHeader";
 import TourGallery from "@/components/tour-detail/TourGallery";
@@ -94,11 +95,6 @@ export default function TourDetailClient({ id }: Props) {
  )}
 
  <TourMap embedUrl={embedUrl} />
-
- <AvailabilityCalendar 
- availableFrom={pkg.available_from} 
- availableTo={pkg.available_to} 
- />
 
  {pkg.faqs.length > 0 && (
  <TourFAQ

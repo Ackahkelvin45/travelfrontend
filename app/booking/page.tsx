@@ -74,7 +74,8 @@ interface SummaryProps {
   tiers: { tier: PriceTier; label: string; price: number }[];
   counts: number[];
   currency: string;
-  travelDate: string;
+  availableFrom?: string;
+  availableTo?: string;
   onNext: () => void;
   nextLabel: string;
   isLoading?: boolean;
@@ -91,7 +92,8 @@ function OrderSummary({
   tiers,
   counts,
   currency,
-  travelDate,
+  availableFrom,
+  availableTo,
   onNext,
   nextLabel,
   isLoading,
@@ -142,10 +144,12 @@ function OrderSummary({
             <line x1="8" y1="2" x2="8" y2="6"/>
             <line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
-          Travel Date
+          Validity
         </span>
-        <span className={`text-sm font-semibold font-open-sans ${travelDate ? "text-text-primary" : "text-red-400"}`}>
-          {fmtDate(travelDate)}
+        <span className="text-sm font-semibold font-open-sans text-text-primary">
+          {availableFrom && availableTo 
+            ? `${fmtDate(availableFrom)} - ${fmtDate(availableTo)}`
+            : availableFrom ? fmtDate(availableFrom) : "N/A"}
         </span>
       </div>
 
@@ -209,23 +213,30 @@ function StepBookingDetails({
         <h2 className="text-xl font-bold font-raleway text-text-primary mb-6">
           When are you traveling?
         </h2>
-        <div className="mb-8">
-          <label className="block text-sm font-semibold font-open-sans text-text-primary mb-2">
-            Travel Date <span className="text-red-400">*</span>
+        <div className="mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+          <label className="block text-sm font-semibold font-open-sans text-text-primary mb-3">
+            Available Dates
           </label>
-          <input
-            type="date"
-            min={availableFrom}
-            max={availableTo}
-            value={travelDate}
-            onChange={(e) => setTravelDate(e.target.value)}
-            className="w-full max-w-sm border border-gray-200 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary outline-none focus:border-primary transition-colors"
-          />
-          {availableFrom && availableTo && (
-            <p className="text-xs text-gray-700 mt-2">
-              Available between {fmtDate(availableFrom)} and {fmtDate(availableTo)}
-            </p>
-          )}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div>
+              <p className="text-base font-bold font-raleway text-text-primary">
+                {availableFrom && availableTo 
+                  ? `${fmtDate(availableFrom)} - ${fmtDate(availableTo)}`
+                  : availableFrom ? fmtDate(availableFrom) : "Dates not specified"}
+              </p>
+              <p className="text-xs text-gray-700 mt-1">
+                Your tour is valid for the period above.
+              </p>
+            </div>
+          </div>
         </div>
 
         <h2 className="text-xl font-bold font-raleway text-text-primary mb-6">
@@ -272,9 +283,10 @@ function StepBookingDetails({
           tiers={tiers}
           counts={counts}
           currency={currency}
-          travelDate={travelDate}
-          onNext={() => { if (isValid) onNext(); }}
-          nextLabel={!hasTickets ? "Select tickets" : !travelDate ? "Pick a date" : "Next"}
+          availableFrom={availableFrom}
+          availableTo={availableTo}
+          onNext={() => { if (hasTickets) onNext(); }}
+          nextLabel={!hasTickets ? "Select tickets" : "Next"}
         />
       </div>
     </div>
@@ -301,6 +313,8 @@ interface Step2Props {
   imageUrl: string;
   title: string;
   travelDate: string;
+  availableFrom?: string;
+  availableTo?: string;
   onNext: () => void;
   onBack: () => void;
   isPaying: boolean;
@@ -316,6 +330,8 @@ function StepYourDetails({
   imageUrl,
   title,
   travelDate,
+  availableFrom,
+  availableTo,
   onNext,
   onBack,
   isPaying,
@@ -437,7 +453,8 @@ function StepYourDetails({
       tiers={tiers}
       counts={counts}
       currency={currency}
-      travelDate={travelDate}
+      availableFrom={availableFrom}
+      availableTo={availableTo}
       onNext={() => { if (canPay) onNext(); }}
       nextLabel={isPaying ? "Processing…" : "Confirm & Pay"}
       isLoading={isPaying}
@@ -465,7 +482,7 @@ function BookingContent() {
       Math.max(0, parseInt(searchParams.get(tier) ?? "0", 10))
     )
   );
-  const [travelDate, setTravelDate] = useState("");
+  const [travelDate, setTravelDate] = useState(() => searchParams.get("date") ?? "");
   const [form, setForm] = useState<ContactForm>({
     firstName: "",
     lastName: "",
@@ -570,8 +587,8 @@ function BookingContent() {
           adjust={adjust}
           travelDate={travelDate}
           setTravelDate={setTravelDate}
-          availableFrom={pkg.available_from}
-          availableTo={pkg.available_to}
+          availableFrom={searchParams.get("date") || pkg.available_from}
+          availableTo={searchParams.get("dateTo") || pkg.available_to}
           currency={pkg.currency}
           imageUrl={coverImage}
           title={pkg.title}
@@ -589,6 +606,8 @@ function BookingContent() {
           imageUrl={coverImage}
           title={pkg.title}
           travelDate={travelDate}
+          availableFrom={searchParams.get("date") || pkg.available_from}
+          availableTo={searchParams.get("dateTo") || pkg.available_to}
           onNext={handleConfirmPay}
           onBack={() => setStep(1)}
           isPaying={isPaying}

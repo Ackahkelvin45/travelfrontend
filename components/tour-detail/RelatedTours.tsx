@@ -8,6 +8,7 @@ interface RelatedTour {
   reviews: number;
   days: number;
   price: number;
+  currency?: string;
 }
 
 interface RelatedToursProps {
@@ -21,7 +22,7 @@ export default function RelatedTours({ tours }: RelatedToursProps) {
       <h2 className="text-xl font-bold font-raleway text-text-primary mb-5">You might also like...</h2>
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
         {tours.map((tour, i) => (
-          <Card key={i} {...tour} />
+          <Card key={i} {...tour} currency={tour.currency ?? "USD"} />
         ))}
       </div>
     </section>

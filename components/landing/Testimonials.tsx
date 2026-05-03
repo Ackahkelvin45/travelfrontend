@@ -69,7 +69,7 @@ export default function Testimonials() {
   }, []);
 
   return (
-    <section className="w-full px-20 py-20 bg-[#fbfbfb] mt-25 flex flex-col items-center">
+    <section className="w-full px-20 py-20 bg-[#fbfbfb] dark:bg-gray-950 mt-25 flex flex-col items-center">
       {/* Title */}
       <h2 className="text-3xl font-bold font-raleway text-text-primary mb-14">
         Customer Reviews
@@ -80,7 +80,7 @@ export default function Testimonials() {
         <Image
           src={t.image}
           alt={t.name}
-          className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md"
+          className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-md"
         />
         <div className="absolute -top-2 -left-2 w-9 h-9 rounded-full bg-primary flex items-center justify-center shadow">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
@@ -101,7 +101,7 @@ export default function Testimonials() {
 
       {/* Name & role */}
       <p className="font-bold font-raleway text-text-primary">{t.name}</p>
-      <p className="text-gray-700 font-open-sans text-sm mt-1">{t.role}</p>
+      <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm mt-1">{t.role}</p>
 
       {/* Dots */}
       <div className="flex items-center gap-2 mt-10">
@@ -112,7 +112,7 @@ export default function Testimonials() {
             className={`rounded-full transition-all duration-300 ${
               i === active
                 ? "w-6 h-2 bg-text-primary"
-                : "w-3 h-2 bg-gray-300 hover:bg-gray-700"
+                : "w-3 h-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-500"
             }`}
           />
         ))}

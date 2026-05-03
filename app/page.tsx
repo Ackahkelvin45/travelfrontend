@@ -9,7 +9,7 @@ import Testimonials from "../components/landing/Testimonials";
 
 export default function Home() {
   return (
-    <div className="flex w-full bg-[#fbfbfb] flex-col overflow-hidden">
+    <div className="flex w-full bg-[#fbfbfb] dark:bg-gray-950 flex-col overflow-hidden">
       <div className="w-full px-4 md:px-10 pt-10 md:pt-20 relative">
         <Image src={Hero} alt="Hero image" className="w-full h-full min-h-[600px] md:min-h-[400px]  object-cover rounded-t-xl" />
 

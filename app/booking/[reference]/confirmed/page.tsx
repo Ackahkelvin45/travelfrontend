@@ -61,7 +61,7 @@ export default function BookingConfirmedPage() {
     <main className="w-full px-10 mt-24 py-10 max-w-2xl mx-auto">
       {/* Success header */}
       <div className="flex flex-col items-center mb-10">
-        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-5">
+        <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center mb-5">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
@@ -69,17 +69,17 @@ export default function BookingConfirmedPage() {
         <h1 className="text-3xl font-bold font-raleway text-text-primary mb-2 text-center">
           Booking Confirmed!
         </h1>
-        <p className="text-gray-500 font-open-sans text-sm text-center max-w-sm">
+        <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm text-center max-w-sm">
           Your booking has been confirmed and a receipt has been sent to{" "}
           <span className="font-semibold text-text-primary">{booking.email}</span>.
         </p>
       </div>
 
       {/* Booking details card */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden mb-8">
         {/* Card header */}
-        <div className="bg-primary/5 border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <p className="text-sm font-semibold font-open-sans text-gray-500">Booking Reference</p>
+        <div className="bg-primary/5 dark:bg-primary/10 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+          <p className="text-sm font-semibold font-open-sans text-gray-500 dark:text-gray-400">Booking Reference</p>
           <p className="text-base font-bold font-raleway text-primary tracking-wide">
             {booking.reference}
           </p>
@@ -102,7 +102,7 @@ export default function BookingConfirmedPage() {
           />
           <DetailRow label="Email" value={booking.email} />
 
-          <div className="border-t border-gray-100 pt-5 flex justify-between items-center">
+          <div className="border-t border-gray-100 dark:border-gray-700 pt-5 flex justify-between items-center">
             <span className="text-base font-bold font-raleway text-text-primary">Total Paid</span>
             <span className="text-xl font-bold font-raleway text-primary">
               {fmt(booking.total_amount, booking.currency)}
@@ -135,7 +135,7 @@ export default function BookingConfirmedPage() {
         </Link>
         <Link
           href="/"
-          className="flex-1 border border-gray-200 text-text-primary py-3.5 rounded-full font-semibold font-open-sans text-sm hover:border-gray-300 transition-colors text-center"
+          className="flex-1 border border-gray-200 dark:border-gray-700 text-text-primary py-3.5 rounded-full font-semibold font-open-sans text-sm hover:border-gray-300 dark:hover:border-gray-500 transition-colors text-center"
         >
           Return Home
         </Link>
@@ -147,7 +147,7 @@ export default function BookingConfirmedPage() {
 function DetailRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <span className="text-sm font-open-sans text-gray-700 shrink-0">{label}</span>
+      <span className="text-sm font-open-sans text-gray-500 dark:text-gray-400 shrink-0">{label}</span>
       <span className={`text-sm font-open-sans text-right ${bold ? "font-bold text-text-primary" : "text-text-primary"}`}>
         {value}
       </span>
@@ -158,11 +158,11 @@ function DetailRow({ label, value, bold }: { label: string; value: string; bold?
 type Color = "green" | "yellow" | "red" | "blue" | "gray";
 
 const COLOR_CLASSES: Record<Color, string> = {
-  green: "bg-green-100 text-green-700",
-  yellow: "bg-yellow-100 text-yellow-700",
-  red: "bg-red-100 text-red-700",
-  blue: "bg-blue-100 text-blue-700",
-  gray: "bg-gray-100 text-gray-700",
+  green: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  yellow: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+  red: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  blue: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  gray: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
 };
 
 function StatusBadge({
@@ -176,8 +176,8 @@ function StatusBadge({
 }) {
   const color = colorMap[value] ?? "gray";
   return (
-    <div className="flex-1 border border-gray-200 rounded-xl p-4">
-      <p className="text-xs font-open-sans text-gray-700 mb-1.5">{label}</p>
+    <div className="flex-1 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+      <p className="text-xs font-open-sans text-gray-500 dark:text-gray-400 mb-1.5">{label}</p>
       <span
         className={`inline-block px-3 py-1 rounded-full text-xs font-semibold font-open-sans capitalize ${COLOR_CLASSES[color]}`}
       >

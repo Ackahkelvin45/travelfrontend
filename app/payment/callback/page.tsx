@@ -72,7 +72,7 @@ function CallbackContent() {
   if (isError || data?.status === "failed" || data?.status === "abandoned") {
     return (
       <div className="text-center flex flex-col items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <line x1="15" y1="9" x2="9" y2="15" />
@@ -80,7 +80,7 @@ function CallbackContent() {
           </svg>
         </div>
         <p className="text-text-primary font-bold font-raleway text-xl">Payment {data?.status ?? "failed"}</p>
-        <p className="text-gray-500 font-open-sans text-sm max-w-xs">
+        <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm max-w-xs">
           {data?.status === "abandoned"
             ? "You closed the payment window. Your booking has not been confirmed."
             : "Something went wrong with your payment. Please try again."}
@@ -100,7 +100,7 @@ function CallbackContent() {
     return (
       <div className="text-center flex flex-col items-center gap-4">
         {timedOut ? (
-          <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
@@ -115,7 +115,7 @@ function CallbackContent() {
         <p className="text-text-primary font-bold font-raleway text-xl">
           {timedOut ? "Payment Pending" : "Confirming payment…"}
         </p>
-        <p className="text-gray-500 font-open-sans text-sm max-w-xs">
+        <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm max-w-xs">
           {timedOut
             ? "We could not confirm your payment automatically. Please check your email or contact support."
             : "Still waiting for confirmation. Please keep this page open."}

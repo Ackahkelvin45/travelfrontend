@@ -49,20 +49,20 @@ export default function LeaveReply({ packageId, bookingReference: initialBooking
   }
 
   return (
-    <section className="py-6 border-b border-gray-100">
+    <section className="py-6 border-b border-gray-100 dark:border-gray-700">
       <h2 className="text-xl font-bold font-raleway text-text-primary mb-1">Leave a Reply</h2>
-      <p className="text-xs text-gray-700 font-open-sans mb-5">
+      <p className="text-xs text-gray-700 dark:text-gray-400 font-open-sans mb-5">
         Your email address will not be published. Required fields are marked *
       </p>
 
       {submitted && (
-        <div className="mb-5 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700 font-open-sans">
+        <div className="mb-5 px-4 py-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-sm text-green-700 dark:text-green-400 font-open-sans">
           Thank you! Your review has been submitted.
         </div>
       )}
 
       {error && (
-        <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 font-open-sans">
+        <div className="mb-5 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400 font-open-sans">
           Something went wrong. Please try again.
         </div>
       )}
@@ -95,47 +95,47 @@ export default function LeaveReply({ packageId, bookingReference: initialBooking
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold font-open-sans text-gray-700">Full Name *</label>
+          <label className="text-xs font-semibold font-open-sans text-gray-700 dark:text-gray-300">Full Name *</label>
           <input
             type="text"
             required
             value={reviewerName}
             onChange={e => setReviewerName(e.target.value)}
-            className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-open-sans text-text-primary outline-none focus:border-primary transition-colors"
+            className="border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm font-open-sans text-text-primary bg-white dark:bg-gray-800 outline-none focus:border-primary transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
             placeholder="Jane Doe"
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold font-open-sans text-gray-700">Email *</label>
+          <label className="text-xs font-semibold font-open-sans text-gray-700 dark:text-gray-300">Email *</label>
           <input
             type="email"
             required
             value={reviewerEmail}
             onChange={e => setReviewerEmail(e.target.value)}
-            className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-open-sans text-text-primary outline-none focus:border-primary transition-colors"
+            className="border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm font-open-sans text-text-primary bg-white dark:bg-gray-800 outline-none focus:border-primary transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
             placeholder="jane@example.com"
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold font-open-sans text-gray-700"> Title</label>
+          <label className="text-xs font-semibold font-open-sans text-gray-700 dark:text-gray-300"> Title</label>
           <input
             type="text"
             value={title}
             onChange={e => setTitle(e.target.value)}
-            className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-open-sans text-text-primary outline-none focus:border-primary transition-colors"
+            className="border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm font-open-sans text-text-primary bg-white dark:bg-gray-800 outline-none focus:border-primary transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
             placeholder="Amazing experience!"
           />
         </div>
 
 
         <div className="md:col-span-2 flex flex-col gap-1">
-          <label className="text-xs font-semibold font-open-sans text-gray-700">Body *</label>
+          <label className="text-xs font-semibold font-open-sans text-gray-700 dark:text-gray-300">Body *</label>
           <textarea
             required
             rows={4}
             value={body}
             onChange={e => setBody(e.target.value)}
-            className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-open-sans text-text-primary outline-none focus:border-primary transition-colors resize-none"
+            className="border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm font-open-sans text-text-primary bg-white dark:bg-gray-800 outline-none focus:border-primary transition-colors resize-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
             placeholder="The guide was knowledgeable and..."
           />
         </div>

@@ -50,11 +50,21 @@ export default function Navbar() {
  {/* Nav Links */}
  <ul className="flex items-center gap-7 list-none">
  <li>
- <Link href="/destinations" className="text-base text-text-primary hover:text-primary transition-colors">
+ <Link href="/explore" className="text-base text-text-primary hover:text-primary transition-colors">
  Explore 
  </Link>
  </li>
+ <li>
+    <Link href="/destinations" className="text-base text-text-primary hover:text-primary transition-colors">
+        Destinations  
+    </Link>
+ </li>
  
+ <li>
+ <Link href="/gallery" className="text-base text-text-primary hover:text-primary transition-colors">
+ Gallery
+ </Link>
+ </li>
  <li>
  <Link href="/blog" className="text-base text-text-primary hover:text-primary transition-colors">
  Blog

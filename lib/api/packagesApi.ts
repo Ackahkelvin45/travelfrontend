@@ -97,6 +97,7 @@ export interface PackagesQueryParams {
  sort?: string
  search?: string
  ordering?: string
+ destinations?: string
 }
 
 export interface PackageReview {

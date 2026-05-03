@@ -6,6 +6,7 @@ import OurServices from "../components/landing/OurServices";
 import WhatSetUsApart from "../components/landing/WhatSetUsApart";
 import Trending from "../components/landing/Trending";
 import Testimonials from "../components/landing/Testimonials";
+import TrendingDestinations from "../components/landing/TredingDestinations";
 
 export default function Home() {
  return (
@@ -177,8 +178,11 @@ immersion over conventional, mass-market travel packages.
 
  </div>
 
- <OurServices/>
+
+ <TrendingDestinations/>
  <WhatSetUsApart/>
+ <OurServices/>
+
  <Testimonials/>
  
  </div>

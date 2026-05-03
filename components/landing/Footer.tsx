@@ -1,9 +1,34 @@
+"use client";
+
 import Link from "next/link";
 import footerBg from "../../assets/images/bgfooter.png";
 import logofull from "../../assets/logo/logofull.png";
 import Image from "next/image";
+import { useState } from "react";
+import { useSubscribeNewsletterMutation } from "@/lib/api/newsletterApi";
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [subscribe, { isLoading }] = useSubscribeNewsletterMutation();
+  const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    try {
+      await subscribe({ email }).unwrap();
+      setMessage({ text: "Thank you for subscribing!", type: "success" });
+      setEmail("");
+    } catch (err: any) {
+      const errorMsg = err?.data?.email?.[0] || err?.data?.message || "Something went wrong. Please try again.";
+      setMessage({ text: errorMsg, type: "error" });
+    }
+    
+    // Clear message after 5 seconds
+    setTimeout(() => setMessage(null), 5000);
+  };
+
  return (
  <footer
  className="w-full font-open-sans bg-cover bg-center mt-12 md:mt-25 bg-no-repeat"
@@ -95,17 +120,30 @@ export default function Footer() {
  <p className="text-text-primary text-sm leading-relaxed">
  Subscribe to the free newsletter and stay up to date
  </p>
- <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden pr-1 bg-white">
+ <form onSubmit={handleSubmit} className="relative">
+ <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden pr-1 bg-white focus-within:border-primary transition-colors">
  <input
  type="email"
+ value={email}
+ onChange={(e) => setEmail(e.target.value)}
  placeholder="Your email address"
+ required
  className="flex-1 px-4 py-3 text-sm text-gray-500 placeholder-gray-300 outline-none bg-transparent"
  />
- <button className="bg-primary text-white text-sm font-semibold font-montserrat px-4 py-2 rounded-lg hover:opacity-90 transition-opacity shrink-0">
- Send
+ <button 
+ type="submit"
+ disabled={isLoading}
+ className="bg-primary text-white text-sm font-semibold font-montserrat px-4 py-2 rounded-lg hover:opacity-90 transition-opacity shrink-0 disabled:opacity-50"
+ >
+ {isLoading ? "..." : "Send"}
  </button>
  </div>
-
+ {message && (
+ <p className={`absolute -bottom-6 left-0 text-[10px] font-medium ${message.type === "success" ? "text-green-600" : "text-red-500"}`}>
+ {message.text}
+ </p>
+ )}
+ </form>
  </div>
  </div>
 

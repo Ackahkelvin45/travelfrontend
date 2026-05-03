@@ -1,5 +1,6 @@
 "use client";
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useGetDestinationsQuery } from "@/lib/api/destinationsApi";
 
 const TOUR_TYPES: { value: string; label: string }[] = [
  { value: "luxury_travel", label: "Luxury Travel" },
@@ -174,7 +175,13 @@ export interface FilterSidebarProps {
  /** Duration (max days value as string, e.g. "7") */
  duration: string;
  onDurationChange: (value: string) => void;
+
+ /** Destinations */
+ selectedDestinations: string[];
+ onDestinationChange: (destinations: string[]) => void;
 }
+
+const DESTINATIONS_PAGE_SIZE = 8;
 
 export default function FilterSidebar({
  initialSearch = "",
@@ -188,8 +195,31 @@ export default function FilterSidebar({
  onPriceChange,
  duration,
  onDurationChange,
+ selectedDestinations,
+ onDestinationChange,
 }: FilterSidebarProps) {
  const [searchInput, setSearchInput] = useState(initialSearch);
+ const [showAllDestinations, setShowAllDestinations] = useState(false);
+
+ const { data: destinationsData, isLoading: destinationsLoading } =
+  useGetDestinationsQuery({ page_size: 100 });
+
+ const allDestinations = destinationsData?.results ?? [];
+ const visibleDestinations = showAllDestinations
+  ? allDestinations
+  : allDestinations.slice(0, DESTINATIONS_PAGE_SIZE);
+ const hasMoreDestinations = allDestinations.length > DESTINATIONS_PAGE_SIZE;
+
+ const toggleDestination = useCallback(
+  (id: string) => {
+   onDestinationChange(
+    selectedDestinations.includes(id)
+     ? selectedDestinations.filter((d) => d !== id)
+     : [...selectedDestinations, id]
+   );
+  },
+  [selectedDestinations, onDestinationChange]
+ );
 
  useEffect(() => {
  const timer = setTimeout(() => {
@@ -262,16 +292,60 @@ export default function FilterSidebar({
  type="date"
  value={dateRange.from}
  onChange={(e) => onDateChange({ ...dateRange, from: e.target.value })}
- className="w-full text-xs bg-white/20 text-white placeholder-white/70 rounded px-2 py-1 outline-none border border-white/30 [color-scheme:dark]"
+ className="w-full text-xs bg-white/20 text-white placeholder-white/70 rounded px-2 py-1 outline-none border border-white/30 scheme-dark"
  />
  <input
  type="date"
  value={dateRange.to}
  onChange={(e) => onDateChange({ ...dateRange, to: e.target.value })}
- className="w-full text-xs bg-white/20 text-white placeholder-white/70 rounded px-2 py-1 outline-none border border-white/30 [color-scheme:dark]"
+ className="w-full text-xs bg-white/20 text-white placeholder-white/70 rounded px-2 py-1 outline-none border border-white/30 scheme-dark"
  />
  </div>
  </div>
+
+ {/* Destinations */}
+ <CollapsibleSection title="Destinations" defaultOpen>
+  {destinationsLoading && (
+   <div className="flex flex-col gap-2">
+    {Array.from({ length: 4 }).map((_, i) => (
+     <div key={i} className="h-4 rounded bg-gray-100 animate-pulse w-3/4" />
+    ))}
+   </div>
+  )}
+  {!destinationsLoading && (
+   <div className="flex flex-col gap-2">
+    {visibleDestinations.map((dest) => (
+     <label key={dest.id} className="flex items-center gap-2 cursor-pointer">
+      <input
+       type="checkbox"
+       checked={selectedDestinations.includes(dest.id)}
+       onChange={() => toggleDestination(dest.id)}
+       className="accent-primary w-4 h-4 rounded cursor-pointer"
+      />
+      <span className="text-sm font-open-sans text-gray-700">{dest.name}</span>
+     </label>
+    ))}
+    {hasMoreDestinations && (
+     <button
+      onClick={() => setShowAllDestinations((v) => !v)}
+      className="text-xs text-primary font-open-sans mt-1 text-left hover:underline"
+     >
+      {showAllDestinations
+       ? "Show less"
+       : `Show ${allDestinations.length - DESTINATIONS_PAGE_SIZE} more`}
+     </button>
+    )}
+    {selectedDestinations.length > 0 && (
+     <button
+      onClick={() => onDestinationChange([])}
+      className="text-xs text-gray-400 font-open-sans text-left hover:underline"
+     >
+      Clear
+     </button>
+    )}
+   </div>
+  )}
+ </CollapsibleSection>
 
  {/* Tour Type */}
  <div className="border-t border-gray-100 py-4">

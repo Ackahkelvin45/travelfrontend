@@ -5,6 +5,6 @@ import { Provider } from 'react-redux'
 import { store } from '@/lib/store/store'
 
 export default function StoreProvider({ children }: { children: React.ReactNode }) {
-  const storeRef = useRef(store)
-  return <Provider store={storeRef.current}>{children}</Provider>
+ const storeRef = useRef(store)
+ return <Provider store={storeRef.current}>{children}</Provider>
 }

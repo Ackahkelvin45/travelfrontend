@@ -39,10 +39,10 @@ function mapPackage(pkg: Package) {
 function GallerySkeleton() {
   return (
     <div className="flex flex-col gap-2">
-      <div className="w-full h-64 sm:h-80 md:h-125 rounded-2xl bg-neutral-200 animate-pulse" />
+      <div className="w-full h-64 sm:h-80 md:h-125 rounded-2xl bg-neutral-200 dark:bg-neutral-700 animate-pulse" />
       <div className="flex gap-2 mt-1">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex-1 h-16 sm:h-20 rounded-xl bg-neutral-200 animate-pulse" />
+          <div key={i} className="flex-1 h-16 sm:h-20 rounded-xl bg-neutral-200 dark:bg-neutral-700 animate-pulse" />
         ))}
       </div>
     </div>
@@ -98,8 +98,8 @@ export default function DestinationDetailClient({ id }: { id: string }) {
 
   if (isError) {
     return (
-      <div className="w-full px-4 md:px-10 mt-20 py-6 min-h-screen bg-[#fbfbfb]">
-        <p className="text-center py-20 text-gray-500 font-open-sans text-sm">
+      <div className="w-full px-4 md:px-10 mt-20 py-6 min-h-screen bg-background">
+        <p className="text-center py-20 text-gray-500 dark:text-gray-400 font-open-sans text-sm">
           Destination not found.{" "}
           <Link href="/destinations" className="text-primary hover:underline">
             Back to destinations
@@ -110,7 +110,7 @@ export default function DestinationDetailClient({ id }: { id: string }) {
   }
 
   return (
-    <div className="w-full px-4 md:px-10 mt-20 py-6 pb-24 lg:pb-6 bg-[#fbfbfb] min-h-screen">
+    <div className="w-full px-4 md:px-10 mt-20 py-6 pb-24 lg:pb-6 bg-background min-h-screen">
       {/* Lightbox */}
       <PhotoSlider
         images={orderedImages.map((img, i) => ({ src: img.image, key: i }))}
@@ -122,7 +122,7 @@ export default function DestinationDetailClient({ id }: { id: string }) {
 
       {/* ── Breadcrumb ──────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-1">
-        <nav className="flex items-center gap-1.5 text-xs text-gray-700 font-open-sans min-w-0">
+        <nav className="flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300 font-open-sans min-w-0">
           <a href="/" className="hover:text-primary transition-colors shrink-0">Home</a>
           <span className="shrink-0">{">"}</span>
           <a href="/destinations" className="hover:text-primary transition-colors shrink-0">Destinations</a>
@@ -131,7 +131,7 @@ export default function DestinationDetailClient({ id }: { id: string }) {
             {isLoading ? "…" : destination?.name}
           </span>
         </nav>
-        <p className="hidden sm:block text-xs font-semibold font-open-sans text-gray-500 uppercase tracking-wide shrink-0 ml-4">
+        <p className="hidden sm:block text-xs font-semibold font-open-sans text-gray-500 dark:text-gray-400 uppercase tracking-wide shrink-0 ml-4">
           discover all things <span className="text-text-primary font-raleway">Africa</span>
         </p>
       </div>
@@ -152,7 +152,7 @@ export default function DestinationDetailClient({ id }: { id: string }) {
             >
               {/* Main image */}
               <div
-                className="relative w-full h-64 sm:h-80 md:h-125 rounded-2xl overflow-hidden bg-neutral-200 group cursor-pointer"
+                className="relative w-full h-64 sm:h-80 md:h-125 rounded-2xl overflow-hidden bg-neutral-200 dark:bg-neutral-700 group cursor-pointer"
                 onClick={() => openLightbox(activeImage)}
               >
                 {activeImg ? (
@@ -188,7 +188,7 @@ export default function DestinationDetailClient({ id }: { id: string }) {
                   <>
                     <button
                       onClick={(e) => { e.stopPropagation(); goTo(activeImage - 1); }}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 active:bg-black/70 text-white rounded-full w-9 h-9 flex items-center justify-center transition-colors opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black dark:hover:bg-white dark:hover:text-black/60 active:bg-black/70 text-white rounded-full w-9 h-9 flex items-center justify-center transition-colors opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
                       aria-label="Previous"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -197,7 +197,7 @@ export default function DestinationDetailClient({ id }: { id: string }) {
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); goTo(activeImage + 1); }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 active:bg-black/70 text-white rounded-full w-9 h-9 flex items-center justify-center transition-colors opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black dark:hover:bg-white dark:hover:text-black/60 active:bg-black/70 text-white rounded-full w-9 h-9 flex items-center justify-center transition-colors opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
                       aria-label="Next"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -271,17 +271,17 @@ export default function DestinationDetailClient({ id }: { id: string }) {
           <div className="mt-8">
             {isLoading ? (
               <div className="flex flex-col gap-3">
-                <div className="h-8 bg-neutral-200 rounded w-1/2 animate-pulse" />
-                <div className="h-4 bg-neutral-200 rounded w-full animate-pulse" />
-                <div className="h-4 bg-neutral-200 rounded w-5/6 animate-pulse" />
-                <div className="h-4 bg-neutral-200 rounded w-4/5 animate-pulse" />
+                <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 animate-pulse" />
+                <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-full animate-pulse" />
+                <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-5/6 animate-pulse" />
+                <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-4/5 animate-pulse" />
               </div>
             ) : (
               <>
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold font-raleway text-text-primary mb-4">
                   {destination?.name}
                 </h1>
-                <p className="text-sm md:text-base font-open-sans text-gray-600 leading-relaxed whitespace-pre-line">
+                <p className="text-sm md:text-base font-open-sans text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line">
                   {destination?.description}
                 </p>
               </>
@@ -294,7 +294,7 @@ export default function DestinationDetailClient({ id }: { id: string }) {
               <h2 className="text-xl font-bold font-raleway text-text-primary mb-4">
                 Location
               </h2>
-              <div className="w-full h-64 sm:h-72 md:h-96 lg:h-[500px] rounded-2xl overflow-hidden border border-gray-100">
+              <div className="w-full h-64 sm:h-72 md:h-96 lg:h-[500px] rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
                 <iframe
                   src={destination.map_url}
                   className="w-full h-full block border-0"
@@ -315,19 +315,19 @@ export default function DestinationDetailClient({ id }: { id: string }) {
 
         {/* Right sidebar — desktop only */}
         <aside className="hidden lg:block w-72 shrink-0">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-24">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 sticky top-24">
             {isLoading ? (
               <div className="flex flex-col gap-4">
-                <div className="h-6 bg-neutral-200 rounded w-3/4 animate-pulse" />
-                <div className="h-12 bg-neutral-200 rounded-xl animate-pulse" />
-                <div className="h-4 bg-neutral-200 rounded w-1/2 animate-pulse" />
+                <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 animate-pulse" />
+                <div className="h-12 bg-neutral-200 dark:bg-neutral-700 rounded-xl animate-pulse" />
+                <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 animate-pulse" />
               </div>
             ) : (
               <>
                 <h2 className="text-lg font-bold font-raleway text-text-primary mb-1">
                   {destination?.name}
                 </h2>
-                <p className="text-sm font-open-sans text-gray-500 mb-5">
+                <p className="text-sm font-open-sans text-gray-500 dark:text-gray-400 mb-5">
                   {totalPackages} tour{totalPackages !== 1 ? "s" : ""} available
                 </p>
 
@@ -340,7 +340,7 @@ export default function DestinationDetailClient({ id }: { id: string }) {
 
                 {/* Coordinates */}
                 {(destination?.latitude || destination?.longitude) && (
-                  <div className="mt-6 pt-5 border-t border-gray-100">
+                  <div className="mt-6 pt-5 border-t border-gray-100 dark:border-gray-800">
                     <p className="text-xs font-semibold font-open-sans text-gray-400 uppercase tracking-wide mb-2">
                       Coordinates
                     </p>
@@ -411,7 +411,7 @@ export default function DestinationDetailClient({ id }: { id: string }) {
         </div>
 
         {!packagesLoading && packages.length === 0 && (
-          <p className="text-center py-10 text-gray-500 font-open-sans text-sm">
+          <p className="text-center py-10 text-gray-500 dark:text-gray-400 font-open-sans text-sm">
             No tours available for this destination yet.
           </p>
         )}
@@ -419,11 +419,11 @@ export default function DestinationDetailClient({ id }: { id: string }) {
 
       {/* ── Mobile sticky CTA ───────────────────────────────────────── */}
       {!isLoading && destination && (
-        <div className="fixed bottom-0 left-0 right-0 lg:hidden z-40 bg-white/95 backdrop-blur-sm border-t border-gray-100 px-4 py-3 shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 lg:hidden z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-t border-gray-100 dark:border-gray-800 px-4 py-3 shadow-lg">
           <div className="flex items-center justify-between gap-4 max-w-lg mx-auto">
             <div className="min-w-0">
               <p className="text-sm font-bold font-raleway text-text-primary truncate">{destination.name}</p>
-              <p className="text-xs text-gray-500 font-open-sans">
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans">
                 {totalPackages} tour{totalPackages !== 1 ? "s" : ""} available
               </p>
             </div>

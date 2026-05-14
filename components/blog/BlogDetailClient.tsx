@@ -13,16 +13,16 @@ interface Props {
 
 function BlogDetailSkeleton() {
  return (
- <div className="w-full px-4 md:px-10 mt-20 py-6 bg-[#fbfbfb] min-h-screen">
+ <div className="w-full px-4 md:px-10 mt-20 py-6 bg-background min-h-screen">
  <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
  <div className="flex-1 w-full min-w-0 animate-pulse">
  <div className="w-full h-64 md:h-120 rounded-2xl bg-gray-200 mb-8" />
  <div className="flex gap-2 mb-7">
  {[1, 2, 3].map(i => <div key={i} className="h-6 w-16 bg-gray-200 rounded-full" />)}
  </div>
- <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 flex flex-col gap-4">
+ <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-8 flex flex-col gap-4">
  {Array.from({ length: 8 }).map((_, i) => (
- <div key={i} className={`h-4 bg-gray-100 rounded ${i % 3 === 2 ? "w-2/3" : "w-full"}`} />
+ <div key={i} className={`h-4 bg-gray-100 dark:bg-gray-800 rounded ${i % 3 === 2 ? "w-2/3" : "w-full"}`} />
  ))}
  </div>
  </div>
@@ -44,7 +44,7 @@ export default function BlogDetailClient({ id }: Props) {
  if (isError || !post) {
  return (
  <main className="w-full px-10 mt-20 py-6 flex items-center justify-center min-h-[60vh]">
- <p className="text-gray-700 font-open-sans text-sm">
+ <p className="text-gray-700 dark:text-gray-300 font-open-sans text-sm">
  Failed to load this article. Please go back and try again.
  </p>
  </main>
@@ -61,17 +61,17 @@ export default function BlogDetailClient({ id }: Props) {
  });
 
  return (
- <div className="w-full px-4 md:px-10 mt-20 py-6 bg-[#fbfbfb] min-h-screen">
+ <div className="w-full px-4 md:px-10 mt-20 py-6 bg-background min-h-screen">
  {/* Breadcrumb */}
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
- <nav className="flex flex-wrap items-center gap-1.5 text-xs text-gray-700 font-open-sans">
+ <nav className="flex flex-wrap items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300 font-open-sans">
  <Link href="/" className="hover:text-primary transition-colors">Home</Link>
  <span>{">"}</span>
  <Link href="/blog" className="hover:text-primary transition-colors">Blog</Link>
  <span>{">"}</span>
  <span className="text-text-primary line-clamp-1 max-w-xs">{post.title}</span>
  </nav>
- <p className="text-xs font-semibold font-open-sans text-gray-500 uppercase tracking-wide">
+ <p className="text-xs font-semibold font-open-sans text-gray-500 dark:text-gray-400 uppercase tracking-wide">
  stories from across <span className="text-text-primary font-raleway">Africa</span>
  </p>
  </div>
@@ -128,14 +128,14 @@ export default function BlogDetailClient({ id }: Props) {
  )}
 
  {/* Article body */}
- <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-8">
+ <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-8 mb-8">
  {post.excerpt && (
- <p className="text-sm font-open-sans text-gray-500 leading-relaxed mb-6 italic border-l-4 border-primary/30 pl-4">
+ <p className="text-sm font-open-sans text-gray-500 dark:text-gray-400 leading-relaxed mb-6 italic border-l-4 border-primary/30 pl-4">
  {post.excerpt}
  </p>
  )}
  <div
- className="prose prose-sm max-w-none font-open-sans text-gray-700 leading-7
+ className="prose prose-sm max-w-none font-open-sans text-gray-700 dark:text-gray-300 leading-7
  prose-headings:font-raleway prose-headings:text-text-primary
  prose-h2:text-lg prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-3
  prose-h3:text-base prose-h3:font-bold prose-h3:mt-6 prose-h3:mb-2
@@ -143,9 +143,9 @@ export default function BlogDetailClient({ id }: Props) {
  prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-5
  prose-blockquote:bg-primary/5 prose-blockquote:py-4 prose-blockquote:pr-4
  prose-blockquote:rounded-r-xl prose-blockquote:my-6 prose-blockquote:not-italic
- prose-blockquote:text-gray-700 prose-blockquote:text-sm
+ prose-blockquote:text-gray-700 dark:text-gray-300 prose-blockquote:text-sm
  prose-ul:flex prose-ul:flex-col prose-ul:gap-2 prose-ul:mb-5
- prose-li:text-sm prose-li:text-gray-700 prose-li:leading-6
+ prose-li:text-sm prose-li:text-gray-700 dark:text-gray-300 prose-li:leading-6
  prose-a:text-primary prose-a:no-underline hover:prose-a:underline
  prose-img:rounded-xl prose-img:shadow-sm"
  dangerouslySetInnerHTML={{ __html: post.body }}
@@ -153,7 +153,7 @@ export default function BlogDetailClient({ id }: Props) {
  </div>
 
  {/* Author + share row */}
- <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-5 border-t border-b border-gray-100 mb-8 gap-4">
+ <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-5 border-t border-b border-gray-100 dark:border-gray-800 mb-8 gap-4">
  <div className="flex items-center gap-2">
  <img
  src={FALLBACK_AVATAR}
@@ -166,7 +166,7 @@ export default function BlogDetailClient({ id }: Props) {
  </div>
  </div>
  <div className="flex items-center gap-2">
- <span className="text-xs font-open-sans text-gray-700 mr-1">Share:</span>
+ <span className="text-xs font-open-sans text-gray-700 dark:text-gray-300 mr-1">Share:</span>
  {[
  { label: "Twitter / X", path: "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" },
  { label: "Facebook", path: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" },
@@ -175,7 +175,7 @@ export default function BlogDetailClient({ id }: Props) {
  <button
  key={label}
  aria-label={`Share on ${label}`}
- className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors"
+ className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors"
  >
  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
  <path d={path} />

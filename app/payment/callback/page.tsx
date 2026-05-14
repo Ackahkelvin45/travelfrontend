@@ -43,7 +43,7 @@ function CallbackContent() {
  if (!reference) {
  return (
  <div className="text-center">
- <p className="text-gray-500 font-open-sans text-sm mb-4">Invalid payment reference.</p>
+ <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm mb-4">Invalid payment reference.</p>
  <button
  onClick={() => router.push("/destinations")}
  className="text-primary font-semibold font-open-sans text-sm underline"
@@ -64,7 +64,7 @@ function CallbackContent() {
  <p className="text-text-primary font-semibold font-raleway text-base">
  {data?.status === "success" ? "Redirecting to confirmation…" : "Verifying your payment…"}
  </p>
- <p className="text-gray-700 font-open-sans text-sm">Please wait, do not close this page.</p>
+ <p className="text-gray-700 dark:text-gray-300 font-open-sans text-sm">Please wait, do not close this page.</p>
  </div>
  );
  }
@@ -80,7 +80,7 @@ function CallbackContent() {
  </svg>
  </div>
  <p className="text-text-primary font-bold font-raleway text-xl">Payment {data?.status ?? "failed"}</p>
- <p className="text-gray-500 font-open-sans text-sm max-w-xs">
+ <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm max-w-xs">
  {data?.status === "abandoned"
  ? "You closed the payment window. Your booking has not been confirmed."
  : "Something went wrong with your payment. Please try again."}
@@ -115,7 +115,7 @@ function CallbackContent() {
  <p className="text-text-primary font-bold font-raleway text-xl">
  {timedOut ? "Payment Pending" : "Confirming payment…"}
  </p>
- <p className="text-gray-500 font-open-sans text-sm max-w-xs">
+ <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm max-w-xs">
  {timedOut
  ? "We could not confirm your payment automatically. Please check your email or contact support."
  : "Still waiting for confirmation. Please keep this page open."}

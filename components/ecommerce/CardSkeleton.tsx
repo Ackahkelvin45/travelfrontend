@@ -1,9 +1,17 @@
-import Skeleton from 'react-loading-skeleton'
+'use client'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/lib/store/store'
 
 export default function CardSkeleton() {
+ const isDark = useSelector((state: RootState) => state.theme.mode === 'dark')
  return (
- <div className="bg-white rounded-2xl shadow-md flex flex-col min-w-72 max-w-72 shrink-0 overflow-hidden">
+ <SkeletonTheme
+   baseColor={isDark ? '#1f2937' : '#e5e7eb'}
+   highlightColor={isDark ? '#374151' : '#f3f4f6'}
+ >
+ <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md flex flex-col min-w-72 max-w-72 shrink-0 overflow-hidden">
  {/* Image Placeholder */}
  <div className="h-52 w-full">
  <Skeleton width="100%" height="100%" />
@@ -19,7 +27,7 @@ export default function CardSkeleton() {
  <Skeleton width={40} height={14} />
  </div>
 
- <hr className="border-gray-100 my-1" />
+ <hr className="border-gray-100 dark:border-gray-800 my-1" />
 
  <div className="flex justify-between items-center">
  <Skeleton width={60} height={14} />
@@ -27,5 +35,6 @@ export default function CardSkeleton() {
  </div>
  </div>
  </div>
+ </SkeletonTheme>
  )
 }

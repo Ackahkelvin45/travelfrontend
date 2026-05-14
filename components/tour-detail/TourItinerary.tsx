@@ -77,7 +77,7 @@ function downloadItinerary(days: ItineraryDay[], tourTitle: string) {
 
 export default function TourItinerary({ days, tourTitle = "Tour Itinerary" }: TourItineraryProps) {
  return (
- <section className="py-6 border-b border-gray-100">
+ <section className="py-6 border-b border-gray-100 dark:border-gray-800">
  <div className="flex items-center justify-between mb-6">
  <h2 className="text-xl font-bold font-raleway text-text-primary">Itinerary</h2>
  <button
@@ -108,10 +108,10 @@ export default function TourItinerary({ days, tourTitle = "Tour Itinerary" }: To
  {!isLast && <div className="w-0.5 bg-gray-200 flex-1 my-1" />}
  </div>
  <div className="pb-6">
- <p className="text-xs text-gray-700 font-open-sans mb-0.5">Day {item.day}</p>
+ <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans mb-0.5">Day {item.day}</p>
  <p className="text-sm font-semibold font-raleway text-text-primary">{item.title}</p>
  {item.description && (
- <p className="text-xs text-gray-700 font-open-sans mt-1 leading-relaxed">{item.description}</p>
+ <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans mt-1 leading-relaxed">{item.description}</p>
  )}
  </div>
  </div>

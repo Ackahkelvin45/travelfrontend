@@ -32,7 +32,7 @@ function getGridClass(index: number): string {
 function DestinationSkeleton({ className }: { className?: string }) {
   return (
     <div
-      className={`relative rounded-2xl overflow-hidden bg-neutral-200 animate-pulse min-h-55 md:min-h-65 ${className ?? ""}`}
+      className={`relative rounded-2xl overflow-hidden bg-neutral-200 dark:bg-neutral-700 animate-pulse min-h-55 md:min-h-65 ${className ?? ""}`}
     />
   );
 }
@@ -104,7 +104,7 @@ function Pagination({
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="px-4 py-2 rounded-lg text-sm font-open-sans text-gray-500 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="px-4 py-2 rounded-lg text-sm font-open-sans text-gray-500 dark:text-gray-400 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         ← Prev
       </button>
@@ -120,7 +120,7 @@ function Pagination({
             className={`w-9 h-9 rounded-lg text-sm font-open-sans transition-colors ${
               p === currentPage
                 ? "bg-primary text-white font-semibold"
-                : "text-gray-500 hover:text-primary hover:bg-primary/10"
+                : "text-gray-500 dark:text-gray-400 hover:text-primary hover:bg-primary/10"
             }`}
           >
             {p}
@@ -130,7 +130,7 @@ function Pagination({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="px-4 py-2 rounded-lg text-sm font-open-sans text-gray-500 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="px-4 py-2 rounded-lg text-sm font-open-sans text-gray-500 dark:text-gray-400 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         Next →
       </button>
@@ -182,12 +182,12 @@ export default function DestinationsPage() {
     <div className="w-full px-4 md:px-10 mt-20 py-6 min-h-screen">
       {/* ── Top bar ───────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-1">
-        <nav className="flex items-center gap-1.5 text-xs text-gray-700 font-open-sans">
+        <nav className="flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300 font-open-sans">
           <a href="/" className="hover:text-primary transition-colors">Home</a>
           <span>{">"}</span>
           <span className="text-text-primary">Destinations</span>
         </nav>
-        <p className="text-xs font-semibold font-open-sans text-gray-500 uppercase tracking-wide">
+        <p className="text-xs font-semibold font-open-sans text-gray-500 dark:text-gray-400 uppercase tracking-wide">
           discover all things <span className="text-text-primary font-raleway">Africa</span>
         </p>
       </div>
@@ -219,13 +219,13 @@ export default function DestinationsPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search destinations…"
-            className="w-full pl-8 pr-8 py-2 text-xs font-open-sans text-text-primary border border-gray-200 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all bg-white"
+            className="w-full pl-8 pr-8 py-2 text-xs font-open-sans text-text-primary border border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all bg-white"
           />
           {searchInput && (
             <button
               type="button"
               onClick={handleClear}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-300 transition-colors"
             >
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -238,7 +238,7 @@ export default function DestinationsPage() {
       {/* ── Grid ──────────────────────────────────────────────────────── */}
       <div>
         {isError && (
-          <p className="text-center py-16 text-gray-500 font-open-sans text-sm">
+          <p className="text-center py-16 text-gray-500 dark:text-gray-400 font-open-sans text-sm">
             Failed to load destinations. Please try again.
           </p>
         )}
@@ -267,7 +267,7 @@ export default function DestinationsPage() {
 
         {!isLoading && !isError && filtered.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-gray-500 font-open-sans text-sm">
+            <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm">
               {search ? `No destinations found for "${search}".` : "No destinations available."}
             </p>
             {search && (

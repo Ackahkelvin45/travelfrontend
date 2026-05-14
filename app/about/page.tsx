@@ -57,7 +57,7 @@ const VALUES = [
 
 export default function AboutPage() {
  return (
- <div className="w-full bg-[#fbfbfb] min-h-screen">
+ <div className="w-full bg-background min-h-screen">
 
  {/* ── Hero ── */}
  <div className="relative w-full h-[500px] md:h-[700px] mt-20">
@@ -104,19 +104,19 @@ export default function AboutPage() {
  <h2 className="text-3xl font-bold font-raleway text-text-primary leading-snug">
  Born in Africa, Curated for the World
  </h2>
- <p className="text-sm font-open-sans text-gray-700 leading-relaxed">
+ <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 leading-relaxed">
  Azuratravels was founded in Accra, Ghana, with a vision that was both personal and ambitious —
  to redefine how Africa is experienced by travellers from around the world. We saw a gap between
  what luxury travel looked like globally and what Africa truly had to offer: depth, vibrancy, and
  an unmatched sense of living heritage.
  </p>
- <p className="text-sm font-open-sans text-gray-700 leading-relaxed">
+ <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 leading-relaxed">
  Today, we operate across 32 destinations, crafting journeys that span safaris at dawn,
  rooftop dinners in Lagos, spice market walks in Zanzibar, and homecoming trips for the
  African diaspora that leave travellers forever changed. Every detail is intentional.
  Every experience is earned.
  </p>
- <p className="text-sm font-open-sans text-gray-700 leading-relaxed">
+ <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 leading-relaxed">
  We are not a mass-market travel agency. We are curators, storytellers, and connectors —
  dedicated to the belief that travel, done right, is one of the most transformative
  things a person can do.
@@ -146,7 +146,7 @@ export default function AboutPage() {
  className="w-full h-[420px] object-cover rounded-2xl shadow-md"
  />
  {/* Floating accent card */}
- <div className="absolute -bottom-5 -left-5 bg-white rounded-2xl shadow-lg px-6 py-4 flex items-center gap-4">
+ <div className="absolute -bottom-5 -left-5 bg-white dark:bg-gray-900 rounded-2xl shadow-lg px-6 py-4 flex items-center gap-4">
  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bd8f3a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
  <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
@@ -167,7 +167,7 @@ export default function AboutPage() {
  <div className="w-full px-4 md:px-10 lg:px-20 mt-24 md:mt-52">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  {/* Mission */}
- <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 flex flex-col gap-4 relative overflow-hidden">
+ <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-8 flex flex-col gap-4 relative overflow-hidden">
  <div className="absolute top-0 left-0 w-1 h-full bg-primary rounded-l-2xl" />
  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bd8f3a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -179,7 +179,7 @@ export default function AboutPage() {
  </svg>
  </div>
  <h3 className="text-xl font-bold font-raleway text-text-primary">Our Mission</h3>
- <p className="text-sm font-open-sans text-gray-700 leading-relaxed">
+ <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 leading-relaxed">
  To provide structured, high-quality, and culturally authentic travel experiences that
  celebrate Africa's rich tapestry of culture, lifestyle, and heritage — making them
  accessible to a global audience who are hungry for something real.
@@ -217,13 +217,13 @@ export default function AboutPage() {
  {VALUES.map((v) => (
  <div
  key={v.title}
- className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-4 hover:shadow-md transition-shadow"
+ className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 flex flex-col gap-4 hover:shadow-md transition-shadow"
  >
  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
  {v.icon}
  </div>
  <h4 className="text-base font-bold font-raleway text-text-primary">{v.title}</h4>
- <p className="text-sm font-open-sans text-gray-500 leading-relaxed">{v.description}</p>
+ <p className="text-sm font-open-sans text-gray-500 dark:text-gray-400 leading-relaxed">{v.description}</p>
  </div>
  ))}
  </div>
@@ -271,7 +271,7 @@ export default function AboutPage() {
  <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
  <Link
  href="/destinations"
- className="px-7 py-3 bg-white text-primary text-sm font-semibold font-montserrat rounded-xl hover:bg-gray-50 transition-colors"
+ className="px-7 py-3 bg-white text-primary text-sm font-semibold font-montserrat rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-800 transition-colors"
  >
  Browse Tours
  </Link>

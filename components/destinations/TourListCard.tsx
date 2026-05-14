@@ -55,7 +55,7 @@ export default function TourListCard({
  duration, priceShared, pricePrivate, priceVip, currency,
 }: TourListCardProps) {
  return (
- <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row overflow-hidden hover:shadow-md transition-shadow">
+ <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row overflow-hidden hover:shadow-md transition-shadow">
  {/* Image */}
  <div className="relative w-full sm:w-56 md:w-64 h-48 sm:h-52 shrink-0">
  <img src={imgUrl(image)} alt={title} className="w-full h-full object-cover" />
@@ -70,7 +70,7 @@ export default function TourListCard({
  {badge}
  </span>
  )}
- <button className="absolute top-3 right-3 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow hover:scale-110 transition-transform">
+ <button className="absolute top-3 right-3 w-7 h-7 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow hover:scale-110 transition-transform">
  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bd8f3a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
  </svg>
@@ -80,15 +80,15 @@ export default function TourListCard({
  {/* Content */}
  <div className="flex flex-col sm:flex-row flex-1 p-4 gap-4">
  <div className="flex flex-col flex-1 gap-1.5">
- <p className="text-xs text-gray-700 font-open-sans">{location}</p>
+ <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans">{location}</p>
  <Link href={`/tour/${id}`} className="text-base font-bold font-raleway text-text-primary leading-snug hover:text-primary transition-colors line-clamp-2">
  {title}
  </Link>
  <div className="flex items-center gap-1.5">
  <Stars rating={rating} cardId={id} />
- <span className="text-xs text-gray-700 font-open-sans">{rating.toFixed(1)} ({reviews})</span>
+ <span className="text-xs text-gray-700 dark:text-gray-300 font-open-sans">{rating.toFixed(1)} ({reviews})</span>
  </div>
- <p className="text-xs text-gray-500 font-open-sans leading-relaxed line-clamp-2">{description}</p>
+ <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans leading-relaxed line-clamp-2">{description}</p>
  {tags && tags.length > 0 && (
  <div className="flex flex-wrap gap-2 mt-1">
  {tags.map((tag) => (
@@ -101,8 +101,8 @@ export default function TourListCard({
  </div>
 
  {/* Price + CTA */}
- <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0 min-w-28">
- <p className="text-xs text-gray-700 font-open-sans">{duration}</p>
+ <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 dark:border-gray-800 shrink-0 min-w-28">
+ <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans">{duration}</p>
  <div className="flex flex-col items-end gap-1.5">
  <div className="flex flex-col gap-0.5 items-end">
  <p className="text-xs font-open-sans text-gray-700">Starting from</p>

@@ -55,7 +55,7 @@ export default function OurServices() {
  const [s1, s2, s3, s4, s5, s6] = services;
 
  return (
- <section className="w-full px-4 md:px-10 lg:px-20 py-10 md:py-16 mt-20 md:mt-25 bg-[#fbfbfb] ">
+ <section className="w-full px-4 md:px-10 lg:px-20 py-10 md:py-16 mt-20 md:mt-25 bg-background ">
  {/* Header */}
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
  <div>

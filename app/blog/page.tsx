@@ -68,15 +68,15 @@ export default function BlogPage() {
  };
 
  return (
- <div className="w-full px-4 md:px-10 mt-20 py-6 bg-[#fbfbfb] min-h-screen">
+ <div className="w-full px-4 md:px-10 mt-20 py-6 bg-background min-h-screen">
  {/* Top bar */}
  <div className="flex items-center justify-between mb-1">
- <nav className="flex items-center gap-1.5 text-xs text-gray-700 font-open-sans">
+ <nav className="flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300 font-open-sans">
  <a href="/" className="hover:text-primary transition-colors">Home</a>
  <span>{">"}</span>
  <span className="text-text-primary">Blog</span>
  </nav>
- <p className="text-xs font-semibold font-open-sans text-gray-500 uppercase tracking-wide">
+ <p className="text-xs font-semibold font-open-sans text-gray-500 dark:text-gray-400 uppercase tracking-wide">
  stories from across <span className="text-text-primary font-raleway">Africa</span>
  </p>
  </div>
@@ -123,7 +123,7 @@ export default function BlogPage() {
  <select
  value={sort}
  onChange={(e) => setSort(e.target.value)}
- className="text-sm font-semibold font-open-sans text-text-primary border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-primary bg-white cursor-pointer"
+ className="text-sm font-semibold font-open-sans text-text-primary border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 outline-none focus:border-primary bg-white dark:bg-gray-800 cursor-pointer"
  >
  {SORT_OPTIONS.map((o) => (
  <option key={o}>{o}</option>
@@ -134,14 +134,14 @@ export default function BlogPage() {
 
  {/* Error state */}
  {isError && (
- <div className="text-center py-16 text-gray-700 font-open-sans text-sm">
+ <div className="text-center py-16 text-gray-700 dark:text-gray-300 font-open-sans text-sm">
  Failed to load articles. Please try again.
  </div>
  )}
 
  {/* Empty state */}
  {!isLoading && !isFetching && !isError && blogs.length === 0 && (
- <div className="text-center py-16 text-gray-700 font-open-sans text-sm">
+ <div className="text-center py-16 text-gray-700 dark:text-gray-300 font-open-sans text-sm">
  No articles found.
  </div>
  )}
@@ -150,7 +150,7 @@ export default function BlogPage() {
  <div className="flex flex-col gap-4">
  {(isLoading || isFetching)
  ? Array.from({ length: PER_PAGE }).map((_, i) => (
- <div key={i} className="animate-pulse bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row h-auto sm:h-56">
+ <div key={i} className="animate-pulse bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row h-auto sm:h-56">
  <div className="w-full sm:w-56 md:w-64 h-48 sm:h-auto bg-gray-200 shrink-0" />
  <div className="flex-1 p-4 flex flex-col gap-3">
  <div className="h-6 bg-gray-200 rounded w-3/4" />
@@ -166,7 +166,7 @@ export default function BlogPage() {
 
  {/* Pagination */}
  {totalPages > 1 && (
- <div className="flex flex-col sm:flex-row items-center justify-between mt-8 pt-6 border-t border-gray-100 gap-4">
+ <div className="flex flex-col sm:flex-row items-center justify-between mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 gap-4">
  <p className="text-sm font-open-sans text-gray-500">
  Page <strong className="text-text-primary">{page}</strong> of {totalPages}
  </p>
@@ -174,7 +174,7 @@ export default function BlogPage() {
  <button
  onClick={() => handlePageChange(Math.max(1, page - 1))}
  disabled={page === 1}
- className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+ className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
  >
  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
  <polyline points="15 18 9 12 15 6" />
@@ -193,7 +193,7 @@ export default function BlogPage() {
  className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-open-sans transition-colors ${
  page === p
  ? "bg-primary text-white font-semibold"
- : "border border-gray-200 text-gray-500 hover:border-primary hover:text-primary"
+ : "border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-primary hover:text-primary"
  }`}
  >
  {p}
@@ -203,7 +203,7 @@ export default function BlogPage() {
  <button
  onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
  disabled={page === totalPages}
- className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+ className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
  >
  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
  <polyline points="9 18 15 12 9 6" />

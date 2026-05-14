@@ -1,9 +1,17 @@
-import Skeleton from 'react-loading-skeleton'
+'use client'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/lib/store/store'
 
 export default function TourListCardSkeleton() {
+ const isDark = useSelector((state: RootState) => state.theme.mode === 'dark')
  return (
- <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row overflow-hidden">
+ <SkeletonTheme
+   baseColor={isDark ? '#1f2937' : '#e5e7eb'}
+   highlightColor={isDark ? '#374151' : '#f3f4f6'}
+ >
+ <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row overflow-hidden">
  {/* Image placeholder */}
  <div className="w-full sm:w-56 md:w-64 h-48 sm:h-52 shrink-0">
  <Skeleton width="100%" height="100%" />
@@ -24,7 +32,7 @@ export default function TourListCardSkeleton() {
  </div>
 
  {/* Price + CTA */}
- <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0 min-w-28">
+ <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 dark:border-gray-800 shrink-0 min-w-28">
  <Skeleton width={70} height={12} />
  <div className="flex flex-col items-end gap-2">
  <Skeleton width={60} height={12} />
@@ -34,5 +42,6 @@ export default function TourListCardSkeleton() {
  </div>
  </div>
  </div>
+ </SkeletonTheme>
  )
 }

@@ -29,7 +29,7 @@ export default function TourDetailClient({ id }: Props) {
  if (isError || !pkg) {
  return (
  <main className="w-full px-10 mt-20 py-6 flex items-center justify-center min-h-[60vh]">
- <p className="text-gray-700 font-open-sans text-sm">
+ <p className="text-gray-700 dark:text-gray-300 font-open-sans text-sm">
  Failed to load this package. Please go back and try again.
  </p>
  </main>

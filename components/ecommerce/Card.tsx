@@ -18,7 +18,7 @@ function imgUrl(image: string | StaticImageData): string {
 
 export default function Card({ id, image, location, title, rating, reviews, days, price, currency }: CardProps) {
  return (
- <div className="bg-white rounded-2xl shadow-md flex flex-col min-w-72 max-w-72 shrink-0">
+ <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md flex flex-col min-w-72 max-w-72 shrink-0">
  {/* Image */}
  <div className="relative">
  <img
@@ -26,7 +26,7 @@ export default function Card({ id, image, location, title, rating, reviews, days
  alt={title}
  className="w-full h-52 object-cover rounded-t-2xl"
  />
- <button className="absolute bottom-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:scale-105 transition-transform">
+ <button className="absolute bottom-3 right-3 bg-white dark:bg-gray-800 rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:scale-105 transition-transform">
  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bd8f3a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
  </svg>
@@ -35,7 +35,7 @@ export default function Card({ id, image, location, title, rating, reviews, days
 
  {/* Content */}
  <div className="p-4 flex flex-col gap-2 flex-1">
- <p className="text-xs text-gray-700 font-open-sans">{location}</p>
+ <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans">{location}</p>
  <Link href={`/tour/${id ?? title.toLowerCase().replace(/\s+/g, "-")}`} className="text-base font-bold font-raleway text-text-primary leading-snug line-clamp-2 hover:text-primary transition-colors">
  {title}
  </Link>
@@ -59,10 +59,10 @@ export default function Card({ id, image, location, title, rating, reviews, days
  </svg>
  );
  })}
- <span className="text-xs text-gray-700 font-open-sans ml-1">{rating} ({reviews})</span>
+ <span className="text-xs text-gray-700 dark:text-gray-300 font-open-sans ml-1">{rating} ({reviews})</span>
  </div>
- <hr className="border-gray-100 " />
- <div className="flex justify-between items-center text-sm font-open-sans text-gray-700 ">
+ <hr className="border-gray-100 dark:border-gray-800 " />
+ <div className="flex justify-between items-center text-sm font-open-sans text-gray-700 dark:text-gray-300 ">
  <span>{days} days</span>
  <span>
  From{" "}

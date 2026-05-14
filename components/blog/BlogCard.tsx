@@ -17,7 +17,7 @@ export default function BlogCard({
  id, image, category, title, excerpt, author, authorImage, date, readTime, tags,
 }: BlogCardProps) {
  return (
- <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row overflow-hidden hover:shadow-md transition-shadow">
+ <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row overflow-hidden hover:shadow-md transition-shadow">
  {/* Image */}
  <div className="relative w-full sm:w-56 md:w-64 h-48 sm:h-56 shrink-0">
  <img src={image} alt={title} className="w-full h-full object-cover" />
@@ -44,7 +44,7 @@ export default function BlogCard({
  <span className="text-xs font-open-sans text-gray-700">{date}</span>
  </div>
 
- <p className="text-xs text-gray-500 font-open-sans leading-relaxed line-clamp-3">{excerpt}</p>
+ <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans leading-relaxed line-clamp-3">{excerpt}</p>
 
  {tags && tags.length > 0 && (
  <div className="flex flex-wrap gap-2 mt-1">
@@ -58,7 +58,7 @@ export default function BlogCard({
  </div>
 
  {/* Read time + CTA */}
- <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0 min-w-28">
+ <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100 dark:border-gray-800 shrink-0 min-w-28">
  <div className="flex items-center gap-1 text-xs font-open-sans text-gray-700">
  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
  <circle cx="12" cy="12" r="10" />

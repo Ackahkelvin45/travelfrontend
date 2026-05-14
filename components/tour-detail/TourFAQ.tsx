@@ -14,14 +14,14 @@ export default function TourFAQ({ items }: TourFAQProps) {
  const [open, setOpen] = useState<number | null>(0);
 
  return (
- <section className="py-6 border-b border-gray-100">
+ <section className="py-6 border-b border-gray-100 dark:border-gray-800">
  <h2 className="text-xl font-bold font-raleway text-text-primary mb-4">FAQ</h2>
  <div className="flex flex-col gap-2">
  {items.map((item, i) => (
- <div key={i} className="border border-gray-100 rounded-xl overflow-hidden">
+ <div key={i} className="border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
  <button
  onClick={() => setOpen(open === i ? null : i)}
- className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+ className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-800 transition-colors"
  >
  <span className="text-sm font-semibold font-raleway text-text-primary pr-4">{item.question}</span>
  <span
@@ -36,7 +36,7 @@ export default function TourFAQ({ items }: TourFAQProps) {
  </button>
  {open === i && (
  <div className="px-4 pb-4">
- <p className="text-sm text-gray-700 font-open-sans leading-relaxed">{item.answer}</p>
+ <p className="text-sm text-gray-700 dark:text-gray-300 font-open-sans leading-relaxed">{item.answer}</p>
  </div>
  )}
  </div>

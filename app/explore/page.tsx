@@ -129,12 +129,12 @@ function DestinationsContent() {
  <div className="w-full px-4 md:px-10 mt-20 py-6">
  {/* Top bar */}
  <div className="flex items-center justify-between mb-1">
- <nav className="flex items-center gap-1.5 text-xs text-gray-700 font-open-sans">
+ <nav className="flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300 font-open-sans">
  <a href="/" className="hover:text-primary transition-colors">Home</a>
  <span>{">"}</span>
  <a href="/destinations" className="hover:text-primary transition-colors">Tours</a>
  </nav>
- <p className="text-xs font-semibold font-open-sans text-gray-500 uppercase tracking-wide">
+ <p className="text-xs font-semibold font-open-sans text-gray-500 dark:text-gray-400 uppercase tracking-wide">
  explore all things <span className="text-text-primary font-raleway">Africa</span>
  </p>
  </div>
@@ -180,7 +180,7 @@ function DestinationsContent() {
  <select
  value={sort}
  onChange={(e) => handleSortChange(e.target.value)}
- className="text-sm font-semibold font-open-sans text-text-primary border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-primary bg-white cursor-pointer"
+ className="text-sm font-semibold font-open-sans text-text-primary border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 outline-none focus:border-primary bg-white dark:bg-gray-800 cursor-pointer"
  >
  {SORT_OPTIONS.map((o) => (
  <option key={o}>{o}</option>
@@ -191,7 +191,7 @@ function DestinationsContent() {
 
  {/* Error state */}
  {isError && (
- <div className="text-center py-16 text-gray-700 font-open-sans text-sm">
+ <div className="text-center py-16 text-gray-700 dark:text-gray-300 font-open-sans text-sm">
  Failed to load packages. Please try again.
  </div>
  )}
@@ -209,7 +209,7 @@ function DestinationsContent() {
 
  {/* Empty state */}
  {!isLoading && !isFetching && !isError && packages.length === 0 && (
- <div className="text-center py-16 text-gray-700 font-open-sans text-sm">
+ <div className="text-center py-16 text-gray-700 dark:text-gray-300 font-open-sans text-sm">
  No packages found for the selected filters.
  </div>
  )}

@@ -1,8 +1,16 @@
-import Skeleton from 'react-loading-skeleton'
+'use client'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/lib/store/store'
 
 export default function TourDetailSkeleton() {
+ const isDark = useSelector((state: RootState) => state.theme.mode === 'dark')
  return (
+ <SkeletonTheme
+   baseColor={isDark ? '#1f2937' : '#e5e7eb'}
+   highlightColor={isDark ? '#374151' : '#f3f4f6'}
+ >
  <main className="w-full px-4 md:px-10 mt-20 py-6 overflow-hidden">
  {/* Header */}
  <div className="mb-4">
@@ -30,7 +38,7 @@ export default function TourDetailSkeleton() {
  {/* Left column */}
  <div className="w-full lg:w-[70%] flex flex-col gap-10">
  {/* Meta */}
- <div className="grid grid-cols-4 gap-4 py-4 border-y border-gray-100">
+ <div className="grid grid-cols-4 gap-4 py-4 border-y border-gray-100 dark:border-gray-800">
  {Array.from({ length: 4 }).map((_, i) => (
  <div key={i} className="flex items-center gap-3">
  <Skeleton circle width={40} height={40} />
@@ -43,7 +51,7 @@ export default function TourDetailSkeleton() {
  </div>
 
  {/* Overview */}
- <div className="py-6 border-b border-gray-100">
+ <div className="py-6 border-b border-gray-100 dark:border-gray-800">
  <Skeleton width={160} height={22} className="mb-3" />
  <Skeleton count={3} height={13} className="mb-1" />
  <Skeleton width="60%" height={13} className="mb-6" />
@@ -54,7 +62,7 @@ export default function TourDetailSkeleton() {
  </div>
 
  {/* Itinerary */}
- <div className="py-6 border-b border-gray-100">
+ <div className="py-6 border-b border-gray-100 dark:border-gray-800">
  <Skeleton width={120} height={22} className="mb-6" />
  {Array.from({ length: 4 }).map((_, i) => (
  <div key={i} className="flex gap-4 mb-6">
@@ -70,7 +78,7 @@ export default function TourDetailSkeleton() {
 
  {/* Sidebar */}
  <div className="w-full lg:w-[30%]">
- <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+ <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md border border-gray-100 dark:border-gray-800 p-6">
  <Skeleton width={160} height={32} className="mb-5" />
  <Skeleton height={90} borderRadius={12} className="mb-6" />
  <Skeleton width={80} height={18} className="mb-4" />
@@ -82,5 +90,6 @@ export default function TourDetailSkeleton() {
  </div>
  </div>
  </main>
+ </SkeletonTheme>
  )
 }

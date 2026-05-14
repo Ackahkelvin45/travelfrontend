@@ -34,7 +34,7 @@ function CollapsibleSection({
 }) {
  const [open, setOpen] = useState(defaultOpen);
  return (
- <div className="border-t border-gray-100 py-4">
+ <div className="border-t border-gray-100 dark:border-gray-800 py-4">
  <button
  onClick={() => setOpen((v) => !v)}
  className="w-full flex items-center justify-between text-sm font-semibold font-raleway text-text-primary"
@@ -251,7 +251,7 @@ export default function FilterSidebar({
  <aside className="w-full lg:w-72 shrink-0">
  {/* Search */}
  <div className="relative mb-4">
- <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700 pointer-events-none">
+ <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700 dark:text-gray-300 pointer-events-none">
  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
  <circle cx="11" cy="11" r="8" />
  <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -262,13 +262,13 @@ export default function FilterSidebar({
  value={searchInput}
  onChange={(e) => setSearchInput(e.target.value)}
  placeholder="Search tours, destinations…"
- className="w-full pl-8 pr-8 py-2 text-xs font-open-sans text-text-primary border border-gray-200 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all bg-white"
+ className="w-full pl-8 pr-8 py-2 text-xs font-open-sans text-text-primary border border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all bg-white"
  />
  {searchInput && (
  <button
  type="button"
  onClick={handleClearSearch}
- className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 hover:text-gray-700 transition-colors"
+ className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 transition-colors"
  aria-label="Clear search"
  >
  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -282,7 +282,7 @@ export default function FilterSidebar({
  {/* Date picker */}
  <div className="bg-primary rounded-xl p-4 mb-4">
  <p className="text-white text-xs font-semibold font-open-sans mb-3">When are you traveling?</p>
- <div className="bg-white rounded-lg px-3 py-2 text-sm font-open-sans text-text-primary text-center">
+ <div className="bg-white dark:bg-gray-900 rounded-lg px-3 py-2 text-sm font-open-sans text-text-primary text-center">
  {dateRange.from && dateRange.to
  ? `${formatDate(dateRange.from)} – ${formatDate(dateRange.to)}`
  : "Select dates"}
@@ -308,7 +308,7 @@ export default function FilterSidebar({
   {destinationsLoading && (
    <div className="flex flex-col gap-2">
     {Array.from({ length: 4 }).map((_, i) => (
-     <div key={i} className="h-4 rounded bg-gray-100 animate-pulse w-3/4" />
+     <div key={i} className="h-4 rounded bg-gray-100 dark:bg-gray-800 animate-pulse w-3/4" />
     ))}
    </div>
   )}
@@ -348,7 +348,7 @@ export default function FilterSidebar({
  </CollapsibleSection>
 
  {/* Tour Type */}
- <div className="border-t border-gray-100 py-4">
+ <div className="border-t border-gray-100 dark:border-gray-800 py-4">
  <p className="text-sm font-semibold font-raleway text-text-primary mb-3">Event Type</p>
  <div className="flex flex-col gap-2">
  {TOUR_TYPES.map(({ value, label }) => (

@@ -46,7 +46,7 @@ export default function AvailabilityCalendar({
   const toISO = (d: number) => `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
   return (
-    <section className="py-6 border-b border-gray-100">
+    <section className="py-6 border-b border-gray-100 dark:border-gray-800">
       <h2 className="text-xl font-bold font-raleway text-text-primary mb-4">Availability Calendar</h2>
       <div className="max-w-sm">
         {/* Header */}
@@ -69,7 +69,7 @@ export default function AvailabilityCalendar({
         {/* Day labels */}
         <div className="grid grid-cols-7 mb-2">
           {DAYS.map(d => (
-            <div key={d} className="text-center text-xs font-semibold font-open-sans text-gray-700 py-1">{d}</div>
+            <div key={d} className="text-center text-xs font-semibold font-open-sans text-gray-700 dark:text-gray-300 py-1">{d}</div>
           ))}
         </div>
 

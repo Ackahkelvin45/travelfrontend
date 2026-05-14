@@ -34,7 +34,7 @@ function SuccessContent() {
  if (!reference) {
  return (
  <div className="text-center flex flex-col items-center gap-4">
- <p className="text-gray-500 font-open-sans text-sm">
+ <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm">
  No booking reference found.
  </p>
  <button
@@ -64,7 +64,7 @@ function SuccessContent() {
  if (isError || !booking) {
  return (
  <div className="text-center flex flex-col items-center gap-4">
- <p className="text-gray-500 font-open-sans text-sm">
+ <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm">
  Could not load your booking details.
  </p>
  <button
@@ -93,7 +93,7 @@ function SuccessContent() {
  <h1 className="text-3xl font-bold font-raleway text-text-primary mb-2 text-center">
  Payment Successful!
  </h1>
- <p className="text-gray-500 font-open-sans text-sm text-center max-w-sm leading-relaxed">
+ <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm text-center max-w-sm leading-relaxed">
  Your booking is confirmed. A confirmation email with your booking details has been sent to{" "}
  <span className="font-semibold text-text-primary">{booking.email}</span>.
  </p>
@@ -109,7 +109,7 @@ function SuccessContent() {
  <rect x="2" y="4" width="20" height="16" rx="2" />
  <polyline points="2,4 12,13 22,4" />
  </svg>
- <p className="text-sm font-open-sans text-gray-700 ">
+ <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 ">
  A receipt and trip details have been sent to{" "}
  <span className="font-semibold text-text-primary">{booking.email}</span>.
  Check your spam folder if you don't see it within a few minutes.
@@ -117,10 +117,10 @@ function SuccessContent() {
  </div>
 
  {/* Booking summary card */}
- <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-6">
+ <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden mb-6">
  {/* Card header */}
- <div className="bg-primary/5 border-b border-gray-200 px-6 py-4 flex items-center justify-between">
- <p className="text-sm font-semibold font-open-sans text-gray-500 ">
+ <div className="bg-primary/5 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+ <p className="text-sm font-semibold font-open-sans text-gray-500 dark:text-gray-400 ">
  Booking Reference
  </p>
  <p className="text-base font-bold font-raleway text-primary tracking-wide">
@@ -139,7 +139,7 @@ function SuccessContent() {
  <Row label="Name" value={`${booking.first_name} ${booking.last_name}`} />
  <Row label="Email" value={booking.email} />
 
- <div className="border-t border-gray-100 pt-5 flex justify-between items-center">
+ <div className="border-t border-gray-100 dark:border-gray-800 pt-5 flex justify-between items-center">
  <span className="text-base font-bold font-raleway text-text-primary">Total Paid</span>
  <span className="text-xl font-bold font-raleway text-primary">
  {fmt(booking.total_amount, booking.currency)}
@@ -164,7 +164,7 @@ function SuccessContent() {
  </Link>
  <Link
  href="/"
- className="flex-1 border border-gray-200 text-text-primary py-3.5 rounded-full font-semibold font-open-sans text-sm hover:border-gray-300 transition-colors text-center"
+ className="flex-1 border border-gray-200 dark:border-gray-700 text-text-primary py-3.5 rounded-full font-semibold font-open-sans text-sm hover:border-gray-300 transition-colors text-center"
  >
  Return Home
  </Link>
@@ -176,7 +176,7 @@ function SuccessContent() {
 function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
  return (
  <div className="flex items-start justify-between gap-4">
- <span className="text-sm font-open-sans text-gray-500 shrink-0">{label}</span>
+ <span className="text-sm font-open-sans text-gray-500 dark:text-gray-400 shrink-0">{label}</span>
  <span className={`text-sm font-open-sans text-right ${bold ? "font-bold text-text-primary" : "text-text-primary"}`}>
  {value}
  </span>
@@ -191,7 +191,7 @@ const COLOR_CLASSES: Record<Color, string> = {
  yellow: "bg-yellow-100 text-yellow-700 ",
  red: "bg-red-100 text-red-700 ",
  blue: "bg-blue-100 text-blue-700 ",
- gray: "bg-gray-100 text-gray-600 ",
+ gray: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 ",
 };
 
 function Badge({
@@ -205,8 +205,8 @@ function Badge({
 }) {
  const color = colorMap[value] ?? "gray";
  return (
- <div className="flex-1 border border-gray-200 rounded-xl p-4">
- <p className="text-xs font-open-sans text-gray-500 mb-1.5">{label}</p>
+ <div className="flex-1 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+ <p className="text-xs font-open-sans text-gray-500 dark:text-gray-400 mb-1.5">{label}</p>
  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold font-open-sans capitalize ${COLOR_CLASSES[color]}`}>
  {value}
  </span>

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Hero from "../assets/images/hero.png";
+import HeroBlack from "../assets/images/heroblack.png";
 import image from "../assets/images/image.png";
 import HeroSearch from "../components/landing/HeroSearch";
 import OurServices from "../components/landing/OurServices";
@@ -10,9 +11,10 @@ import TrendingDestinations from "../components/landing/TredingDestinations";
 
 export default function Home() {
  return (
- <div className="flex w-full bg-[#fbfbfb] flex-col overflow-hidden">
+ <div className="flex w-full bg-background flex-col overflow-hidden">
  <div className="w-full px-4 md:px-10 pt-10 md:pt-20 relative">
- <Image src={Hero} alt="Hero image" className="w-full h-full min-h-[600px] md:min-h-[400px] object-cover rounded-t-xl" />
+ <Image src={Hero} alt="Hero image" className="w-full h-full min-h-[600px] md:min-h-[400px] object-cover rounded-t-xl dark:hidden" />
+ <Image src={HeroBlack} alt="Hero image" className="w-full h-full min-h-[600px] md:min-h-[400px] object-cover rounded-t-xl hidden dark:block" />
 
  {/* Overlay */}
  <div className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-10 top-0 ">

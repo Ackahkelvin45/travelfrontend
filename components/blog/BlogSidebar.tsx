@@ -51,7 +51,7 @@ export default function BlogSidebar({
  <p className="text-white text-xs font-semibold font-open-sans mb-3">Search Articles</p>
  <div className="relative">
  <svg
- className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700 pointer-events-none"
+ className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700 dark:text-gray-300 pointer-events-none"
  width="13" height="13" viewBox="0 0 24 24" fill="none"
  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
  >
@@ -69,14 +69,14 @@ export default function BlogSidebar({
  </div>
 
  {/* Categories */}
- <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+ <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
  <h3 className="text-sm font-bold font-raleway text-text-primary mb-4">Categories</h3>
  <div className="flex flex-col gap-2">
  {isLoading ? (
  Array.from({ length: 5 }).map((_, i) => (
  <div key={i} className="animate-pulse flex justify-between items-center py-1 border-b border-gray-50 last:border-0">
- <div className="h-4 bg-gray-100 rounded w-2/3" />
- <div className="h-4 bg-gray-100 rounded-full w-6" />
+ <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-2/3" />
+ <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded-full w-6" />
  </div>
  ))
  ) : (
@@ -91,11 +91,11 @@ export default function BlogSidebar({
  }
  }}
  className={`flex items-center justify-between text-sm font-open-sans transition-colors py-1 border-b border-gray-50 last:border-0 ${
- category === cat.value ? "text-primary font-semibold" : "text-gray-500 hover:text-primary"
+ category === cat.value ? "text-primary font-semibold" : "text-gray-500 dark:text-gray-400 hover:text-primary"
  }`}
  >
  <span>{cat.label}</span>
- <span className={`text-xs px-2 py-0.5 rounded-full ${category === cat.value ? "bg-primary/10 text-primary" : "bg-gray-100 text-gray-500"}`}>
+ <span className={`text-xs px-2 py-0.5 rounded-full ${category === cat.value ? "bg-primary/10 text-primary" : "bg-gray-100 dark:bg-gray-800 text-gray-500"}`}>
  {cat.count}
  </span>
  </button>
@@ -105,16 +105,16 @@ export default function BlogSidebar({
  </div>
 
  {/* Recent Posts */}
- <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+ <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
  <h3 className="text-sm font-bold font-raleway text-text-primary mb-4">Recent Posts</h3>
  <div className="flex flex-col gap-4">
  {isLoading ? (
  Array.from({ length: 4 }).map((_, i) => (
  <div key={i} className="animate-pulse flex items-start gap-3">
- <div className="w-14 h-14 bg-gray-100 rounded-xl shrink-0" />
+ <div className="w-14 h-14 bg-gray-100 dark:bg-gray-800 rounded-xl shrink-0" />
  <div className="flex flex-col gap-2 w-full pt-1">
- <div className="h-3 bg-gray-100 rounded w-full" />
- <div className="h-3 bg-gray-100 rounded w-2/3" />
+ <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded w-full" />
+ <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded w-2/3" />
  </div>
  </div>
  ))
@@ -141,12 +141,12 @@ export default function BlogSidebar({
  </div>
 
  {/* Popular Tags */}
- <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+ <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
  <h3 className="text-sm font-bold font-raleway text-text-primary mb-4">Popular Tags</h3>
  <div className="flex flex-wrap gap-2">
  {isLoading ? (
  Array.from({ length: 8 }).map((_, i) => (
- <div key={i} className="animate-pulse h-6 bg-gray-100 rounded-full w-16" />
+ <div key={i} className="animate-pulse h-6 bg-gray-100 dark:bg-gray-800 rounded-full w-16" />
  ))
  ) : (
  data?.popular_tags?.map((tagData) => (
@@ -175,14 +175,14 @@ export default function BlogSidebar({
  {/* Newsletter CTA */}
  <div className="bg-primary/10 border border-primary/20 rounded-2xl p-5 flex flex-col gap-3">
  <h3 className="text-sm font-bold font-raleway text-text-primary">Stay Inspired</h3>
- <p className="text-xs font-open-sans text-gray-500 leading-relaxed">
+ <p className="text-xs font-open-sans text-gray-500 dark:text-gray-400 leading-relaxed">
  Get the latest travel stories and guides delivered to your inbox.
  </p>
  <div className="flex flex-col gap-2">
  <input
  type="email"
  placeholder="Your email address"
- className="w-full px-3 py-2 text-xs font-open-sans border border-gray-200 rounded-lg outline-none focus:border-primary bg-white"
+ className="w-full px-3 py-2 text-xs font-open-sans border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary bg-white"
  />
  <button className="w-full bg-primary text-white text-xs font-semibold font-montserrat py-2 rounded-lg hover:opacity-90 transition-opacity">
  Subscribe

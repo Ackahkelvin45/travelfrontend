@@ -16,14 +16,14 @@ const CheckIcon = ({ included }: { included: boolean }) => (
 
 export default function TourOverview({ description, highlights, included, notIncluded }: TourOverviewProps) {
  return (
- <section className="py-6 border-b border-gray-100">
+ <section className="py-6 border-b border-gray-100 dark:border-gray-800">
  <h2 className="text-xl font-bold font-raleway text-text-primary mb-3">Tour Overview</h2>
- <p className="text-sm text-gray-700 font-open-sans leading-relaxed mb-5">{description}</p>
+ <p className="text-sm text-gray-700 dark:text-gray-300 font-open-sans leading-relaxed mb-5">{description}</p>
 
  <h3 className="text-base font-bold font-raleway text-text-primary mb-3">Tour Highlights</h3>
  <ul className="flex flex-col gap-2 mb-6">
  {highlights.map((item, i) => (
- <li key={i} className="flex items-start gap-2 text-sm text-gray-700 font-open-sans">
+ <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300 font-open-sans">
  <span className="mt-0.5 shrink-0 text-primary">•</span>
  {item}
  </li>
@@ -33,13 +33,13 @@ export default function TourOverview({ description, highlights, included, notInc
  <h3 className="text-base font-bold font-raleway text-text-primary mb-3">What&apos;s Included</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
  {included.map((item, i) => (
- <div key={i} className="flex items-center gap-2 text-sm text-gray-700 font-open-sans">
+ <div key={i} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-open-sans">
  <CheckIcon included={true} />
  {item}
  </div>
  ))}
  {notIncluded.map((item, i) => (
- <div key={i} className="flex items-center gap-2 text-sm text-gray-700 font-open-sans">
+ <div key={i} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-open-sans">
  <CheckIcon included={false} />
  {item}
  </div>

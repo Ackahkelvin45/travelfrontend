@@ -39,7 +39,7 @@ function Stepper({ current }: { current: number }) {
  className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold font-raleway transition-colors ${
  done || active
  ? "bg-primary text-white"
- : "bg-white border-2 border-gray-300 text-gray-700"
+ : "bg-white border-2 border-gray-300 dark:text-gray-300"
  }`}
  >
  {step.id}
@@ -102,7 +102,7 @@ function OrderSummary({
   const total = tiers.reduce((sum, t, i) => sum + t.price * counts[i], 0);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 w-full">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 w-full">
       <p className="text-lg font-bold font-raleway text-text-primary mb-5">Your Booking Overview</p>
 
       <div className="flex gap-4 mb-6">
@@ -117,7 +117,7 @@ function OrderSummary({
             return (
               <div key={t.tier} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold font-raleway text-text-primary shrink-0">
+                  <span className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs font-bold font-raleway text-text-primary shrink-0">
                     {counts[i]}
                   </span>
                   <span className="text-sm font-open-sans text-gray-700">
@@ -132,12 +132,12 @@ function OrderSummary({
             );
           })
         ) : (
-          <p className="text-sm text-gray-700 font-open-sans">No tickets selected yet.</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 font-open-sans">No tickets selected yet.</p>
         )}
       </div>
 
       <div className="flex items-center justify-between mb-4 pt-3 border-t border-gray-50">
-        <span className="text-sm font-open-sans text-gray-700 flex items-center gap-2">
+        <span className="text-sm font-open-sans text-gray-700 dark:text-gray-300 flex items-center gap-2">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-gray-700">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
             <line x1="16" y1="2" x2="16" y2="6"/>
@@ -153,7 +153,7 @@ function OrderSummary({
         </span>
       </div>
 
-      <div className="border-t border-gray-200 pt-4 flex justify-between items-center mb-5">
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex justify-between items-center mb-5">
         <span className="text-base font-bold font-raleway text-text-primary">Total Price</span>
         <span className="text-xl font-bold font-raleway text-primary">{fmt(total, currency)}</span>
       </div>
@@ -213,12 +213,12 @@ function StepBookingDetails({
         <h2 className="text-xl font-bold font-raleway text-text-primary mb-6">
           When are you traveling?
         </h2>
-        <div className="mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+        <div className="mb-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-800">
           <label className="block text-sm font-semibold font-open-sans text-text-primary mb-3">
             Available Dates
           </label>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-primary">
+            <div className="w-10 h-10 bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex items-center justify-center text-primary">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
@@ -232,7 +232,7 @@ function StepBookingDetails({
                   ? `${fmtDate(availableFrom)} - ${fmtDate(availableTo)}`
                   : availableFrom ? fmtDate(availableFrom) : "Dates not specified"}
               </p>
-              <p className="text-xs text-gray-700 mt-1">
+              <p className="text-xs text-gray-700 dark:text-gray-300 mt-1">
                 Your tour is valid for the period above.
               </p>
             </div>
@@ -246,7 +246,7 @@ function StepBookingDetails({
         <div className="flex flex-col gap-4">
           {tiers.map(({ tier, label, price }, i) => (
             <div key={tier} className="flex items-center justify-between gap-2">
-              <p className="text-sm font-open-sans text-gray-700 leading-snug">
+              <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 leading-snug">
                 {label}{" "}
                 <span className="text-gray-700">({TIER_LABELS[tier]})</span>{" "}
                 <span className="font-semibold text-text-primary">{fmt(price, currency)}</span>
@@ -255,7 +255,7 @@ function StepBookingDetails({
                 <button
                   type="button"
                   onClick={() => adjust(i, -1)}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:border-primary hover:text-primary transition-colors text-base leading-none"
+                  className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors text-base leading-none"
                 >
                   −
                 </button>
@@ -265,7 +265,7 @@ function StepBookingDetails({
                 <button
                   type="button"
                   onClick={() => adjust(i, 1)}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:border-primary hover:text-primary transition-colors text-base leading-none"
+                  className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors text-base leading-none"
                 >
                   +
                 </button>
@@ -363,7 +363,7 @@ function StepYourDetails({
  placeholder="Enter your first name"
  value={form.firstName}
  onChange={(e) => update("firstName", e.target.value)}
- className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 outline-none focus:border-primary transition-colors"
+ className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary transition-colors"
  />
  </div>
  <div>
@@ -375,7 +375,7 @@ function StepYourDetails({
  placeholder="Enter your last name"
  value={form.lastName}
  onChange={(e) => update("lastName", e.target.value)}
- className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 outline-none focus:border-primary transition-colors"
+ className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary transition-colors"
  />
  </div>
  <div>
@@ -387,7 +387,7 @@ function StepYourDetails({
  placeholder="Enter your email address"
  value={form.email}
  onChange={(e) => update("email", e.target.value)}
- className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 outline-none focus:border-primary transition-colors"
+ className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary transition-colors"
  />
  </div>
  <div>
@@ -399,7 +399,7 @@ function StepYourDetails({
  placeholder="Enter your telephone number"
  value={form.phone}
  onChange={(e) => update("phone", e.target.value)}
- className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 outline-none focus:border-primary transition-colors"
+ className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary transition-colors"
  />
  </div>
  <div>
@@ -411,7 +411,7 @@ function StepYourDetails({
  placeholder="Enter your country"
  value={form.country}
  onChange={(e) => update("country", e.target.value)}
- className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 outline-none focus:border-primary transition-colors"
+ className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary transition-colors"
  />
  </div>
  <div className="col-span-1 md:col-span-2">
@@ -423,7 +423,7 @@ function StepYourDetails({
  value={form.specialRequests}
  onChange={(e) => update("specialRequests", e.target.value)}
  rows={3}
- className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 outline-none focus:border-primary transition-colors resize-none"
+ className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary transition-colors resize-none"
  />
  </div>
  </div>
@@ -436,7 +436,7 @@ function StepYourDetails({
 
  <button
  onClick={onBack}
- className="mt-8 text-sm font-semibold font-open-sans text-gray-700 hover:text-text-primary transition-colors flex items-center gap-1.5"
+ className="mt-8 text-sm font-semibold font-open-sans text-gray-700 dark:text-gray-300 hover:text-text-primary transition-colors flex items-center gap-1.5"
  >
  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
  <path d="M19 12H5M12 5l-7 7 7 7" />
@@ -500,7 +500,7 @@ function BookingContent() {
  if (!packageId) {
  return (
  <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-5xl mx-auto flex items-center justify-center min-h-[40vh]">
- <p className="text-gray-700 font-open-sans text-sm">
+ <p className="text-gray-700 dark:text-gray-300 font-open-sans text-sm">
  No package selected.{" "}
  <button onClick={() => router.push("/destinations")} className="text-primary underline">
  Browse tours
@@ -524,7 +524,7 @@ function BookingContent() {
  if (isError || !pkg) {
  return (
  <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-5xl mx-auto flex items-center justify-center min-h-[40vh]">
- <p className="text-gray-700 font-open-sans text-sm">
+ <p className="text-gray-700 dark:text-gray-300 font-open-sans text-sm">
  Failed to load package.{" "}
  <button onClick={() => router.back()} className="text-primary underline">Go back</button>
  </p>

@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import logo from "../../assets/logo/logo.png";
+import logoDark from "../../assets/logo/logodark.png";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import ThemeToggle from "../ui/ThemeToggle";
 
 export default function Navbar() {
  const [scrolled, setScrolled] = useState(false);
@@ -18,18 +20,19 @@ export default function Navbar() {
  return (
  <nav className={`w-full z-50 fixed font-work-sans px-4 md:px-10 h-20 py-2 flex items-center justify-between transition-all duration-300 ${
  scrolled
- ? "bg-white/60 backdrop-blur-md border-b border-white/30 shadow-sm"
- : "bg-[#fbfbfb]"
+ ? "bg-white/60 dark:bg-gray-900/60 backdrop-blur-md border-b border-white/30 dark:border-gray-800 shadow-sm"
+ : "bg-background"
  }`}>
  {/* Logo */}
  <Link href="/" className="flex items-center gap-2 flex-shrink-0">
- <Image src={logo} alt="TravelandTour Logo" className="h-16 w-28" />
+ <Image src={logo} alt="TravelandTour Logo" className="h-16 w-28 dark:hidden" />
+ <Image src={logoDark} alt="TravelandTour Logo" className="h-16 w-28 hidden dark:block" />
  </Link>
 
  {/* Search */}
  <div className="hidden md:block relative max-w-xs w-full ml-10">
  <svg
- className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
+ className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-500 pointer-events-none"
  width="15" height="15" viewBox="0 0 24 24" fill="none"
  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
  >
@@ -39,7 +42,7 @@ export default function Navbar() {
  <input
  type="text"
  placeholder="Search destinations or activities"
- className="w-full pl-9 pr-4 py-2 rounded-full border border-gray-200 bg-gray-50 text-sm text-gray-500 placeholder-gray-300 outline-none focus:border-primary focus:bg-white transition-colors"
+ className="w-full pl-9 pr-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-500 dark:text-gray-400 placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary focus:bg-white dark:focus:bg-gray-700 transition-colors"
  />
  </div>
 
@@ -75,7 +78,8 @@ export default function Navbar() {
  About Us
  </Link>
  </li>
- 
+
+
  </ul>
 
  
@@ -96,7 +100,7 @@ export default function Navbar() {
 
  {/* Mobile Menu Overlay */}
  {menuOpen && (
- <div className="absolute top-20 left-0 w-full bg-white shadow-md border-b border-gray-100 flex flex-col p-4 gap-4 md:hidden">
+ <div className="absolute top-20 left-0 w-full bg-white dark:bg-gray-900 shadow-md border-b border-gray-100 dark:border-gray-800 flex flex-col p-4 gap-4 md:hidden">
  <div className="relative w-full">
  <svg
  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
@@ -109,18 +113,25 @@ export default function Navbar() {
  <input
  type="text"
  placeholder="Search destinations or activities"
- className="w-full pl-9 pr-4 py-2 rounded-full border border-gray-200 bg-gray-50 text-sm text-gray-500 placeholder-gray-300 outline-none focus:border-primary focus:bg-white transition-colors"
+ className="w-full pl-9 pr-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-500 dark:text-gray-400 placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary focus:bg-white dark:focus:bg-gray-700 transition-colors"
  />
  </div>
- <Link href="/destinations" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100">
+ <Link href="/explore" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100 dark:border-gray-800">
  Explore
  </Link>
- <Link href="/blog" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100">
+ <Link href="/destinations" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100 dark:border-gray-800">
+ Destinations
+ </Link>
+ <Link href="/gallery" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100 dark:border-gray-800">
+ Gallery
+ </Link>
+ <Link href="/blog" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100 dark:border-gray-800">
  Blog
  </Link>
  <Link href="/about" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2">
  About Us
  </Link>
+ 
  </div>
  )}
  </nav>

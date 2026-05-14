@@ -73,19 +73,19 @@ export default function BookingSidebar({
   };
 
   return (
-    <div className="bg-white w-90 rounded-2xl shadow-md border border-gray-100 p-6 sticky top-24">
+    <div className="bg-white w-90 rounded-2xl shadow-md border border-gray-100 dark:border-gray-800 p-6 sticky top-24">
       {/* Header */}
       <div className="flex items-baseline gap-2 mb-5">
-        <span className="text-sm text-gray-700 font-open-sans">From</span>
+        <span className="text-sm text-gray-700 dark:text-gray-300 font-open-sans">From</span>
         <span className="text-2xl font-bold font-raleway text-text-primary">
           {currency} {basePrice.toLocaleString()}
         </span>
       </div>
 
       {/* Date & Time */}
-      <div className="border border-gray-200 rounded-xl overflow-hidden mb-6">
-        <div className="flex items-center gap-3 p-3 border-b border-gray-200 ">
-          <div className="w-12 h-10 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+      <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden mb-6">
+        <div className="flex items-center gap-3 p-3 border-b border-gray-200 dark:border-gray-700 ">
+          <div className="w-12 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center shrink-0">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
               <line x1="16" y1="2" x2="16" y2="6"/>
@@ -95,7 +95,7 @@ export default function BookingSidebar({
           </div>
           <div>
             <p className="text-sm font-semibold font-raleway text-text-primary leading-tight">Validity Period</p>
-            <p className="text-xs text-gray-700 font-open-sans mt-0.5">
+            <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans mt-0.5">
               {availableFrom && availableTo
                 ? `${formatDate(availableFrom)} - ${formatDate(availableTo)}`
                 : "Check availability"}
@@ -103,7 +103,7 @@ export default function BookingSidebar({
           </div>
         </div>
         <div className="flex items-center gap-3 p-3">
-          <div className="w-12 h-10 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+          <div className="w-12 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center shrink-0">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <polyline points="12 6 12 12 16 14"/>
@@ -111,7 +111,7 @@ export default function BookingSidebar({
           </div>
           <div>
             <p className="text-sm font-semibold font-raleway text-text-primary leading-tight">Time</p>
-            <p className="text-xs text-gray-700 font-open-sans mt-0.5">Flexible start</p>
+            <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans mt-0.5">Flexible start</p>
           </div>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function BookingSidebar({
         <div className="flex flex-col gap-4">
           {ticketTypes.map((ticket, i) => (
             <div key={i} className="flex items-center justify-between gap-2">
-              <p className="text-sm font-open-sans text-gray-700 leading-snug">
+              <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 leading-snug">
                 {ticket.label}{" "}
                 <span className="text-gray-700">({ticket.ageRange})</span>{" "}
                 <span className="font-semibold text-text-primary">{currency} {ticket.price.toFixed(2)}</span>
@@ -130,7 +130,7 @@ export default function BookingSidebar({
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => adjust(i, -1)}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:border-primary hover:text-primary transition-colors text-base leading-none"
+                  className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors text-base leading-none"
                 >
                   −
                 </button>
@@ -139,7 +139,7 @@ export default function BookingSidebar({
                 </span>
                 <button
                   onClick={() => adjust(i, 1)}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:border-primary hover:text-primary transition-colors text-base leading-none"
+                  className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors text-base leading-none"
                 >
                   +
                 </button>
@@ -164,9 +164,9 @@ export default function BookingSidebar({
                     className="mt-0.5 w-4 h-4 cursor-pointer accent-primary shrink-0"
                   />
                   <div>
-                    <p className="text-sm font-open-sans text-gray-700 ">{addon.label}</p>
+                    <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 ">{addon.label}</p>
                     {addon.subLabel && (
-                      <p className="text-xs text-gray-700 font-open-sans mt-0.5">{addon.subLabel}</p>
+                      <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans mt-0.5">{addon.subLabel}</p>
                     )}
                   </div>
                 </div>
@@ -180,7 +180,7 @@ export default function BookingSidebar({
       )}
 
       {/* Total */}
-      <div className="border-t border-gray-200 pt-4 mb-5 flex justify-between items-center">
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mb-5 flex justify-between items-center">
         <span className="text-base font-bold font-raleway text-text-primary">Total:</span>
         <span className="text-xl font-bold font-raleway text-text-primary">
           {currency} {total.toFixed(2)}

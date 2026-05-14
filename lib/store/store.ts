@@ -3,6 +3,7 @@ import { baseApi } from '../api/baseApi'
 import authReducer from '../features/auth/authSlice'
 import toursReducer from '../features/tours/toursSlice'
 import bookingsReducer from '../features/bookings/bookingsSlice'
+import themeReducer from '../features/theme/themeSlice'
 
 export const store = configureStore({
  reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
  auth: authReducer,
  tours: toursReducer,
  bookings: bookingsReducer,
+ theme: themeReducer,
  },
  middleware: (getDefaultMiddleware) =>
  getDefaultMiddleware().concat(baseApi.middleware),

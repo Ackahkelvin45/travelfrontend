@@ -123,7 +123,7 @@ export default function TourGallery({ images, title }: TourGalleryProps) {
  alt={title}
  className="absolute inset-0 w-full h-full object-cover"
  />
- <div className="absolute inset-0 bg-black/40 flex items-end justify-end p-4 hover:bg-black/50 transition-colors">
+ <div className="absolute inset-0 bg-black/40 flex items-end justify-end p-4 hover:bg-black dark:hover:bg-white dark:hover:text-black/50 transition-colors">
  <span className="bg-white/10 backdrop-blur-sm border border-white/30 text-white text-sm font-semibold font-open-sans px-4 py-2 rounded-full">
  {validImages.length > 4
  ? `+${validImages.length - 4} more`

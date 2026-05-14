@@ -4,9 +4,9 @@ interface TourMapProps {
 
 export default function TourMap({ embedUrl }: TourMapProps) {
  return (
- <section className="py-6 border-b border-gray-100">
+ <section className="py-6 border-b border-gray-100 dark:border-gray-800">
  <h2 className="text-xl font-bold font-raleway text-text-primary mb-4">Tour Map</h2>
- <div className="rounded-2xl overflow-hidden border border-gray-100 h-64 md:h-80 bg-gray-100">
+ <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 h-64 md:h-80 bg-gray-100">
  {embedUrl ? (
  <iframe
  src={embedUrl}
@@ -19,7 +19,7 @@ export default function TourMap({ embedUrl }: TourMapProps) {
  title="Tour Map"
  />
  ) : (
- <div className="w-full h-full flex items-center justify-center text-gray-700 text-sm font-open-sans">
+ <div className="w-full h-full flex items-center justify-center text-gray-700 dark:text-gray-300 text-sm font-open-sans">
  Map unavailable
  </div>
  )}

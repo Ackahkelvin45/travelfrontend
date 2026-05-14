@@ -69,7 +69,7 @@ export default function Testimonials() {
  }, []);
 
  return (
- <section className="w-full px-20 py-20 bg-[#fbfbfb] mt-25 flex flex-col items-center">
+ <section className="w-full px-20 py-20 bg-background mt-25 flex flex-col items-center">
  {/* Title */}
  <h2 className="text-3xl font-bold font-raleway text-text-primary mb-14">
  Customer Reviews
@@ -101,7 +101,7 @@ export default function Testimonials() {
 
  {/* Name & role */}
  <p className="font-bold font-raleway text-text-primary">{t.name}</p>
- <p className="text-gray-500 font-open-sans text-sm mt-1">{t.role}</p>
+ <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm mt-1">{t.role}</p>
 
  {/* Dots */}
  <div className="flex items-center gap-2 mt-10">

@@ -36,9 +36,9 @@ export default function GalleryClient() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Filter bar */}
-      <div className="sticky top-20 z-30 bg-white/95 backdrop-blur-sm border-b border-black/5">
+      <div className="sticky top-20 z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-black/5 dark:border-white/10">
         <div className="flex items-center gap-8 px-5 py-3.5 max-w-[1600px] mx-auto">
           {FILTERS.map((f) => (
             <button
@@ -46,8 +46,8 @@ export default function GalleryClient() {
               onClick={() => changeType(f.value)}
               className={`text-[12px] font-open-sans uppercase  font-medium transition-all ${
                 type === f.value
-                  ? "text-black border-b border-black pb-0.5"
-                  : "text-black/30 hover:text-black/60"
+                  ? "text-black dark:text-white border-b border-black dark:border-white pb-0.5"
+                  : "text-black/30 dark:text-white/40 hover:text-black/60 dark:hover:text-white/60"
               }`}
             >
               {f.label}
@@ -90,7 +90,7 @@ export default function GalleryClient() {
       </div>
 
       {/* Pagination Footer */}
-      <div className="py-20 border-t border-black/5 bg-neutral-50/50">
+      <div className="py-20 border-t border-black/5 dark:border-white/10 bg-neutral-50/50 dark:bg-neutral-900/50">
         <div className="max-w-[1600px] mx-auto px-5 flex flex-col items-center gap-6">
           {totalPages > 1 && (
             <p className="text-text-primary text-[10px] font-open-sans uppercase tracking-[0.3em]">
@@ -104,8 +104,8 @@ export default function GalleryClient() {
               disabled={!hasPrev || isLoading}
               className={`group px-8 py-3 text-[10px] font-open-sans uppercase tracking-[0.2em] transition-all duration-300 border ${
                 hasPrev 
-                  ? "border-black/10 text-black hover:bg-black hover:text-white hover:border-black" 
-                  : "border-black/5 text-black/10 cursor-not-allowed"
+                  ? "border-black/10 dark:border-white/20 text-black dark:text-white hover:bg-black dark:hover:bg-white dark:hover:text-black hover:text-white hover:border-black dark:hover:border-white" 
+                  : "border-black/5 dark:border-white/10 text-black/10 dark:text-white/20 cursor-not-allowed"
               }`}
             >
               Previous
@@ -116,8 +116,8 @@ export default function GalleryClient() {
               disabled={!hasNext || isLoading}
               className={`group px-8 py-3 text-[10px] font-open-sans uppercase tracking-[0.2em] transition-all duration-300 border ${
                 hasNext 
-                  ? "border-black/10 text-black hover:bg-black hover:text-white hover:border-black" 
-                  : "border-black/5 text-black/10 cursor-not-allowed"
+                  ? "border-black/10 dark:border-white/20 text-black dark:text-white hover:bg-black dark:hover:bg-white dark:hover:text-black hover:text-white hover:border-black dark:hover:border-white" 
+                  : "border-black/5 dark:border-white/10 text-black/10 dark:text-white/20 cursor-not-allowed"
               }`}
             >
               Next
@@ -125,7 +125,7 @@ export default function GalleryClient() {
           </div>
 
           {!hasNext && !hasPrev && !isLoading && images.length === 0 && (
-            <p className="text-black/30 text-xs font-open-sans text-center">
+            <p className="text-black/30 dark:text-white/40 text-xs font-open-sans text-center">
               No results found in this category.
             </p>
           )}
@@ -142,7 +142,7 @@ function GalleryCell({ img }: { img: GalleryImage }) {
       : `/destinations/${img.source_id}`;
 
   return (
-    <Link href={href} className="relative block overflow-hidden group bg-neutral-100">
+    <Link href={href} className="relative block overflow-hidden group bg-neutral-100 dark:bg-neutral-800">
       <Image
         src={img.image}
         alt={img.caption || img.source_name}
@@ -171,7 +171,7 @@ function SkeletonCol({ heights }: { heights: number[] }) {
       {heights.map((h, i) => (
         <div
           key={i}
-          className="w-full bg-neutral-100 animate-pulse shrink-0"
+          className="w-full bg-neutral-100 dark:bg-neutral-800 animate-pulse shrink-0"
           style={{ height: h }}
         />
       ))}

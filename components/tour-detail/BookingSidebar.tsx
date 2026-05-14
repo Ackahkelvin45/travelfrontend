@@ -73,7 +73,7 @@ export default function BookingSidebar({
   };
 
   return (
-    <div className="bg-white w-90 rounded-2xl shadow-md border border-gray-100 dark:border-gray-800 p-6 sticky top-24">
+    <div className="bg-white dark:bg-gray-900 w-90 rounded-2xl shadow-md border border-gray-100 dark:border-gray-800 p-6 sticky top-24">
       {/* Header */}
       <div className="flex items-baseline gap-2 mb-5">
         <span className="text-sm text-gray-700 dark:text-gray-300 font-open-sans">From</span>
@@ -124,7 +124,7 @@ export default function BookingSidebar({
             <div key={i} className="flex items-center justify-between gap-2">
               <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 leading-snug">
                 {ticket.label}{" "}
-                <span className="text-gray-700">({ticket.ageRange})</span>{" "}
+                <span className="text-gray-700 dark:text-gray-300">({ticket.ageRange})</span>{" "}
                 <span className="font-semibold text-text-primary">{currency} {ticket.price.toFixed(2)}</span>
               </p>
               <div className="flex items-center gap-2 shrink-0">

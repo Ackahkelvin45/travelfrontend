@@ -6,6 +6,7 @@ import food from "../../assets/images/services/food.jpeg";
 import Image from "next/image";
 import cooperate from "../../assets/images/cooperate.png";
 import structure from "../../assets/images/structure.jpeg";
+import Reveal from "../ui/Reveal";
 
 function imgUrl(image: string | StaticImageData): string {
  return typeof image === "string" ? image : image.src;
@@ -57,7 +58,7 @@ export default function OurServices() {
  return (
  <section className="w-full px-4 md:px-10 lg:px-20 py-10 md:py-16 mt-20 md:mt-25 bg-background ">
  {/* Header */}
- <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+ <Reveal className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
  <div>
  <h2 className="text-3xl font-bold font-raleway text-text-primary">
  Our Services
@@ -72,10 +73,10 @@ export default function OurServices() {
  >
  See all
  </Link>
- </div>
+ </Reveal>
 
  {/* Main grid — 4 cols × 2 rows (6 cards) */}
- <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-3 auto-rows-[250px] lg:auto-rows-auto lg:h-155">
+ <Reveal delay={100} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-3 auto-rows-[250px] lg:auto-rows-auto lg:h-155">
  {/* Col 1, row 1 — Luxury Travel Packages */}
  <ServiceCard label={s1.label} image={s1.image} />
 
@@ -109,7 +110,7 @@ export default function OurServices() {
 
  {/* Col 4, row 2 — Corporate & Group */}
  <ServiceCard label={s6.label} image={s6.image} />
- </div>
+ </Reveal>
 
  {/* Full-width card — Bespoke Concierge Services */}
  

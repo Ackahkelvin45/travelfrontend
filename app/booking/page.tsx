@@ -240,38 +240,53 @@ function StepBookingDetails({
         </div>
 
         <h2 className="text-xl font-bold font-raleway text-text-primary mb-6">
-          Select your tickets
+          Select your ticket type
         </h2>
 
-        <div className="flex flex-col gap-4">
-          {tiers.map(({ tier, label, price }, i) => (
-            <div key={tier} className="flex items-center justify-between gap-2">
-              <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 leading-snug">
-                {label}{" "}
-                <span className="text-gray-700">({TIER_LABELS[tier]})</span>{" "}
-                <span className="font-semibold text-text-primary">{fmt(price, currency)}</span>
-              </p>
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => adjust(i, -1)}
-                  className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors text-base leading-none"
-                >
-                  −
-                </button>
-                <span className="w-5 text-center text-sm font-open-sans font-semibold text-text-primary">
-                  {counts[i]}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => adjust(i, 1)}
-                  className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors text-base leading-none"
-                >
-                  +
-                </button>
+        {/* One tier per booking: the backend prices every guest at a single
+            tier, so mixed-tier selections would misstate the total. */}
+        <div className="flex flex-col gap-3">
+          {tiers.map(({ tier, label, price }, i) => {
+            const selected = counts[i] > 0;
+            const qty = counts[i];
+            return (
+              <div
+                key={tier}
+                className={`flex items-center justify-between gap-2 rounded-2xl border-2 p-4 transition-colors cursor-pointer ${
+                  selected ? "border-primary bg-primary/5" : "border-gray-200 dark:border-gray-700 hover:border-primary/50"
+                }`}
+                onClick={() => { if (!selected) adjust(i, 1); }}
+              >
+                <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 leading-snug">
+                  {label}{" "}
+                  <span className="text-gray-700">({TIER_LABELS[tier]})</span>{" "}
+                  <span className="font-semibold text-text-primary">{fmt(price, currency)}</span>
+                  <span className="text-gray-500"> /person</span>
+                </p>
+                {selected && (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); adjust(i, -1); }}
+                      className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors text-base leading-none"
+                    >
+                      −
+                    </button>
+                    <span className="w-5 text-center text-sm font-open-sans font-semibold text-text-primary">
+                      {qty}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); adjust(i, 1); }}
+                      className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors text-base leading-none"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -477,11 +492,15 @@ function BookingContent() {
  const { data: pkg, isLoading, isError } = useGetPackageDetailQuery(packageId, { skip: !packageId });
 
  const [step, setStep] = useState(1);
-  const [counts, setCounts] = useState<number[]>(() =>
-    (["shared", "private", "vip"] as PriceTier[]).map((tier) =>
+  const [counts, setCounts] = useState<number[]>(() => {
+    const raw = (["shared", "private", "vip"] as PriceTier[]).map((tier) =>
       Math.max(0, parseInt(searchParams.get(tier) ?? "0", 10))
-    )
-  );
+    );
+    // Single-tier invariant (the backend prices all guests at one tier):
+    // keep only the tier with the highest requested count.
+    const dominant = raw.reduce((maxI, c, i) => (c > raw[maxI] ? i : maxI), 0);
+    return raw.map((c, i) => (i === dominant ? c : 0));
+  });
   const [travelDate, setTravelDate] = useState(() => searchParams.get("date") ?? "");
   const [form, setForm] = useState<ContactForm>({
     firstName: "",
@@ -538,8 +557,9 @@ function BookingContent() {
  { tier: "vip", label: "VIP", price: parseFloat(pkg.price_vip) },
  ];
 
+ // Single-tier invariant: adjusting a tier zeroes the others.
  const adjust = (i: number, delta: number) => {
- setCounts((prev) => prev.map((c, idx) => (idx === i ? Math.max(0, c + delta) : c)));
+ setCounts((prev) => prev.map((c, idx) => (idx === i ? Math.max(0, c + delta) : 0)));
  };
 
  const coverImage = pkg.images.find((img) => img.is_cover)?.image ?? pkg.images[0]?.image ?? FALLBACK_IMAGE;
@@ -566,7 +586,10 @@ function BookingContent() {
       }).unwrap();
 
  const payment = await initializePayment({ booking_id: booking.id }).unwrap();
- window.location.href = payment.authorization_url;
+ const { routeAfterInitialize } = await import("@/lib/payments/paystack");
+ await routeAfterInitialize(payment, (reference) => {
+ window.location.href = `/payment/callback?reference=${reference}`;
+ });
  } catch (err: unknown) {
  const msg =
  typeof err === "object" && err !== null && "detail" in err

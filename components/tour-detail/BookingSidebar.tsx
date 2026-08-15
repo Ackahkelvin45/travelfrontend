@@ -73,7 +73,7 @@ export default function BookingSidebar({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 w-90 rounded-2xl shadow-md border border-gray-100 dark:border-gray-800 p-6 sticky top-24">
+    <div className="bg-white dark:bg-gray-900 w-full max-w-md mx-auto lg:max-w-none rounded-2xl shadow-md border border-gray-100 dark:border-gray-800 p-6">
       {/* Header */}
       <div className="flex items-baseline gap-2 mb-5">
         <span className="text-sm text-gray-700 dark:text-gray-300 font-open-sans">From</span>

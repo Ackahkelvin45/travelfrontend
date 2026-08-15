@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image, { StaticImageData } from "next/image";
+import Reveal from "../ui/Reveal";
 import image1 from "../../assets/images/profile/1.jpeg";
 import image2 from "../../assets/images/profile/2.jpeg";
 import image3 from "../../assets/images/profile/3.jpeg";
@@ -71,10 +72,13 @@ export default function Testimonials() {
  return (
  <section className="w-full px-20 py-20 bg-background mt-25 flex flex-col items-center">
  {/* Title */}
- <h2 className="text-3xl font-bold font-raleway text-text-primary mb-14">
+ <Reveal as="h2" className="text-3xl font-bold font-raleway text-text-primary mb-14">
  Customer Reviews
- </h2>
+ </Reveal>
 
+ {/* Rotating testimonial — keyed so each change cross-fades in */}
+ <Reveal delay={100} className="flex flex-col items-center w-full">
+ <div key={active} className="content-in flex flex-col items-center w-full">
  {/* Avatar with quote badge */}
  <div className="relative w-24 h-24 mb-8">
  <Image
@@ -102,6 +106,8 @@ export default function Testimonials() {
  {/* Name & role */}
  <p className="font-bold font-raleway text-text-primary">{t.name}</p>
  <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm mt-1">{t.role}</p>
+ </div>
+ </Reveal>
 
  {/* Dots */}
  <div className="flex items-center gap-2 mt-10">

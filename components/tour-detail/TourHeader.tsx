@@ -1,54 +1,121 @@
+"use client";
+
+import { useState } from "react";
+import {
+  CalendarIcon,
+  ChevronRightIcon,
+  ClockIcon,
+  MapPinIcon,
+  ShareIcon,
+  StarIcon,
+  TagIcon,
+} from "@/components/ui/icons";
+
 interface TourHeaderProps {
- title: string;
- badges: string[];
- breadcrumb: { label: string; href: string }[];
+  title: string;
+  category?: string;
+  destination?: string | null;
+  durationLabel?: string;
+  datesLabel?: string;
+  rating?: number | null;
+  reviewCount?: number;
+  breadcrumb: { label: string; href: string }[];
 }
 
-export default function TourHeader({ title, badges, breadcrumb }: TourHeaderProps) {
- return (
- <div className="mb-4">
- <nav className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300 font-open-sans mb-3">
- {breadcrumb.map((item, i) => (
- <span key={i} className="flex items-center gap-2">
- {i > 0 && <span>{">"}</span>}
- <a href={item.href} className="hover:text-primary transition-colors">
- {item.label}
- </a>
- </span>
- ))}
- </nav>
+/**
+ * Page header: breadcrumb → title → one metadata row grouping rating,
+ * category, location, duration and dates so the essentials read in a single
+ * scan line under the title.
+ */
+export default function TourHeader({
+  title,
+  category,
+  destination,
+  durationLabel,
+  datesLabel,
+  rating,
+  reviewCount = 0,
+  breadcrumb,
+}: TourHeaderProps) {
+  const [copied, setCopied] = useState(false);
 
- <div className="flex items-start justify-between gap-4">
- <h1 className="text-2xl md:text-3xl font-bold font-raleway text-text-primary leading-snug">
- {title}
- </h1>
- <div className="flex items-center gap-3 shrink-0 mt-1">
- <button className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 font-open-sans hover:text-primary transition-colors">
- <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
- <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
- <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
- </svg>
- Share
- </button>
- <button className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 font-open-sans hover:text-primary transition-colors">
- <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
- <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
- </svg>
- Wishlist
- </button>
- </div>
- </div>
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* user dismissed the share sheet */
+    }
+  };
 
- <div className="flex flex-wrap gap-2 mt-3">
- {badges.map((badge) => (
- <span
- key={badge}
- className="px-3 py-1 bg-orange-50 text-primary text-xs font-semibold font-open-sans rounded-full border border-orange-200"
- >
- {badge}
- </span>
- ))}
- </div>
- </div>
- );
+  const metaItemClass =
+    "flex items-center gap-1.5 text-[13px] text-gray-600 dark:text-gray-300 font-open-sans";
+
+  return (
+    <header className="mb-5">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-open-sans mb-3">
+        {breadcrumb.map((item, i) => (
+          <span key={i} className="flex items-center gap-1.5">
+            {i > 0 && <ChevronRightIcon size={12} className="text-gray-400" />}
+            <a href={item.href} className="hover:text-primary transition-colors">
+              {item.label}
+            </a>
+          </span>
+        ))}
+      </nav>
+
+      <div className="flex items-start justify-between gap-4">
+        <h1 className="text-2xl md:text-[32px] font-bold font-raleway text-text-primary leading-tight">
+          {title}
+        </h1>
+        <button
+          onClick={handleShare}
+          className="hidden sm:flex items-center gap-1.5 shrink-0 mt-1.5 text-sm text-gray-600 dark:text-gray-300 font-open-sans hover:text-primary transition-colors"
+        >
+          <ShareIcon size={15} />
+          {copied ? "Link copied" : "Share"}
+        </button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5">
+        {rating != null && reviewCount > 0 && (
+          <span className={metaItemClass}>
+            <StarIcon size={14} className="text-primary" />
+            <span className="font-semibold text-text-primary">{rating.toFixed(1)}</span>
+            <span className="text-gray-400">({reviewCount} review{reviewCount !== 1 ? "s" : ""})</span>
+          </span>
+        )}
+        {destination && (
+          <span className={metaItemClass}>
+            <MapPinIcon size={14} className="text-primary" />
+            {destination}
+          </span>
+        )}
+        {datesLabel && (
+          <span className={metaItemClass}>
+            <CalendarIcon size={14} className="text-primary" />
+            {datesLabel}
+          </span>
+        )}
+        {durationLabel && (
+          <span className={metaItemClass}>
+            <ClockIcon size={14} className="text-primary" />
+            {durationLabel}
+          </span>
+        )}
+        {category && (
+          <span className={metaItemClass}>
+            <TagIcon size={14} className="text-primary" />
+            {category}
+          </span>
+        )}
+      </div>
+    </header>
+  );
 }

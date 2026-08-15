@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useGetDestinationsQuery } from "@/lib/api/destinationsApi";
+import Reveal from "../ui/Reveal";
 
 const GRID_CLASSES = [
   "",
@@ -28,7 +29,7 @@ export default function TrendingDestinations() {
 
   return (
     <section className="w-full px-4 md:px-10 lg:px-20 py-10 mt-20 md:py-16">
-      <div className="flex items-center justify-between mb-6 md:mb-8">
+      <Reveal className="flex items-center justify-between mb-6 md:mb-8">
         <h2 className="text-2xl md:text-3xl font-bold font-raleway text-text-primary">
           Trending Destinations
         </h2>
@@ -38,7 +39,7 @@ export default function TrendingDestinations() {
         >
           See all
         </Link>
-      </div>
+      </Reveal>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 auto-rows-[200px] md:auto-rows-[240px] lg:auto-rows-[280px] gap-3 md:gap-4">
         {isLoading &&
@@ -59,8 +60,9 @@ export default function TrendingDestinations() {
               dest.images.find((img) => img.is_cover) ?? dest.images[0];
 
             return (
-              <div
+              <Reveal
                 key={dest.id}
+                delay={index * 70}
                 className={`relative rounded-xl md:rounded-2xl overflow-hidden group cursor-pointer ${GRID_CLASSES[index] ?? ""}`}
               >
                 {coverImage ? (
@@ -81,7 +83,7 @@ export default function TrendingDestinations() {
                     ({dest.package_count})
                   </span>
                 </span>
-              </div>
+              </Reveal>
             );
           })}
       </div>

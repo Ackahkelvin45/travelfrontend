@@ -3,6 +3,7 @@ import Hero from "../assets/images/hero.png";
 import HeroBlack from "../assets/images/heroblack.png";
 import image from "../assets/images/image.png";
 import HeroSearch from "../components/landing/HeroSearch";
+import Reveal from "../components/ui/Reveal";
 import OurServices from "../components/landing/OurServices";
 import WhatSetUsApart from "../components/landing/WhatSetUsApart";
 import Trending from "../components/landing/Trending";
@@ -13,18 +14,21 @@ export default function Home() {
  return (
  <div className="flex w-full bg-background flex-col overflow-hidden">
  <div className="w-full px-4 md:px-10 pt-10 md:pt-20 relative">
- <Image src={Hero} alt="Hero image" className="w-full h-full min-h-[600px] md:min-h-[400px] object-cover rounded-t-xl dark:hidden" />
- <Image src={HeroBlack} alt="Hero image" className="w-full h-full min-h-[600px] md:min-h-[400px] object-cover rounded-t-xl hidden dark:block" />
+ {/* Load sequence: image → eyebrow → heading → search (see Reveal delays) */}
+ <Reveal variant="fade">
+ <Image src={Hero} alt="Hero image" className="w-full h-full min-h-[600px] md:min-h-[400px] object-cover rounded-t-xl dark:hidden" priority />
+ <Image src={HeroBlack} alt="Hero image" className="w-full h-full min-h-[600px] md:min-h-[400px] object-cover rounded-t-xl hidden dark:block" priority />
+ </Reveal>
 
  {/* Overlay */}
  <div className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-10 top-0 ">
 
  {/* Hero text */}
  <div className="text-center text-white">
- <div className="text-sm md:text-base font-semibold uppercase tracking-widest mb-3 text-[#c9a96e] font-montserrat">
- 
+ <Reveal delay={150} className="text-sm md:text-base font-semibold uppercase tracking-widest mb-3 text-[#c9a96e] font-montserrat">
  Luxury African Travel
- </div>
+ </Reveal>
+ <Reveal delay={280}>
  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight font-raleway">
  Discover Africa,<br />
  <div className="relative flex flex-row justify-end ">
@@ -42,18 +46,21 @@ export default function Home() {
  </div>
 </div>
  </h1>
+ </Reveal>
  </div>
 
 
 
- 
+
  </div>
 
 <div className="absolute bottom-[-60px] md:bottom-10 lg:bottom-20 max-w-4xl md:max-w-3xl w-full px-4 md:px-0 left-1/2 transform -translate-x-1/2 z-20">
+ <Reveal variant="scale" delay={450}>
  <HeroSearch />
+ </Reveal>
 </div>
  {/* Search bar */}
- 
+
  </div>
 
 
@@ -61,16 +68,16 @@ export default function Home() {
  <div className="w-full px-4 md:px-10 lg:px-20 mt-20 md:mt-25 py-10">
 
 
- <div className="text-2xl md:text-3xl font-bold font-raleway text-center md:text-left">
+ <Reveal className="text-2xl md:text-3xl font-bold font-raleway text-center md:text-left">
  Why Choose AzuraTravel?
- </div>
+ </Reveal>
 
- <div className="mt-4 text-sm md:text-base font-open-sans max-w-5xl text-text-primary text-center md:text-left mx-auto md:mx-0">
- At the heart of Azuratravels lies a commitment to providing access to extraordinary experiences that celebrate Africa's rich tapestry of culture, 
+ <Reveal delay={100} className="mt-4 text-sm md:text-base font-open-sans max-w-5xl text-text-primary text-center md:text-left mx-auto md:mx-0">
+ At the heart of Azuratravels lies a commitment to providing access to extraordinary experiences that celebrate Africa's rich tapestry of culture,
 lifestyle, and heritage. We address a critical market need: the demand for structured, high-quality, and culturally authentic travel experiences.
- </div>
+ </Reveal>
 
- <div className="mt-12 md:mt-20 flex text-text-primary flex-col lg:flex-row gap-10">
+ <Reveal delay={150} className="mt-12 md:mt-20 flex text-text-primary flex-col lg:flex-row gap-10">
 
  <div className="flex flex-col gap-4 items-center md:items-start text-center md:text-left">
  <div className="flex px-4 md:px-10">
@@ -176,7 +183,7 @@ immersion over conventional, mass-market travel packages.
  </div>
 
 
- </div>
+ </Reveal>
 
  </div>
 

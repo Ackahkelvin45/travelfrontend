@@ -28,6 +28,8 @@ export interface Package {
  cover_image: PackageCoverImage | null
  avg_rating: number | null
  review_count: number
+ has_options: boolean
+ from_price: string | null
 }
 
 export interface PackageItinerary {
@@ -74,8 +76,99 @@ export interface PackageDetail {
  images: PackageCoverImage[]
  itineraries: PackageItinerary[]
  faqs: PackageFAQ[]
+ whats_excluded: string[]
+ has_options: boolean
+ from_price: string | null
+ options: PackageOption[]
+ early_bird_deadline: string | null
+ early_bird_active: boolean
+ allow_installments: boolean
+ deposit_minimum: string | null
+ final_payment_deadline: string | null
+ visa_addon_enabled: boolean
+ visa_fee: string | null
+ visa_info: string | null
+ refund_tiers: { min_days: number; percent: number }[]
  created_at: string
  updated_at: string
+}
+
+export interface PackageOption {
+ id: string
+ hotel_name: string
+ star_rating: number
+ hotel_image: string | null
+ occupancy: 'single' | 'double'
+ occupancy_display: string
+ guests_per_booking: number
+ price_per_person: string
+ early_bird_price_per_person: string | null
+ is_active: boolean
+ order: number
+}
+
+/** GET /packages/{id}/pricing/ — the full server-priced matrix. All money
+ * shown in the booking flow comes from here; selection is pure lookup. */
+export interface PricingMatrix {
+ package_id: string
+ currency: string
+ tour_start: string | null
+ tour_end: string | null
+ options: {
+  id: string
+  hotel_name: string
+  star_rating: number
+  hotel_image: string | null
+  occupancy: 'single' | 'double'
+  occupancy_display: string
+  guests_per_booking: number
+  standard_price_per_person: string
+  early_bird_price_per_person: string | null
+  effective_price_per_person: string
+  early_bird_applied: boolean
+  standard_total: string
+  effective_total: string
+  saving_total: string
+ }[]
+ visa: {
+  enabled: boolean
+  fee_per_guest: string | null
+  info: string | null
+  refundable: boolean
+ }
+ installments: {
+  enabled: boolean
+  deposit_minimum: string | null
+  final_payment_deadline: string | null
+ }
+ early_bird: {
+  active: boolean
+  deadline: string | null
+ }
+ /** Paystack Ghana charges GHS only — non-GHS packages disclose the
+  * conversion applied at charge time. */
+ charge: {
+  currency: string
+  exchange_rate: string | null
+  rate_source: string | null
+ }
+ server_now: string
+}
+
+export interface PolicyDoc {
+ type: 'terms' | 'installment' | 'refund' | 'privacy'
+ type_display: string
+ version: string
+ title: string
+ body: string
+ published_at: string
+}
+
+export interface TripUpdate {
+ id: string
+ title: string
+ body: string
+ published_at: string
 }
 
 export interface PackagesListResponse {
@@ -147,6 +240,19 @@ export const packagesApi = baseApi.injectEndpoints({
  providesTags: (_result, _error, slug) => [{ type: 'Tour', id: slug }],
  }),
 
+ getPackagePricing: builder.query<PricingMatrix, string>({
+ query: (id) => `/packages/${id}/pricing/`,
+ providesTags: (_result, _error, id) => [{ type: 'Tour', id: `pricing-${id}` }],
+ }),
+
+ getTripUpdates: builder.query<TripUpdate[], string>({
+ query: (id) => `/packages/${id}/updates/`,
+ }),
+
+ getCurrentPolicies: builder.query<PolicyDoc[], void>({
+ query: () => '/bookings/policies/',
+ }),
+
  getTrendingPackages: builder.query<Package[], void>({
  query: () => '/packages/trending/',
  providesTags: [{ type: 'Tour', id: 'TRENDING' }],
@@ -177,4 +283,7 @@ export const {
  useGetTrendingPackagesQuery,
  useGetPackageReviewsQuery,
  useSubmitPackageReviewMutation,
+ useGetPackagePricingQuery,
+ useGetTripUpdatesQuery,
+ useGetCurrentPoliciesQuery,
 } = packagesApi

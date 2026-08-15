@@ -18,13 +18,13 @@ function imgUrl(image: string | StaticImageData): string {
 
 export default function Card({ id, image, location, title, rating, reviews, days, price, currency }: CardProps) {
  return (
- <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md flex flex-col min-w-72 max-w-72 shrink-0">
+ <div className="group bg-white dark:bg-gray-900 rounded-2xl shadow-md flex flex-col min-w-72 max-w-72 shrink-0 card-lift">
  {/* Image */}
- <div className="relative">
+ <div className="relative overflow-hidden rounded-t-2xl">
  <img
  src={imgUrl(image)}
  alt={title}
- className="w-full h-52 object-cover rounded-t-2xl"
+ className="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105"
  />
  <button className="absolute bottom-3 right-3 bg-white dark:bg-gray-800 rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:scale-105 transition-transform">
  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bd8f3a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

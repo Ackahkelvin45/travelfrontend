@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useGetBookingByReferenceQuery } from "@/lib/api/bookingsApi";
 import Link from "next/link";
+import { CheckIcon, MailIcon, PrinterIcon } from "@/components/ui/icons";
 
 function fmt(amount: string, currency: string) {
  return `${currency} ${parseFloat(amount).toLocaleString("en-US", {
@@ -78,20 +79,18 @@ function SuccessContent() {
  }
 
  return (
- <div className="w-full max-w-xl mx-auto">
+ <div className="w-full max-w-xl mx-auto content-in">
  {/* Animated check */}
  <div className="flex flex-col items-center mb-10">
- <div className="relative w-24 h-24 mb-6">
+ <div className="relative w-24 h-24 mb-6" aria-hidden>
  <span className="absolute inset-0 rounded-full bg-green-200 animate-ping opacity-40" />
- <div className="relative w-24 h-24 rounded-full bg-green-100 flex items-center justify-center">
- <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
- <polyline points="20 6 9 17 4 12" />
- </svg>
+ <div className="relative w-24 h-24 rounded-full bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 flex items-center justify-center">
+ <CheckIcon size={44} />
  </div>
  </div>
 
  <h1 className="text-3xl font-bold font-raleway text-text-primary mb-2 text-center">
- Payment Successful!
+ {parseFloat(booking.balance) > 0 ? "Deposit received — you're booked!" : "Booking confirmed"}
  </h1>
  <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm text-center max-w-sm leading-relaxed">
  Your booking is confirmed. A confirmation email with your booking details has been sent to{" "}
@@ -101,18 +100,11 @@ function SuccessContent() {
 
  {/* Email notice banner */}
  <div className="flex items-start gap-3 bg-primary/5 border border-primary/20 rounded-2xl px-5 py-4 mb-6">
- <svg
- width="20" height="20" viewBox="0 0 24 24" fill="none"
- stroke="#bd8f3a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
- className="shrink-0 mt-0.5"
- >
- <rect x="2" y="4" width="20" height="16" rx="2" />
- <polyline points="2,4 12,13 22,4" />
- </svg>
+ <MailIcon size={18} className="shrink-0 mt-0.5 text-primary" />
  <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 ">
  A receipt and trip details have been sent to{" "}
  <span className="font-semibold text-text-primary">{booking.email}</span>.
- Check your spam folder if you don't see it within a few minutes.
+ Check your spam folder if you don&apos;t see it within a few minutes.
  </p>
  </div>
 
@@ -139,11 +131,27 @@ function SuccessContent() {
  <Row label="Name" value={`${booking.first_name} ${booking.last_name}`} />
  <Row label="Email" value={booking.email} />
 
- <div className="border-t border-gray-100 dark:border-gray-800 pt-5 flex justify-between items-center">
- <span className="text-base font-bold font-raleway text-text-primary">Total Paid</span>
- <span className="text-xl font-bold font-raleway text-primary">
+ <div className="border-t border-gray-100 dark:border-gray-800 pt-5 flex flex-col gap-2.5">
+ <div className="flex justify-between items-center">
+ <span className="text-sm font-open-sans text-gray-700 dark:text-gray-300">Total booking amount</span>
+ <span className="text-sm font-semibold font-open-sans text-text-primary">
  {fmt(booking.total_amount, booking.currency)}
  </span>
+ </div>
+ <div className="flex justify-between items-center">
+ <span className="text-base font-bold font-raleway text-text-primary">Paid to date</span>
+ <span className="text-xl font-bold font-raleway text-primary">
+ {fmt(booking.amount_paid, booking.currency)}
+ </span>
+ </div>
+ {parseFloat(booking.balance) > 0 && (
+ <div className="flex justify-between items-center">
+ <span className="text-sm font-open-sans text-gray-700 dark:text-gray-300">Remaining balance</span>
+ <span className="text-sm font-bold font-open-sans text-amber-700 dark:text-amber-500">
+ {fmt(booking.balance, booking.currency)}
+ </span>
+ </div>
+ )}
  </div>
  </div>
  </div>
@@ -151,22 +159,38 @@ function SuccessContent() {
  {/* Status badges */}
  <div className="flex gap-3 mb-8">
  <Badge label="Booking" value={booking.status} colorMap={{ confirmed: "green", pending: "yellow", cancelled: "red", completed: "blue" }} />
- <Badge label="Payment" value={booking.payment_status} colorMap={{ success: "green", pending: "yellow", failed: "red", abandoned: "gray" }} />
+ <Badge label="Payment" value={booking.payment_status ?? "pending"} colorMap={{ success: "green", pending: "yellow", failed: "red", abandoned: "gray" }} />
  </div>
 
  {/* Actions */}
- <div className="flex flex-col sm:flex-row gap-3">
+ <div className="flex flex-col sm:flex-row gap-3 print:hidden">
+ {parseFloat(booking.balance) > 0 ? (
+ <Link
+ href={`/booking/${booking.reference}/pay`}
+ className="flex-1 bg-primary text-white py-3.5 rounded-full font-bold font-open-sans text-sm hover:bg-primary/90 transition-colors text-center"
+ >
+ Make another payment
+ </Link>
+ ) : (
+ <Link
+ href="/dashboard"
+ className="flex-1 bg-primary text-white py-3.5 rounded-full font-bold font-open-sans text-sm hover:bg-primary/90 transition-colors text-center"
+ >
+ View my booking
+ </Link>
+ )}
+ <button
+ onClick={() => window.print()}
+ className="flex-1 border border-gray-200 dark:border-gray-700 text-text-primary py-3.5 rounded-full font-semibold font-open-sans text-sm hover:border-gray-300 transition-colors flex items-center justify-center gap-2"
+ >
+ <PrinterIcon size={15} />
+ Print receipt
+ </button>
  <Link
  href="/destinations"
- className="flex-1 bg-primary text-white py-3.5 rounded-full font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors text-center"
- >
- Browse More Tours
- </Link>
- <Link
- href="/"
  className="flex-1 border border-gray-200 dark:border-gray-700 text-text-primary py-3.5 rounded-full font-semibold font-open-sans text-sm hover:border-gray-300 transition-colors text-center"
  >
- Return Home
+ Back to tours
  </Link>
  </div>
  </div>

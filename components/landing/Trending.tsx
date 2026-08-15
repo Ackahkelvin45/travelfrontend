@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Card from "../ecommerce/Card";
 import { useGetTrendingPackagesQuery } from "@/lib/api/packagesApi";
 import CardSkeleton from "../ecommerce/CardSkeleton";
+import Reveal from "../ui/Reveal";
 
 export default function Trending() {
  const scrollRef = useRef<HTMLDivElement>(null);
@@ -22,7 +23,7 @@ export default function Trending() {
  return (
  <section className="w-full px-4 md:px-10 lg:px-20 py-10 md:py-16 bg-background mt-40 md:mt-25">
  {/* Header */}
- <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
+ <Reveal className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
  <h2 className="text-3xl font-bold font-raleway text-text-primary">
  Trending
  </h2>
@@ -33,13 +34,13 @@ export default function Trending() {
  >
  <option value="all">All Categories</option>
  </select>
- </div>
+ </Reveal>
 
  {/* Carousel */}
  <div className="relative">
  <button
  onClick={() => scroll("left")}
- className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 z-10 bg-white dark:bg-gray-800 rounded-full w-12 h-12 shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
+ className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 z-10 bg-white dark:bg-gray-800 rounded-full w-12 h-12 shadow-lg flex items-center justify-center hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
  >
  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
  <polyline points="15 18 9 12 15 6" />
@@ -64,9 +65,9 @@ export default function Trending() {
  <p className="text-gray-500 dark:text-gray-400 py-10 w-full text-center">No trending packages found.</p>
  )}
 
- {!isLoading && !isError && trendingPackages.map((tour: any) => (
+ {!isLoading && !isError && trendingPackages.map((tour: any, index: number) => (
+ <Reveal key={tour.id} delay={Math.min(index, 5) * 70} className="shrink-0">
  <Card
- key={tour.id}
  id={tour.id}
  image={tour.cover_image?.image ?? "https://images.unsplash.com/photo-1562016600-ece13e8ba570?w=600&q=80"}
  location={tour.destination}
@@ -77,12 +78,13 @@ export default function Trending() {
  price={parseFloat(tour.price_shared)}
  currency={tour.currency}
  />
+ </Reveal>
  ))}
  </div>
 
  <button
  onClick={() => scroll("right")}
- className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 z-10 bg-white dark:bg-gray-800 rounded-full w-12 h-12 shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
+ className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 z-10 bg-white dark:bg-gray-800 rounded-full w-12 h-12 shadow-lg flex items-center justify-center hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
  >
  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
  <polyline points="9 18 15 12 9 6" />

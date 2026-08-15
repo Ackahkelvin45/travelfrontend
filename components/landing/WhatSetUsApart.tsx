@@ -1,4 +1,5 @@
 import bg from "../../assets/images/bg.png";
+import Reveal from "../ui/Reveal";
 
 function WhatSetUsApart() {
  return (
@@ -14,21 +15,21 @@ function WhatSetUsApart() {
 
  
  <div className="w-full lg:w-[40%] px-6 md:px-10 h-full justify-center flex flex-col py-10 lg:py-16 bg-white/60 dark:bg-gray-900/60 lg:bg-transparent lg: backdrop-blur-md lg:backdrop-blur-none">
- <div className="text-2xl md:text-3xl font-bold font-raleway text-text-primary">
+ <Reveal className="text-2xl md:text-3xl font-bold font-raleway text-text-primary">
  What Sets Us Apart
- </div>
+ </Reveal>
 
- <div className="text-base font-open-sans text-text-primary mt-8">
+ <Reveal delay={100} className="text-base font-open-sans text-text-primary mt-8">
  Azuratravels does not merely present Africa,{" "}
  <strong>we interpret and elevate it</strong>, transforming travel into
  a curated luxury experience that connects people to culture, lifestyle,
  and identity across the continent
- </div>
+ </Reveal>
  </div>
 
  <div className="w-full lg:w-[60%] px-4 md:px-10 py-10 lg:py-0 flex flex-col justify-center items-center bg-white/30 dark:bg-gray-900/30 lg:bg-transparent lg: backdrop-blur-sm lg:backdrop-blur-none">
 
- <div className="flex flex-col sm:flex-row gap-6 "> 
+ <Reveal delay={100} className="flex flex-col sm:flex-row gap-6 ">
 
  <div className="flex flex-col gap-4 h-fit bg-white/80 dark:bg-gray-800/80 p-10 rounded-lg shadow-lg">
 
@@ -62,8 +63,8 @@ insight.
 
  </div>
 
- </div>
- <div className="flex flex-col sm:flex-row gap-6 mt-6 lg:mt-0"> 
+ </Reveal>
+ <Reveal delay={200} className="flex flex-col sm:flex-row gap-6 mt-6 lg:mt-0">
 
  <div className="flex flex-col gap-4 h-fit bg-white/80 dark:bg-gray-800/80 p-10 rounded-lg shadow-lg">
 
@@ -97,7 +98,7 @@ offerings.
 
  </div>
 
- </div>
+ </Reveal>
 
  </div>
  </div>

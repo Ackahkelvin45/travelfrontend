@@ -6,6 +6,7 @@ import logoDark from "../../assets/logo/logodark.png";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import ThemeToggle from "../ui/ThemeToggle";
+import AccountMenu from "../ui/AccountMenu";
 
 export default function Navbar() {
  const [scrolled, setScrolled] = useState(false);
@@ -78,6 +79,9 @@ export default function Navbar() {
  About Us
  </Link>
  </li>
+ <li>
+ <AccountMenu />
+ </li>
 
 
  </ul>
@@ -128,8 +132,11 @@ export default function Navbar() {
  <Link href="/blog" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100 dark:border-gray-800">
  Blog
  </Link>
- <Link href="/about" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2">
+ <Link href="/about" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100 dark:border-gray-800">
  About Us
+ </Link>
+ <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-primary py-2">
+ My Bookings
  </Link>
  
  </div>

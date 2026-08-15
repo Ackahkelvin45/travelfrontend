@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useGetDestinationsQuery } from "@/lib/api/destinationsApi";
+import Reveal from "@/components/ui/Reveal";
 
 const PER_PAGE = 12;
 
@@ -253,14 +254,19 @@ export default function DestinationsPage() {
                   dest.images.find((img) => img.is_cover)?.image ??
                   dest.images[0]?.image;
                 return (
-                  <DestinationCard
+                  <Reveal
                     key={dest.id}
-                    id={dest.id}
-                    name={dest.name}
-                    packageCount={dest.package_count}
-                    coverImage={coverImage}
+                    delay={(index % 4) * 60}
                     className={getGridClass(index)}
-                  />
+                  >
+                    <DestinationCard
+                      id={dest.id}
+                      name={dest.name}
+                      packageCount={dest.package_count}
+                      coverImage={coverImage}
+                      className="h-full"
+                    />
+                  </Reveal>
                 );
               })}
         </div>

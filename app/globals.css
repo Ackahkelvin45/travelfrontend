@@ -56,3 +56,85 @@ body {
  color: var(--foreground);
  font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ── Motion system ─────────────────────────────────────────────────────────
+   One animation language for the whole app:
+   - .reveal (+ variants)  viewport/mount reveal, driven by components/ui/Reveal.tsx
+   - .page-enter           route entrance, applied by app/template.tsx
+   - .content-in           skeleton → content swap (fade, no movement)
+   - .card-lift            standard card hover elevation
+   - .acc-body             smooth accordion expansion (grid-rows trick)
+   Only transform/opacity are animated (grid-rows for accordions), and
+   everything collapses to instant under prefers-reduced-motion.        */
+
+:root {
+ --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal {
+ opacity: 0;
+ transform: translateY(14px);
+ transition:
+  opacity 0.55s var(--ease-out-soft),
+  transform 0.55s var(--ease-out-soft);
+ transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.reveal-fade { transform: none; }
+.reveal.reveal-scale { transform: translateY(8px) scale(0.97); }
+.reveal.is-visible { opacity: 1; transform: none; }
+
+.page-enter { animation: page-in 0.4s var(--ease-out-soft) both; }
+@keyframes page-in {
+ from { opacity: 0; transform: translateY(10px); }
+ to { opacity: 1; transform: none; }
+}
+
+.content-in { animation: content-in 0.45s ease-out both; }
+@keyframes content-in {
+ from { opacity: 0; }
+ to { opacity: 1; }
+}
+
+.card-lift {
+ transition:
+  transform 0.3s var(--ease-out-soft),
+  box-shadow 0.3s var(--ease-out-soft);
+}
+.card-lift:hover {
+ transform: translateY(-4px);
+ box-shadow: 0 12px 28px rgb(0 0 0 / 0.12);
+}
+
+.acc-body {
+ display: grid;
+ grid-template-rows: 0fr;
+ transition: grid-template-rows 0.3s var(--ease-out-soft);
+}
+.acc-body.acc-open { grid-template-rows: 1fr; }
+.acc-body > div { overflow: hidden; min-height: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+ .reveal,
+ .reveal.reveal-fade,
+ .reveal.reveal-scale {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+ }
+ .page-enter,
+ .content-in { animation: none !important; }
+ .card-lift,
+ .card-lift:hover {
+  transform: none !important;
+  transition: none !important;
+ }
+ .acc-body { transition: none !important; }
+ *,
+ *::before,
+ *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+ }
+}

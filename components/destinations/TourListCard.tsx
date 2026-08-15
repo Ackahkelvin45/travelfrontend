@@ -55,10 +55,10 @@ export default function TourListCard({
  duration, priceShared, pricePrivate, priceVip, currency,
 }: TourListCardProps) {
  return (
- <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row overflow-hidden hover:shadow-md transition-shadow">
+ <div className="group bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row overflow-hidden card-lift">
  {/* Image */}
- <div className="relative w-full sm:w-56 md:w-64 h-48 sm:h-52 shrink-0">
- <img src={imgUrl(image)} alt={title} className="w-full h-full object-cover" />
+ <div className="relative w-full sm:w-56 md:w-64 h-48 sm:h-52 shrink-0 overflow-hidden">
+ <img src={imgUrl(image)} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
  {badge && (
  <span
  className={`absolute top-3 left-3 text-xs font-bold font-open-sans px-2.5 py-1 rounded-full ${

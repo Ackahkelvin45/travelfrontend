@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "../components/landing/Navbar";
 import Footer from "../components/landing/Footer";
 import StoreProvider from "../components/providers/StoreProvider";
+import PendingBookingBanner from "../components/booking/PendingBookingBanner";
 import ThemeInitializer from "../components/providers/ThemeInitializer";
 
 export const metadata: Metadata = {
@@ -48,6 +49,7 @@ export default function RootLayout({
  <ThemeInitializer />
  <Navbar />
  {children}
+ <PendingBookingBanner />
  <Footer />
  </StoreProvider>
  </body>

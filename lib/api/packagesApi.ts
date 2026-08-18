@@ -44,6 +44,15 @@ export interface TourDeparture {
  note: string | null
 }
 
+export interface PackageVideo {
+ id: string
+ video: string | null
+ video_url: string | null
+ poster: string | null
+ caption: string | null
+ order: number
+}
+
 export interface PackageItinerary {
  id: string
  day: number
@@ -86,6 +95,7 @@ export interface PackageDetail {
  avg_rating: number | null
  review_count: number
  images: PackageCoverImage[]
+ videos: PackageVideo[]
  itineraries: PackageItinerary[]
  faqs: PackageFAQ[]
  whats_excluded: string[]

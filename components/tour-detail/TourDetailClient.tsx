@@ -2,6 +2,7 @@
 
 import TourHeader from "@/components/tour-detail/TourHeader";
 import TourGallery from "@/components/tour-detail/TourGallery";
+import TourVideos from "@/components/tour-detail/TourVideos";
 import TourMeta from "@/components/tour-detail/TourMeta";
 import TourOverview, { TourInclusions } from "@/components/tour-detail/TourOverview";
 import TourItinerary from "@/components/tour-detail/TourItinerary";
@@ -137,6 +138,10 @@ export default function TourDetailClient({ id }: Props) {
 
             <Reveal>
               <TourInclusions included={pkg.whats_included ?? []} notIncluded={pkg.whats_excluded ?? []} />
+            </Reveal>
+
+            <Reveal>
+              <TourVideos videos={pkg.videos ?? []} />
             </Reveal>
 
             {tripUpdates.length > 0 && (

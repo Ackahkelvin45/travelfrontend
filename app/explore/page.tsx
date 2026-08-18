@@ -35,9 +35,11 @@ function mapPackage(pkg: Package) {
  description: pkg.category_display,
  tags: [pkg.category_display].filter(Boolean),
  duration: `${pkg.duration_days} Day${pkg.duration_days !== 1 ? "s" : ""}`,
- priceShared: parseFloat(pkg.price_shared),
- pricePrivate: parseFloat(pkg.price_private),
- priceVip: parseFloat(pkg.price_vip),
+ // Option-based tours (flagship) have no flat price_shared — fall back to
+ // from_price (cheapest option) so the card never shows "NaN".
+ priceShared: parseFloat(pkg.price_shared ?? pkg.from_price ?? "0"),
+ pricePrivate: parseFloat(pkg.price_private ?? "0"),
+ priceVip: parseFloat(pkg.price_vip ?? "0"),
  currency: pkg.currency,
  };
 }

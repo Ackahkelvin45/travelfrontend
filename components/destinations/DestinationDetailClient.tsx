@@ -29,7 +29,7 @@ function mapPackage(pkg: Package) {
     description: pkg.category_display,
     tags: [pkg.category_display].filter(Boolean),
     duration: `${pkg.duration_days} Day${pkg.duration_days !== 1 ? "s" : ""}`,
-    priceShared: parseFloat(pkg.price_shared),
+    priceShared: parseFloat(pkg.price_shared ?? pkg.from_price ?? "0"),
     pricePrivate: parseFloat(pkg.price_private),
     priceVip: parseFloat(pkg.price_vip),
     currency: pkg.currency,

@@ -63,14 +63,20 @@ export default function TourDetailClient({ id }: Props) {
       : undefined;
   const durationLabel = `${pkg.duration_days} day${pkg.duration_days !== 1 ? "s" : ""}`;
 
-  // Legacy (non-option) packages price per tier.
+  // Legacy (non-option) packages price per tier. Day tours are a single flat
+  // per-person price, so we drop any tier the package doesn't actually price
+  // (null → NaN) — otherwise the sidebar shows "GHS NaN" rows.
   const ticketTypes = pkg.has_options
     ? []
     : [
-        { label: "Shared/Couple", ageRange: "Group", price: parseFloat(pkg.price_shared), tier: "shared" as const },
+        {
+          label: pkg.is_day_tour ? "Per person" : "Shared/Couple",
+          ageRange: pkg.is_day_tour ? "" : "Group",
+          price: parseFloat(pkg.price_shared), tier: "shared" as const,
+        },
         { label: "Private", ageRange: "Solo", price: parseFloat(pkg.price_private), tier: "private" as const },
         { label: "VIP", ageRange: "Exclusive experience", price: parseFloat(pkg.price_vip), tier: "vip" as const },
-      ];
+      ].filter((t) => Number.isFinite(t.price) && t.price > 0);
 
   const embedUrl =
     pkg.latitude && pkg.longitude
@@ -190,12 +196,14 @@ export default function TourDetailClient({ id }: Props) {
             ) : (
               <BookingSidebar
                 packageId={pkg.id}
-                basePrice={parseFloat(pkg.price_shared)}
+                basePrice={parseFloat(pkg.price_shared ?? pkg.from_price ?? "0")}
                 ticketTypes={ticketTypes}
                 addOns={[]}
                 availableFrom={pkg.available_from}
                 availableTo={pkg.available_to}
                 currency={pkg.currency}
+                isDayTour={pkg.is_day_tour}
+                departures={pkg.departures}
               />
             )}
           </aside>

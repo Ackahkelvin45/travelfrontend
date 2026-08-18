@@ -17,6 +17,12 @@ interface AddOn {
   subLabel?: string;
 }
 
+interface Departure {
+  date: string;
+  is_full: boolean;
+  seats_left: number | null;
+}
+
 interface BookingSidebarProps {
   packageId: string;
   basePrice: number;
@@ -25,10 +31,12 @@ interface BookingSidebarProps {
   availableFrom?: string;
   availableTo?: string;
   currency: string;
+  isDayTour?: boolean;
+  departures?: Departure[];
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "long", day: "2-digit" });
+  return new Date(iso).toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" });
 }
 
 export default function BookingSidebar({
@@ -39,10 +47,16 @@ export default function BookingSidebar({
   availableFrom,
   availableTo,
   currency,
+  isDayTour = false,
+  departures = [],
 }: BookingSidebarProps) {
   const router = useRouter();
   const [counts, setCounts] = useState<number[]>(ticketTypes.map(() => 0));
   const [selectedAddOns, setSelectedAddOns] = useState<boolean[]>((addOns ?? []).map(() => false));
+  const bookableDepartures = departures.filter((d) => !d.is_full);
+  const [selectedDate, setSelectedDate] = useState<string>(
+    () => bookableDepartures[0]?.date ?? ""
+  );
 
   const ticketsTotal = counts.reduce((sum, count, i) => sum + count * ticketTypes[i].price, 0);
   const addOnsTotal = (addOns ?? []).reduce((sum, addon, i) => sum + (selectedAddOns[i] ? addon.price : 0), 0);
@@ -59,18 +73,20 @@ export default function BookingSidebar({
   const handleBookNow = () => {
     const hasSelection = counts.some((c) => c > 0);
     const params = new URLSearchParams({ id: packageId });
-    // Use the available_from as the default travel date if needed
-    if (availableFrom) {
-      params.set("date", availableFrom);
-    }
-    if (availableTo) {
-      params.set("dateTo", availableTo);
+    if (isDayTour) {
+      // Day tours book against a specific departure date.
+      if (selectedDate) params.set("date", selectedDate);
+    } else {
+      if (availableFrom) params.set("date", availableFrom);
+      if (availableTo) params.set("dateTo", availableTo);
     }
     ticketTypes.forEach((ticket, i) => {
       params.set(ticket.tier, hasSelection ? counts[i].toString() : i === 0 ? "1" : "0");
     });
     router.push(`/booking?${params.toString()}`);
   };
+
+  const bookDisabled = isDayTour && (bookableDepartures.length === 0 || !selectedDate);
 
   return (
     <div className="bg-white dark:bg-gray-900 w-full max-w-md mx-auto lg:max-w-none rounded-2xl shadow-md border border-gray-100 dark:border-gray-800 p-6">
@@ -82,7 +98,33 @@ export default function BookingSidebar({
         </span>
       </div>
 
-      {/* Date & Time */}
+      {/* Day tours: pick a scheduled departure. Other tours: validity window. */}
+      {isDayTour ? (
+        <div className="mb-6">
+          <label htmlFor="sidebar-departure" className="block text-sm font-semibold font-raleway text-text-primary mb-2">
+            Departure date
+          </label>
+          {bookableDepartures.length > 0 ? (
+            <select
+              id="sidebar-departure"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-text-primary font-open-sans text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {bookableDepartures.map((d) => (
+                <option key={d.date} value={d.date}>
+                  {formatDate(d.date)}
+                  {d.seats_left !== null && d.seats_left <= 5 ? `  (${d.seats_left} left)` : ""}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <p className="text-xs text-gray-600 dark:text-gray-300 font-open-sans p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+              No upcoming departures right now — please check back soon.
+            </p>
+          )}
+        </div>
+      ) : (
       <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden mb-6">
         <div className="flex items-center gap-3 p-3 border-b border-gray-200 dark:border-gray-700 ">
           <div className="w-12 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center shrink-0">
@@ -115,6 +157,7 @@ export default function BookingSidebar({
           </div>
         </div>
       </div>
+      )}
 
       {/* Tickets */}
       <div className="mb-6">
@@ -124,7 +167,7 @@ export default function BookingSidebar({
             <div key={i} className="flex items-center justify-between gap-2">
               <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 leading-snug">
                 {ticket.label}{" "}
-                <span className="text-gray-700 dark:text-gray-300">({ticket.ageRange})</span>{" "}
+                {ticket.ageRange && <span className="text-gray-700 dark:text-gray-300">({ticket.ageRange})</span>}{" "}
                 <span className="font-semibold text-text-primary">{currency} {ticket.price.toFixed(2)}</span>
               </p>
               <div className="flex items-center gap-2 shrink-0">
@@ -189,9 +232,10 @@ export default function BookingSidebar({
 
       <button
         onClick={handleBookNow}
-        className="block w-full bg-primary text-white py-3.5 rounded-2xl font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors text-center"
+        disabled={bookDisabled}
+        className="block w-full bg-primary text-white py-3.5 rounded-2xl font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Book Now
+        {isDayTour && bookableDepartures.length === 0 ? "No dates available" : "Book Now"}
       </button>
     </div>
   );

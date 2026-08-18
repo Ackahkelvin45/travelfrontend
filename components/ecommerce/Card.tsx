@@ -18,7 +18,7 @@ function imgUrl(image: string | StaticImageData): string {
 
 export default function Card({ id, image, location, title, rating, reviews, days, price, currency }: CardProps) {
  return (
- <div className="group bg-white dark:bg-gray-900 rounded-2xl shadow-md flex flex-col min-w-72 max-w-72 shrink-0 card-lift">
+ <div className="group bg-white dark:bg-gray-900 rounded-2xl shadow-md flex flex-col min-w-72 max-w-72 h-full shrink-0 card-lift">
  {/* Image */}
  <div className="relative overflow-hidden rounded-t-2xl">
  <img
@@ -36,7 +36,7 @@ export default function Card({ id, image, location, title, rating, reviews, days
  {/* Content */}
  <div className="p-4 flex flex-col gap-2 flex-1">
  <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans">{location}</p>
- <Link href={`/tour/${id ?? title.toLowerCase().replace(/\s+/g, "-")}`} className="text-base font-bold font-raleway text-text-primary leading-snug line-clamp-2 hover:text-primary transition-colors">
+ <Link href={`/tour/${id ?? title.toLowerCase().replace(/\s+/g, "-")}`} className="text-base font-bold font-raleway text-text-primary leading-snug line-clamp-2 min-h-11 hover:text-primary transition-colors">
  {title}
  </Link>
  <div className="flex items-center justify-center gap-1">
@@ -61,7 +61,7 @@ export default function Card({ id, image, location, title, rating, reviews, days
  })}
  <span className="text-xs text-gray-700 dark:text-gray-300 font-open-sans ml-1">{rating} ({reviews})</span>
  </div>
- <hr className="border-gray-100 dark:border-gray-800 " />
+ <hr className="border-gray-100 dark:border-gray-800 mt-auto" />
  <div className="flex justify-between items-center text-sm font-open-sans text-gray-700 dark:text-gray-300 ">
  <span>{days} days</span>
  <span>

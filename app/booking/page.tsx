@@ -14,11 +14,6 @@ const STEPS = [
  { id: 2, label: "Your Details" },
 ];
 
-const TIER_LABELS: Record<PriceTier, string> = {
- shared: "Shared / Group",
- private: "Private",
- vip: "VIP",
-};
 
 function fmt(amount: number, currency: string) {
  return `${currency} ${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -121,7 +116,7 @@ function OrderSummary({
                     {counts[i]}
                   </span>
                   <span className="text-sm font-open-sans text-gray-700">
-                    {TIER_LABELS[t.tier]}{" "}
+                    {t.label}{" "}
                     <span className="text-gray-700">({fmt(t.price, currency)}/person)</span>
                   </span>
                 </div>
@@ -293,7 +288,6 @@ function StepBookingDetails({
               >
                 <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 leading-snug">
                   {label}{" "}
-                  <span className="text-gray-700">({TIER_LABELS[tier]})</span>{" "}
                   <span className="font-semibold text-text-primary">{fmt(price, currency)}</span>
                   <span className="text-gray-500"> /person</span>
                 </p>

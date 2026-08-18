@@ -66,7 +66,7 @@ export default function Trending() {
  )}
 
  {!isLoading && !isError && trendingPackages.map((tour: any, index: number) => (
- <Reveal key={tour.id} delay={Math.min(index, 5) * 70} className="shrink-0">
+ <Reveal key={tour.id} delay={Math.min(index, 5) * 70} className="shrink-0 h-full">
  <Card
  id={tour.id}
  image={tour.cover_image?.image ?? "https://images.unsplash.com/photo-1562016600-ece13e8ba570?w=600&q=80"}
@@ -75,7 +75,7 @@ export default function Trending() {
  rating={tour.avg_rating ?? 0}
  reviews={tour.review_count ?? 0}
  days={tour.duration_days}
- price={parseFloat(tour.price_shared)}
+ price={parseFloat(tour.price_shared ?? tour.from_price ?? "0")}
  currency={tour.currency}
  />
  </Reveal>

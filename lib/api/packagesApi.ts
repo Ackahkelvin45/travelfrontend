@@ -30,6 +30,18 @@ export interface Package {
  review_count: number
  has_options: boolean
  from_price: string | null
+ is_day_tour: boolean
+ price_usd_estimate: string | null
+ next_departure: string | null
+}
+
+export interface TourDeparture {
+ id: string
+ date: string
+ capacity: number | null
+ seats_left: number | null
+ is_full: boolean
+ note: string | null
 }
 
 export interface PackageItinerary {
@@ -80,6 +92,9 @@ export interface PackageDetail {
  has_options: boolean
  from_price: string | null
  options: PackageOption[]
+ is_day_tour: boolean
+ price_usd_estimate: string | null
+ departures: TourDeparture[]
  early_bird_deadline: string | null
  early_bird_active: boolean
  allow_installments: boolean

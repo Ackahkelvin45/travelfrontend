@@ -187,6 +187,8 @@ interface Step1Props {
   imageUrl: string;
   title: string;
   onNext: () => void;
+  departures?: { date: string; is_full: boolean; seats_left: number | null }[];
+  isDayTour?: boolean;
 }
 
 // --- Step 1 - Booking Details ---
@@ -202,17 +204,48 @@ function StepBookingDetails({
   imageUrl,
   title,
   onNext,
+  departures = [],
+  isDayTour = false,
 }: Step1Props) {
   const hasTickets = counts.some((c) => c > 0);
   const isValid = hasTickets && travelDate;
+  const bookableDepartures = departures.filter((d) => !d.is_full);
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
       {/* Left */}
       <div className="flex-1">
         <h2 className="text-xl font-bold font-raleway text-text-primary mb-6">
-          When are you traveling?
+          {isDayTour ? "Pick a departure date" : "When are you traveling?"}
         </h2>
+
+        {isDayTour ? (
+          <div className="mb-8">
+            <label htmlFor="departure" className="block text-sm font-semibold font-open-sans text-text-primary mb-3">
+              Departure date <span className="text-red-500">*</span>
+            </label>
+            {bookableDepartures.length > 0 ? (
+              <select
+                id="departure"
+                value={travelDate}
+                onChange={(e) => setTravelDate(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-text-primary font-open-sans text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="">Select a date…</option>
+                {bookableDepartures.map((d) => (
+                  <option key={d.date} value={d.date}>
+                    {fmtDate(d.date)}
+                    {d.seats_left !== null && d.seats_left <= 5 ? `  (${d.seats_left} left)` : ""}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="text-sm text-gray-600 dark:text-gray-300 font-open-sans p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                No upcoming departures for this tour right now. Please check back soon.
+              </p>
+            )}
+          </div>
+        ) : (
         <div className="mb-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-800">
           <label className="block text-sm font-semibold font-open-sans text-text-primary mb-3">
             Available Dates
@@ -238,6 +271,7 @@ function StepBookingDetails({
             </div>
           </div>
         </div>
+        )}
 
         <h2 className="text-xl font-bold font-raleway text-text-primary mb-6">
           Select your ticket type
@@ -551,11 +585,13 @@ function BookingContent() {
  );
  }
 
+ // Day tours are a single flat per-person price; multi-tier packages keep
+ // their tiers. Drop any tier the package doesn't price (null → NaN).
  const tiers: { tier: PriceTier; label: string; price: number }[] = [
- { tier: "shared", label: "Shared / Group", price: parseFloat(pkg.price_shared) },
- { tier: "private", label: "Private", price: parseFloat(pkg.price_private) },
- { tier: "vip", label: "VIP", price: parseFloat(pkg.price_vip) },
- ];
+ { tier: "shared" as PriceTier, label: pkg.is_day_tour ? "Per person" : "Shared / Group", price: parseFloat(pkg.price_shared) },
+ { tier: "private" as PriceTier, label: "Private", price: parseFloat(pkg.price_private) },
+ { tier: "vip" as PriceTier, label: "VIP", price: parseFloat(pkg.price_vip) },
+ ].filter((t) => Number.isFinite(t.price) && t.price > 0);
 
  // Single-tier invariant: adjusting a tier zeroes the others.
  const adjust = (i: number, delta: number) => {
@@ -616,6 +652,8 @@ function BookingContent() {
           imageUrl={coverImage}
           title={pkg.title}
           onNext={() => setStep(2)}
+          departures={pkg.departures}
+          isDayTour={pkg.is_day_tour}
         />
       )}
 

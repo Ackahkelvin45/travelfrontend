@@ -59,6 +59,21 @@ export interface CheckoutResponse {
   message: string
 }
 
+export interface ConfigurableCheckoutRequest {
+  package_id: string
+  num_guests: number
+  selected_addon_codes: string[]
+  payment_plan: PaymentPlan
+  first_name: string
+  last_name: string
+  email: string
+  phone?: string
+  country?: string
+  special_requests?: string
+  accepted_policies: string[]
+  expected_total?: string
+}
+
 // ── Payments ─────────────────────────────────────────────────────────────────
 
 export type PaymentChannel = 'card' | 'momo'
@@ -174,6 +189,12 @@ export const bookingsApi = baseApi.injectEndpoints({
       invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
     }),
 
+    // Core + add-ons flow (Michael Blackson style)
+    configurableCheckout: builder.mutation<CheckoutResponse, ConfigurableCheckoutRequest>({
+      query: (body) => ({ url: '/bookings/checkout/configurable/', method: 'POST', body }),
+      invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
+    }),
+
     initializePayment: builder.mutation<InitializePaymentResponse, InitializePaymentRequest>({
       query: (body) => ({ url: '/payments/initialize/', method: 'POST', body }),
     }),
@@ -212,6 +233,7 @@ export const bookingsApi = baseApi.injectEndpoints({
 export const {
   useCreateBookingMutation,
   useCheckoutMutation,
+  useConfigurableCheckoutMutation,
   useInitializePaymentMutation,
   usePaymentChannelsQuery,
   useVerifyPaymentQuery,

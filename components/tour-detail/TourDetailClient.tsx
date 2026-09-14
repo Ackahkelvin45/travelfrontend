@@ -13,6 +13,7 @@ import LeaveReply from "@/components/tour-detail/LeaveReply";
 import RelatedTours from "@/components/tour-detail/RelatedTours";
 import BookingSidebar from "@/components/tour-detail/BookingSidebar";
 import OptionBookingPanel from "@/components/tour-detail/OptionBookingPanel";
+import ConfigurableBookingPanel from "@/components/tour-detail/ConfigurableBookingPanel";
 import CommercialSections from "@/components/tour-detail/CommercialSections";
 import MobileBookingBar from "@/components/tour-detail/MobileBookingBar";
 import TourDetailSkeleton from "@/components/tour-detail/TourDetailSkeleton";
@@ -194,7 +195,11 @@ export default function TourDetailClient({ id }: Props) {
           <aside
             className={`${pkg.has_options ? "hidden lg:block" : "mt-8 lg:mt-0"} lg:sticky lg:top-24`}
           >
-            {pkg.has_options ? (
+            {pkg.pricing_model === "core_plus_addons" ? (
+              <Reveal variant="scale" delay={120}>
+                <ConfigurableBookingPanel packageId={pkg.id} />
+              </Reveal>
+            ) : pkg.has_options ? (
               <Reveal variant="scale" delay={120}>
                 <OptionBookingPanel packageId={pkg.id} />
               </Reveal>

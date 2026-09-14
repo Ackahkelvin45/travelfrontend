@@ -105,6 +105,8 @@ export interface PackageDetail {
  is_day_tour: boolean
  price_usd_estimate: string | null
  departures: TourDeparture[]
+ pricing_model: 'option_based' | 'flat' | 'core_plus_addons'
+ base_price_per_person: string | null
  early_bird_deadline: string | null
  early_bird_active: boolean
  allow_installments: boolean
@@ -130,6 +132,37 @@ export interface PackageOption {
  early_bird_price_per_person: string | null
  is_active: boolean
  order: number
+}
+
+export interface ConfigurableAddon {
+ code: string
+ name: string
+ description: string | null
+ price: string
+ unit: 'per_person' | 'per_booking'
+ is_default: boolean
+ refundable: boolean
+}
+
+/** GET /packages/{id}/pricing/ for a core_plus_addons package. */
+export interface ConfigurableMatrix {
+ package_id: string
+ pricing_model: 'core_plus_addons'
+ currency: string
+ base_price_per_person: string | null
+ tour_start: string | null
+ tour_end: string | null
+ addon_groups: {
+  id: string
+  name: string
+  selection: 'single' | 'multi'
+  required: boolean
+  addons: ConfigurableAddon[]
+ }[]
+ ungrouped_addons: ConfigurableAddon[]
+ discount_rules: { name: string; percent: string; required_addons: string[] }[]
+ installments: { enabled: boolean; deposit_minimum: string | null; final_payment_deadline: string | null }
+ charge: { currency: string; exchange_rate: string | null; rate_source: string | null }
 }
 
 /** GET /packages/{id}/pricing/ — the full server-priced matrix. All money
@@ -270,6 +303,11 @@ export const packagesApi = baseApi.injectEndpoints({
  providesTags: (_result, _error, id) => [{ type: 'Tour', id: `pricing-${id}` }],
  }),
 
+ getConfigurableMatrix: builder.query<ConfigurableMatrix, string>({
+ query: (id) => `/packages/${id}/pricing/`,
+ providesTags: (_result, _error, id) => [{ type: 'Tour', id: `config-${id}` }],
+ }),
+
  getTripUpdates: builder.query<TripUpdate[], string>({
  query: (id) => `/packages/${id}/updates/`,
  }),
@@ -309,6 +347,7 @@ export const {
  useGetPackageReviewsQuery,
  useSubmitPackageReviewMutation,
  useGetPackagePricingQuery,
+ useGetConfigurableMatrixQuery,
  useGetTripUpdatesQuery,
  useGetCurrentPoliciesQuery,
 } = packagesApi

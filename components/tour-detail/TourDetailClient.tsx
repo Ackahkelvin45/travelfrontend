@@ -15,6 +15,7 @@ import BookingSidebar from "@/components/tour-detail/BookingSidebar";
 import OptionBookingPanel from "@/components/tour-detail/OptionBookingPanel";
 import ConfigurableBookingPanel from "@/components/tour-detail/ConfigurableBookingPanel";
 import CommercialSections from "@/components/tour-detail/CommercialSections";
+import PolicySections from "@/components/tour-detail/PolicySections";
 import MobileBookingBar from "@/components/tour-detail/MobileBookingBar";
 import TourDetailSkeleton from "@/components/tour-detail/TourDetailSkeleton";
 import { AccordionItem } from "@/components/ui/Accordion";
@@ -116,7 +117,11 @@ export default function TourDetailClient({ id }: Props) {
           <div className="flex flex-col gap-8 pb-8">
             <TourMeta
               duration={durationLabel}
-              groupSize={`Up to ${pkg.max_guests}`}
+              groupSize={
+                pkg.min_group_size
+                  ? `Min. ${pkg.min_group_size} guests · up to ${pkg.max_guests} per booking`
+                  : `Up to ${pkg.max_guests}`
+              }
               dates={datesLabel}
               destination={pkg.destination}
             />
@@ -129,12 +134,21 @@ export default function TourDetailClient({ id }: Props) {
               </Reveal>
             )}
 
+            {/* Core + add-ons packages have no option matrix, so their refund
+                schedule and policies get their own section here. */}
+            {!pkg.has_options && pkg.pricing_model === "core_plus_addons" && (
+              <Reveal>
+                <PolicySections refundTiers={pkg.refund_tiers ?? []} />
+              </Reveal>
+            )}
+
             <TourItinerary
               days={pkg.itineraries
                 .slice()
                 .sort((a, b) => a.day - b.day)
-                .map((it) => ({ day: it.day, title: it.title, description: it.description }))}
+                .map((it) => ({ day: it.day, title: it.title, description: it.description, activities: it.activities ?? [] }))}
               tourTitle={pkg.title}
+              startDate={pkg.pricing_model === "flat" ? undefined : pkg.available_from ?? undefined}
             />
 
             <Reveal>

@@ -52,6 +52,14 @@ export const authApi = baseApi.injectEndpoints({
       query: () => '/auth/me/',
       providesTags: ['User'],
     }),
+
+    resendVerification: builder.mutation<{ detail: string }, { email: string }>({
+      query: (body) => ({
+        url: '/auth/resend-verification/',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 })
 
@@ -60,4 +68,5 @@ export const {
   useRegisterMutation,
   useRefreshTokenMutation,
   useGetMeQuery,
+  useResendVerificationMutation,
 } = authApi

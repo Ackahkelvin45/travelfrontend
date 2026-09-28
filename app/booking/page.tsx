@@ -1,8 +1,11 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useGetPackageDetailQuery } from "@/lib/api/packagesApi";
+import { useGetMeQuery } from "@/lib/api/authApi";
+import PhoneInputWithCountry from "@/components/booking/PhoneInputWithCountry";
+import CountrySelect from "@/components/booking/CountrySelect";
 import {
  useCreateBookingMutation,
  useInitializePaymentMutation,
@@ -392,6 +395,16 @@ function StepYourDetails({
  <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
  {/* Left */}
  <div className="flex-1">
+ <button
+ onClick={onBack}
+ className="mb-6 text-sm font-semibold font-open-sans text-gray-700 dark:text-gray-300 hover:text-text-primary transition-colors flex items-center gap-1.5"
+ >
+ <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+ <path d="M19 12H5M12 5l-7 7 7 7" />
+ </svg>
+ Back to Booking Details
+ </button>
+
  <h2 className="text-xl font-bold font-raleway text-text-primary mb-8">
  Who shall we send these tickets to?
  </h2>
@@ -437,24 +450,20 @@ function StepYourDetails({
  <label className="block text-sm font-semibold font-open-sans text-text-primary mb-2">
  Telephone Number
  </label>
- <input
- type="tel"
- placeholder="Enter your telephone number"
+ <PhoneInputWithCountry
  value={form.phone}
- onChange={(e) => update("phone", e.target.value)}
- className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary transition-colors"
+ onChange={(v) => update("phone", v)}
+ placeholder="Enter your telephone number"
  />
  </div>
  <div>
  <label className="block text-sm font-semibold font-open-sans text-text-primary mb-2">
  Country
  </label>
- <input
- type="text"
- placeholder="Enter your country"
+ <CountrySelect
  value={form.country}
- onChange={(e) => update("country", e.target.value)}
- className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary transition-colors"
+ onChange={(v) => update("country", v)}
+ placeholder="Select your country"
  />
  </div>
  <div className="col-span-1 md:col-span-2">
@@ -471,21 +480,11 @@ function StepYourDetails({
  </div>
  </div>
 
- {error && (
- <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl text-sm font-open-sans text-red-600">
- {error}
- </div>
- )}
+ <p className="mt-8 text-xs text-gray-500 dark:text-gray-400 font-open-sans">
+ You&apos;ll choose Card or Mobile Money (network and number) in Paystack&apos;s secure popup.
+ </p>
 
- <button
- onClick={onBack}
- className="mt-8 text-sm font-semibold font-open-sans text-gray-700 dark:text-gray-300 hover:text-text-primary transition-colors flex items-center gap-1.5"
- >
- <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
- <path d="M19 12H5M12 5l-7 7 7 7" />
- </svg>
- Back to Booking Details
- </button>
+
  </div>
 
   {/* Right */}
@@ -538,6 +537,21 @@ function BookingContent() {
     country: "",
     specialRequests: "",
   });
+
+  // Signed-in users get their profile prefilled so they don't retype details
+  // they've already given us. Pre-filled fields stay editable.
+  const { data: me } = useGetMeQuery(undefined);
+  useEffect(() => {
+    if (!me) return;
+    setForm((f) => ({
+      ...f,
+      firstName: f.firstName || me.first_name || "",
+      lastName: f.lastName || me.last_name || "",
+      email: f.email || me.email || "",
+      phone: f.phone || me.phone_number || "",
+      country: f.country || me.country || "",
+    }));
+  }, [me]);
   const [payError, setPayError] = useState<string | null>(null);
 
  const [createBooking, { isLoading: isCreating }] = useCreateBookingMutation();
@@ -615,7 +629,12 @@ function BookingContent() {
         special_requests: form.specialRequests || undefined,
       }).unwrap();
 
- const payment = await initializePayment({ booking_id: booking.id }).unwrap();
+ // channel "any": the Paystack popup offers Card and Mobile Money and
+ // collects the network + number itself.
+ const payment = await initializePayment({
+ booking_id: booking.id,
+ channel: "any",
+ }).unwrap();
  const { routeAfterInitialize } = await import("@/lib/payments/paystack");
  await routeAfterInitialize(payment, (reference) => {
  window.location.href = `/payment/callback?reference=${reference}`;

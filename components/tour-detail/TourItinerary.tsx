@@ -6,14 +6,30 @@ interface ItineraryDay {
  day: number;
  title: string;
  description?: string;
+ activities?: string[];
 }
 
 interface TourItineraryProps {
  days: ItineraryDay[];
  tourTitle?: string;
+ /** ISO date of day 1. When set, each day is labelled with its calendar date. */
+ startDate?: string;
 }
 
-function downloadItinerary(days: ItineraryDay[], tourTitle: string) {
+/** "Day 3 · Wednesday, Jan 6" when the tour has fixed dates, else "Day 3". */
+function dayLabel(day: number, startDate?: string): string {
+ if (!startDate) return `Day ${day}`;
+ const date = new Date(startDate + "T00:00:00");
+ if (Number.isNaN(date.getTime())) return `Day ${day}`;
+ date.setDate(date.getDate() + day - 1);
+ return `Day ${day} · ${date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}`;
+}
+
+function escapeHtml(s: string) {
+ return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function downloadItinerary(days: ItineraryDay[], tourTitle: string, startDate?: string) {
  const rows = days
  .map(
  (item, i) => `
@@ -23,9 +39,10 @@ function downloadItinerary(days: ItineraryDay[], tourTitle: string) {
  ${i < days.length - 1 ? '<div class="line"></div>' : ""}
  </div>
  <div class="content">
- <p class="day-label">Day ${item.day}</p>
- <p class="day-title">${item.title}</p>
- ${item.description ? `<p class="day-desc">${item.description}</p>` : ""}
+ <p class="day-label">${escapeHtml(dayLabel(item.day, startDate))}</p>
+ <p class="day-title">${escapeHtml(item.title)}</p>
+ ${item.description ? `<p class="day-desc">${escapeHtml(item.description)}</p>` : ""}
+ ${item.activities?.length ? `<ul class="day-list">${item.activities.map((a) => `<li>${escapeHtml(a)}</li>`).join("")}</ul>` : ""}
  </div>
  </div>`
  )
@@ -53,6 +70,7 @@ function downloadItinerary(days: ItineraryDay[], tourTitle: string) {
  .day-label { font-size: 10px; color: #9ca3af; margin-bottom: 2px; }
  .day-title { font-size: 13px; font-weight: 700; color: #060504; margin-bottom: 4px; }
  .day-desc { font-size: 11px; color: #6b7280; line-height: 1.6; }
+ .day-list { font-size: 11px; color: #6b7280; line-height: 1.6; margin: 4px 0 0 14px; }
  .footer { border-top: 1px solid #e5e7eb; margin: 16px 32px 0; padding: 12px 0; font-size: 9px; color: #9ca3af; }
  @media print { @page { size: A4; margin: 0; } }
  </style>
@@ -77,14 +95,14 @@ function downloadItinerary(days: ItineraryDay[], tourTitle: string) {
  if (win) win.addEventListener("unload", () => URL.revokeObjectURL(url));
 }
 
-export default function TourItinerary({ days, tourTitle = "Tour Itinerary" }: TourItineraryProps) {
+export default function TourItinerary({ days, tourTitle = "Tour Itinerary", startDate }: TourItineraryProps) {
  if (!days.length) return null;
  return (
  <section className="pt-8 border-t border-gray-100 dark:border-gray-800">
  <div className="flex items-center justify-between mb-6">
  <h2 className="text-xl font-bold font-raleway text-text-primary">Day-by-day itinerary</h2>
  <button
- onClick={() => downloadItinerary(days, tourTitle)}
+ onClick={() => downloadItinerary(days, tourTitle, startDate)}
  className="flex items-center gap-2 text-sm font-semibold font-open-sans text-primary border border-primary px-4 py-1.5 rounded-full hover:bg-primary/10 transition-colors"
  >
  <DownloadIcon size={14} />
@@ -107,10 +125,15 @@ export default function TourItinerary({ days, tourTitle = "Tour Itinerary" }: To
  {!isLast && <div className="w-0.5 bg-gray-200 flex-1 my-1" />}
  </div>
  <div className="pb-6">
- <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans mb-0.5">Day {item.day}</p>
+ <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans mb-0.5">{dayLabel(item.day, startDate)}</p>
  <p className="text-sm font-semibold font-raleway text-text-primary">{item.title}</p>
  {item.description && (
  <p className="text-xs text-gray-700 dark:text-gray-300 font-open-sans mt-1 leading-relaxed">{item.description}</p>
+ )}
+ {item.activities && item.activities.length > 0 && (
+ <ul className="mt-1.5 flex flex-col gap-0.5 text-xs text-gray-700 dark:text-gray-300 font-open-sans list-disc pl-4 leading-relaxed">
+ {item.activities.map((a) => <li key={a}>{a}</li>)}
+ </ul>
  )}
  </div>
  </div>

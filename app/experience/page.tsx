@@ -10,23 +10,22 @@
  */
 
 import { Suspense, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   useGetConfigurableMatrixQuery,
   useGetPackageDetailQuery,
   useGetCurrentPoliciesQuery,
   type ConfigurableAddon,
+  type PolicyDoc,
 } from "@/lib/api/packagesApi";
+import RefundTiersTable from "@/components/booking/RefundTiersTable";
+import PolicyModal from "@/components/booking/PolicyModal";
 import {
   useConfigurableCheckoutMutation,
   useInitializePaymentMutation,
   type PaymentPlan,
 } from "@/lib/api/bookingsApi";
-import PaymentMethodPicker, {
-  DEFAULT_PAYMENT_METHOD,
-  paymentMethodDisabledReason,
-  type PaymentMethodState,
-} from "@/components/payments/PaymentMethodPicker";
 import { routeAfterInitialize } from "@/lib/payments/paystack";
 import { savePendingBooking } from "@/lib/pendingBooking";
 import Spinner from "@/components/ui/Spinner";
@@ -48,7 +47,9 @@ function ExperienceContent() {
 
   const { data: pkg } = useGetPackageDetailQuery(packageId, { skip: !packageId });
   const { data: matrix, isLoading } = useGetConfigurableMatrixQuery(packageId, { skip: !packageId });
-  const { data: policies = [] } = useGetCurrentPoliciesQuery();
+  const { data: allPolicies = [] } = useGetCurrentPoliciesQuery();
+  const policies = useMemo(() => allPolicies.filter((d) => d.is_required), [allPolicies]);
+  const optionalPolicies = useMemo(() => allPolicies.filter((d) => !d.is_required), [allPolicies]);
 
   const [numGuests, setNumGuests] = useState(1);
   const [plan, setPlan] = useState<PaymentPlan>("full");
@@ -58,7 +59,7 @@ function ExperienceContent() {
     firstName: "", lastName: "", email: "", phone: "", country: "", specialRequests: "",
   });
   const [accepted, setAccepted] = useState<Record<string, boolean>>({});
-  const [payMethod, setPayMethod] = useState<PaymentMethodState>(DEFAULT_PAYMENT_METHOD);
+  const [openPolicy, setOpenPolicy] = useState<PolicyDoc | null>(null);
   const [payPhase, setPayPhase] = useState<null | "creating" | "redirecting">(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,6 +96,13 @@ function ExperienceContent() {
       if (amt > 0) lines.push({ label: `${a.name}${qty > 1 ? ` × ${qty}` : ""}`, amount: amt });
       addonsTotal += amt;
     });
+    // A single-select group with a $0 default (e.g. "No Hotel") still gets a
+    // line so the customer sees their hotel choice at checkout.
+    matrix?.addon_groups.forEach((g) => {
+      if (g.selection !== "single") return;
+      const chosen = g.addons.find((a) => selected.has(a.code));
+      if (chosen && parseFloat(chosen.price) === 0) lines.push({ label: chosen.name, amount: 0 });
+    });
     const subtotal = baseTotal + addonsTotal;
     // Highest qualifying discount (non-stacking) — mirrors the backend.
     let bestPercent = 0, note = "";
@@ -107,8 +115,14 @@ function ExperienceContent() {
     const discount = +(subtotal * (bestPercent / 100)).toFixed(2);
     const total = +(subtotal - discount).toFixed(2);
     const depositMin = parseFloat(matrix?.installments.deposit_minimum ?? "0");
-    const dueToday = plan === "installment" ? Math.min(depositMin, total) : total;
-    return { currency, basePP, baseTotal, lines, subtotal, bestPercent, note, discount, total, dueToday };
+    // Mirrors the server: per traveller = the minimum for each guest, each
+    // capped at their share of the total; per booking = one capped minimum.
+    const deposit =
+      matrix?.installments.deposit_unit === "per_traveller"
+        ? Math.min(depositMin, +(total / numGuests).toFixed(2)) * numGuests
+        : Math.min(depositMin, total);
+    const dueToday = plan === "installment" ? +deposit.toFixed(2) : total;
+    return { currency, basePP, baseTotal, lines, subtotal, bestPercent, note, discount, total, deposit: +deposit.toFixed(2), dueToday };
   }, [matrix, pkg, numGuests, selected, allAddons, plan]);
 
   const toggleSingle = (groupCodes: string[], code: string) => {
@@ -125,8 +139,7 @@ function ExperienceContent() {
 
   const requiredAccepted = policies.every((doc) => accepted[doc.type]);
   const contactValid = form.firstName.trim() && form.lastName.trim() && EMAIL_RE.test(form.email);
-  const methodProblem = paymentMethodDisabledReason(payMethod);
-  const canPay = !!contactValid && requiredAccepted && !methodProblem && payPhase === null;
+  const canPay = !!contactValid && requiredAccepted && payPhase === null;
 
   if (!packageId) return <Center>No experience selected.</Center>;
   if (isLoading || !matrix) return <Center><Spinner /></Center>;
@@ -146,7 +159,7 @@ function ExperienceContent() {
         first_name: form.firstName, last_name: form.lastName, email: form.email,
         phone: form.phone || undefined, country: form.country || undefined,
         special_requests: form.specialRequests || undefined,
-        accepted_policies: policies.filter((d) => accepted[d.type]).map((d) => d.type),
+        accepted_policies: allPolicies.filter((d) => accepted[d.type]).map((d) => d.type),
         expected_total: pricing.total.toFixed(2),
       }).unwrap();
 
@@ -159,9 +172,7 @@ function ExperienceContent() {
       const payment = await initializePayment({
         booking_id: booking.id,
         intent: plan === "installment" ? "deposit" : "balance",
-        channel: payMethod.channel,
-        ...(payMethod.channel === "momo"
-          ? { momo_phone: payMethod.momoPhone, momo_provider: payMethod.momoProvider || undefined } : {}),
+        channel: "any", // Paystack's popup collects the method, network and number
       }).unwrap();
       setPayPhase("redirecting");
       await routeAfterInitialize(payment, (ref) => router.push(`/payment/callback?reference=${ref}`));
@@ -252,18 +263,56 @@ function ExperienceContent() {
             </div>
           </section>
 
-          {/* Policies */}
-          {policies.length > 0 && (
+          {/* Policies — the cancellation schedule and the full policy text
+              are shown HERE, before payment, and acceptance is required. */}
+          {(policies.length > 0 || (pkg?.refund_tiers?.length ?? 0) > 0) && (
             <section>
               <h2 className="text-lg font-bold font-raleway text-text-primary mb-3">Booking terms</h2>
+              {(pkg?.refund_tiers?.length ?? 0) > 0 && (
+                <div className="mb-4">
+                  <p className="text-sm font-semibold font-open-sans text-text-primary mb-2">Cancellation &amp; refunds</p>
+                  <RefundTiersTable tiers={pkg!.refund_tiers} />
+                </div>
+              )}
               <div className="flex flex-col gap-2">
                 {policies.map((doc) => (
                   <label key={doc.type} className="flex items-start gap-2.5 text-sm font-open-sans text-gray-700 dark:text-gray-300">
                     <input type="checkbox" checked={!!accepted[doc.type]} onChange={(e) => setAccepted({ ...accepted, [doc.type]: e.target.checked })} className="accent-primary w-4 h-4 mt-0.5" />
-                    <span>I accept the <span className="text-primary font-semibold">{doc.title}</span></span>
+                    <span>
+                      I accept the{" "}
+                      <button
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); setOpenPolicy(doc); }}
+                        className="text-primary font-semibold underline underline-offset-2 hover:text-primary/80"
+                      >
+                        {doc.title}
+                      </button>
+                      <span className="text-xs text-gray-400"> v{doc.version}</span>
+                    </span>
                   </label>
                 ))}
               </div>
+
+              {optionalPolicies.length > 0 && (
+                <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans">Optional — your booking is unaffected either way.</p>
+                  {optionalPolicies.map((doc) => (
+                    <label key={doc.type} className="flex items-start gap-2.5 text-sm font-open-sans text-gray-700 dark:text-gray-300">
+                      <input type="checkbox" checked={!!accepted[doc.type]} onChange={(e) => setAccepted({ ...accepted, [doc.type]: e.target.checked })} className="accent-primary w-4 h-4 mt-0.5" />
+                      <span>
+                        I agree to the{" "}
+                        <button
+                          type="button"
+                          onClick={(e) => { e.preventDefault(); setOpenPolicy(doc); }}
+                          className="text-primary font-semibold underline underline-offset-2 hover:text-primary/80"
+                        >
+                          {doc.title}
+                        </button>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </section>
           )}
 
@@ -274,12 +323,30 @@ function ExperienceContent() {
               <div className="flex gap-3 mb-4">
                 {(["full", "installment"] as PaymentPlan[]).map((p) => (
                   <button key={p} onClick={() => setPlan(p)} className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold ${plan === p ? "border-primary bg-primary/5 text-primary" : "border-gray-200 dark:border-gray-700"}`}>
-                    {p === "full" ? "Pay in full" : `Deposit ${money(pricing.currency, parseFloat(matrix.installments.deposit_minimum ?? "0"))}`}
+                    {p === "full" ? "Pay in full" : `Pay initial ${money(pricing.currency, pricing.deposit)}`}
                   </button>
                 ))}
               </div>
             )}
-            <PaymentMethodPicker value={payMethod} onChange={setPayMethod} />
+            {installmentsEnabled && matrix.installments.final_payment_deadline && (
+              <p className="text-xs text-gray-600 dark:text-gray-300 font-open-sans mb-2">
+                Balance due in full by{" "}
+                <span className="font-semibold text-text-primary">
+                  {new Date(matrix.installments.final_payment_deadline + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                </span>{" "}
+                (23:59 Accra time). Extra payments any time before then don&apos;t change this date —
+                see the{" "}
+                <Link href="/installment-policy" className="text-primary underline">Installment Policy</Link>.
+              </p>
+            )}
+            {!installmentsEnabled && matrix.installments.deposit_minimum && (
+              <p className="text-xs text-amber-700 dark:text-amber-500 font-open-sans mb-2">
+                The final payment deadline has passed — bookings are now payable in full.
+              </p>
+            )}
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans">
+              You&apos;ll choose Card or Mobile Money (network and number) in Paystack&apos;s secure popup.
+            </p>
           </section>
         </div>
 
@@ -299,12 +366,14 @@ function ExperienceContent() {
                 <span>Total</span><span>{money(pricing.currency, pricing.total)}</span>
               </div>
               {plan === "installment" && (
-                <Row label="Due today (deposit)" value={money(pricing.currency, pricing.dueToday)} />
+                <>
+                  <Row label="Due today (deposit)" value={money(pricing.currency, pricing.dueToday)} />
+                  <Row label="Balance after deposit" value={money(pricing.currency, Math.max(0, pricing.total - pricing.dueToday))} muted />
+                </>
               )}
             </div>
 
             {error && <p role="alert" className="mt-4 text-sm text-red-600">{error}</p>}
-            {methodProblem && <p className="mt-3 text-xs text-amber-600">{methodProblem}</p>}
 
             <button
               onClick={handlePay}
@@ -318,6 +387,8 @@ function ExperienceContent() {
           </div>
         </aside>
       </div>
+
+      <PolicyModal doc={openPolicy} onClose={() => setOpenPolicy(null)} />
     </main>
   );
 }

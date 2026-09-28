@@ -11,20 +11,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/lib/store/store";
+import { BASE_URL } from "@/lib/api/baseApi";
 import {
   useGetMyBookingsQuery,
   useInitializePaymentMutation,
   type BookingDetail,
   type PaymentRow,
 } from "@/lib/api/bookingsApi";
-import { useGetTripUpdatesQuery } from "@/lib/api/packagesApi";
+import { useGetTripUpdatesQuery, useGetPackageDetailQuery } from "@/lib/api/packagesApi";
 import Spinner from "@/components/ui/Spinner";
 import { routeAfterInitialize } from "@/lib/payments/paystack";
-import PaymentMethodPicker, {
-  DEFAULT_PAYMENT_METHOD,
-  paymentMethodDisabledReason,
-  type PaymentMethodState,
-} from "@/components/payments/PaymentMethodPicker";
 import { fmtMoney, fmtDate, fmtDateLong, daysUntil } from "@/lib/format";
 
 // ── Payment panel ────────────────────────────────────────────────────────────
@@ -35,7 +31,6 @@ function PaymentPanel({ booking }: { booking: BookingDetail }) {
   const [customOpen, setCustomOpen] = useState(false);
   const [customAmount, setCustomAmount] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [payMethod, setPayMethod] = useState<PaymentMethodState>(DEFAULT_PAYMENT_METHOD);
 
   const total = parseFloat(booking.total_amount);
   const paid = parseFloat(booking.amount_paid);
@@ -43,21 +38,13 @@ function PaymentPanel({ booking }: { booking: BookingDetail }) {
   const progress = total > 0 ? Math.min(100, (paid / total) * 100) : 0;
 
   const pay = async (intent: "balance" | "custom", amount?: string) => {
-    const methodProblem = paymentMethodDisabledReason(payMethod);
-    if (methodProblem) {
-      setError(methodProblem);
-      return;
-    }
     setError(null);
     try {
       const payment = await initializePayment({
         booking_id: booking.id,
         intent,
         ...(intent === "custom" ? { amount } : {}),
-        channel: payMethod.channel,
-        ...(payMethod.channel === "momo"
-          ? { momo_phone: payMethod.momoPhone, momo_provider: payMethod.momoProvider || undefined }
-          : {}),
+        channel: "any", // Paystack's popup collects the method, network and number
       }).unwrap();
       await routeAfterInitialize(payment, (reference) =>
         router.push(`/payment/callback?reference=${reference}`),
@@ -127,9 +114,6 @@ function PaymentPanel({ booking }: { booking: BookingDetail }) {
               GHS amount is shown on the secure payment page.
             </p>
           )}
-          <div className="mb-4">
-            <PaymentMethodPicker value={payMethod} onChange={setPayMethod} />
-          </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => pay("balance")}
@@ -197,6 +181,18 @@ function ReceiptModal({ booking, payment, onClose }: {
           <p className="text-lg font-bold font-raleway text-primary tracking-widest uppercase">Azura Travels</p>
           <p className="text-xs text-gray-500 font-open-sans mt-1">Payment Receipt</p>
         </div>
+        <div className="flex justify-center mb-5 print:block">
+          {/* QR encodes the booking's public verification URL; server-rendered PNG */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${BASE_URL}payments/bookings/${booking.reference}/qr.png`}
+            alt={`QR code for booking ${booking.reference}`}
+            width={110}
+            height={110}
+            className="border border-gray-200 dark:border-gray-700 rounded-xl p-1.5 bg-white"
+          />
+          <span className="sr-only">Scan to verify booking {booking.reference}</span>
+        </div>
         <div className="flex flex-col gap-3 text-sm font-open-sans">
           {[
             ["Booking reference", booking.reference],
@@ -247,7 +243,19 @@ function ReceiptModal({ booking, payment, onClose }: {
 }
 
 // ── Booking detail block ─────────────────────────────────────────────────────
+const FALLBACK_COVER = "https://images.unsplash.com/photo-1562016600-ece13e8ba570?w=800&q=80";
 
+function PackageCoverImage({ packageId, alt }: { packageId: string; alt: string }) {
+  const { data: pkg } = useGetPackageDetailQuery(packageId, { skip: !packageId });
+  const cover = pkg?.images.find((img) => img.is_cover)?.image ?? pkg?.images[0]?.image ?? FALLBACK_COVER;
+  return (
+    <img
+      src={cover}
+      alt={alt}
+      className="w-full h-48 md:h-56 object-cover"
+    />
+  );
+}
 function BookingBlock({ booking }: { booking: BookingDetail }) {
   const [receiptFor, setReceiptFor] = useState<PaymentRow | null>(null);
   const successfulPayments = booking.payments.filter((p) => p.status === "success" || p.status === "refunded");
@@ -263,6 +271,7 @@ function BookingBlock({ booking }: { booking: BookingDetail }) {
     <div className="flex flex-col gap-6">
       {/* Trip header */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <PackageCoverImage packageId={booking.package_id} alt={booking.package_title} />
         <div className="bg-primary/5 px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans uppercase tracking-wide">
@@ -368,7 +377,92 @@ function TripUpdates({ packageId }: { packageId: string }) {
     </div>
   );
 }
+function BookingsFilter({
+  search,
+  setSearch,
+  dateFrom,
+  setDateFrom,
+  dateTo,
+  setDateTo,
+  onClear,
+  hasFilters,
+}: {
+  search: string;
+  setSearch: (v: string) => void;
+  dateFrom: string;
+  setDateFrom: (v: string) => void;
+  dateTo: string;
+  setDateTo: (v: string) => void;
+  onClear: () => void;
+  hasFilters: boolean;
+}) {
+  return (
+    <aside className="w-full lg:w-64 shrink-0">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 flex flex-col gap-4 lg:sticky lg:top-24">
+        <p className="text-sm font-bold font-raleway text-text-primary">Filter bookings</p>
 
+        <div>
+          <label htmlFor="bk-search" className="block text-xs font-semibold font-open-sans text-text-primary mb-1.5">
+            Search
+          </label>
+          <div className="relative">
+            <svg
+              width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+              strokeLinecap="round" strokeLinejoin="round"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              id="bk-search"
+              type="text"
+              placeholder="Reference or tour name"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full border border-gray-200 dark:border-gray-700 rounded-xl pl-9 pr-3 py-2.5 text-sm font-open-sans text-text-primary placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary transition-colors"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="bk-from" className="block text-xs font-semibold font-open-sans text-text-primary mb-1.5">
+            Travel date from
+          </label>
+          <input
+            id="bk-from"
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm font-open-sans text-text-primary outline-none focus:border-primary transition-colors"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="bk-to" className="block text-xs font-semibold font-open-sans text-text-primary mb-1.5">
+            Travel date to
+          </label>
+          <input
+            id="bk-to"
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm font-open-sans text-text-primary outline-none focus:border-primary transition-colors"
+          />
+        </div>
+
+        {hasFilters && (
+          <button
+            onClick={onClear}
+            className="text-xs font-semibold font-open-sans text-primary hover:underline text-left"
+          >
+            Clear all filters
+          </button>
+        )}
+      </div>
+    </aside>
+  );
+}
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -376,6 +470,9 @@ export default function DashboardPage() {
   const { token, hydrated } = useSelector((state: RootState) => state.auth);
   const { data: bookings, isLoading, isError } = useGetMyBookingsQuery(undefined, { skip: !token });
   const [selected, setSelected] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   useEffect(() => {
     if (hydrated && !token) {
@@ -398,7 +495,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-4xl mx-auto">
+    <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-6xl mx-auto">
       <h1 className="text-2xl md:text-3xl font-bold font-raleway text-text-primary mb-8">My Bookings</h1>
 
       {!bookings || bookings.length === 0 ? (
@@ -433,32 +530,71 @@ export default function DashboardPage() {
           <BookingBlock booking={activeBooking} />
         </>
       ) : (
-        <div className="flex flex-col gap-4">
-          {bookings.map((booking) => (
-            <button
-              key={booking.id}
-              onClick={() => setSelected(booking.reference)}
-              className="text-left bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 hover:border-primary transition-colors"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans">{booking.reference}</p>
-                  <p className="text-base font-bold font-raleway text-text-primary mt-0.5">{booking.package_title}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans mt-1">
-                    {fmtDate(booking.travel_date)} · {booking.num_guests} guest{booking.num_guests > 1 ? "s" : ""}
-                  </p>
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+          <BookingsFilter
+            search={search}
+            setSearch={setSearch}
+            dateFrom={dateFrom}
+            setDateFrom={setDateFrom}
+            dateTo={dateTo}
+            setDateTo={setDateTo}
+            onClear={() => { setSearch(""); setDateFrom(""); setDateTo(""); }}
+            hasFilters={!!(search || dateFrom || dateTo)}
+          />
+
+          <div className="flex-1 w-full">
+            {(() => {
+              const q = search.trim().toLowerCase();
+              const filtered = bookings.filter((b) => {
+                if (q && !b.reference.toLowerCase().includes(q) && !b.package_title.toLowerCase().includes(q)) return false;
+                if (dateFrom && b.travel_date < dateFrom) return false;
+                if (dateTo && b.travel_date > dateTo) return false;
+                return true;
+              });
+
+              if (filtered.length === 0) {
+                return (
+                  <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-10 text-center">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 font-open-sans">
+                      No bookings match your filters.
+                    </p>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="flex flex-col gap-5">
+                  {filtered.map((booking) => (
+                    <button
+                      key={booking.id}
+                      onClick={() => setSelected(booking.reference)}
+                      className="text-left bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 hover:border-primary hover:shadow-md transition-all"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 font-open-sans tracking-wide">{booking.reference}</p>
+                          <p className="text-lg font-bold font-raleway text-text-primary mt-1">{booking.package_title}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 font-open-sans mt-1.5">
+                            {fmtDate(booking.travel_date)} · {booking.num_guests} guest{booking.num_guests > 1 ? "s" : ""}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-base font-bold font-raleway text-primary whitespace-nowrap">
+                            {fmtMoney(booking.amount_paid, booking.currency)}
+                            <span className="text-gray-400 dark:text-gray-500 font-semibold"> / </span>
+                            {fmtMoney(booking.total_amount, booking.currency)}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans capitalize mt-1.5">
+                            {booking.payment_state.replace("_", " ")} · {booking.status}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-bold font-raleway text-primary">
-                    {fmtMoney(booking.amount_paid, booking.currency)} / {fmtMoney(booking.total_amount, booking.currency)}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans capitalize mt-1">
-                    {booking.payment_state.replace("_", " ")} · {booking.status}
-                  </p>
-                </div>
-              </div>
-            </button>
-          ))}
+              );
+            })()}
+          </div>
         </div>
       )}
     </main>

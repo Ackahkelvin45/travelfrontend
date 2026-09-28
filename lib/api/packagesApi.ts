@@ -84,6 +84,8 @@ export interface PackageDetail {
  longitude: string
  duration_days: number
  max_guests: number
+ /** Minimum planning group for the tour to run (display only); null = hidden. */
+ min_group_size: number | null
  price_shared: string
  price_private: string
  price_vip: string
@@ -161,7 +163,7 @@ export interface ConfigurableMatrix {
  }[]
  ungrouped_addons: ConfigurableAddon[]
  discount_rules: { name: string; percent: string; required_addons: string[] }[]
- installments: { enabled: boolean; deposit_minimum: string | null; final_payment_deadline: string | null }
+ installments: { enabled: boolean; deposit_minimum: string | null; deposit_unit: 'per_booking' | 'per_traveller'; final_payment_deadline: string | null }
  charge: { currency: string; exchange_rate: string | null; rate_source: string | null }
 }
 
@@ -214,11 +216,13 @@ export interface PricingMatrix {
 }
 
 export interface PolicyDoc {
- type: 'terms' | 'installment' | 'refund' | 'privacy'
+ type: 'terms' | 'installment' | 'refund' | 'privacy' | 'media'
  type_display: string
  version: string
  title: string
  body: string
+ /** false = optional consent (e.g. media): offered unticked, never blocking. */
+ is_required: boolean
  published_at: string
 }
 

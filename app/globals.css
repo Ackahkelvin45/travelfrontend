@@ -138,3 +138,51 @@ body {
   scroll-behavior: auto !important;
  }
 }
+
+/* ── react-phone-number-input theming ─────────────────────────────── */
+/* The wrapper div (.phone-input-azura) is the visible input shell: flag,
+   dial code and number all live INSIDE one bordered field. */
+.phone-input-azura .PhoneInput {
+  align-items: stretch;
+}
+.phone-input-azura .PhoneInputCountry {
+  position: relative;
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  border-right: 1px solid rgb(0 0 0 / 0.06);
+  /* Breathing room around the flag inside the field */
+  padding-left: 1rem;
+  padding-right: 0.75rem;
+}
+.phone-input-azura .PhoneInputCountrySelect {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.phone-input-azura .PhoneInputCountryIcon {
+  width: 1.5rem;
+  height: 1.1rem;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08);
+  flex-shrink: 0;
+}
+.phone-input-azura .PhoneInputCountryIconImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.phone-input-azura .PhoneInputCountrySelectArrow {
+  opacity: 0.45;
+  margin-left: 0.15rem;
+  width: 0.65rem;
+}
+.phone-input-azura input {
+  flex: 1;
+  min-width: 0;
+  border: none !important;
+  background: transparent;
+}

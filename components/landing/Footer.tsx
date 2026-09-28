@@ -22,8 +22,9 @@ export default function Footer() {
       await subscribe({ email }).unwrap();
       setMessage({ text: "Thank you for subscribing!", type: "success" });
       setEmail("");
-    } catch (err: any) {
-      const errorMsg = err?.data?.email?.[0] || err?.data?.message || "Something went wrong. Please try again.";
+    } catch (err: unknown) {
+      const data = (err as { data?: { email?: string[]; message?: string } })?.data;
+      const errorMsg = data?.email?.[0] || data?.message || "Something went wrong. Please try again.";
       setMessage({ text: errorMsg, type: "error" });
     }
     
@@ -160,9 +161,12 @@ export default function Footer() {
  <p className="text-gray-700 dark:text-gray-300 text-xs font-open-sans">
  © {new Date().getFullYear()} Azuratravels. All rights reserved.
  </p>
- <div className="flex gap-6">
- <Link href="#" className="text-gray-700 dark:text-gray-300 text-xs hover:text-primary transition-colors">Privacy Policy</Link>
- <Link href="#" className="text-gray-700 dark:text-gray-300 text-xs hover:text-primary transition-colors">Terms of Service</Link>
+ {/* All four customer policies are linked from every page (policy requirement). */}
+ <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+ <Link href="/terms-and-conditions" className="text-gray-700 dark:text-gray-300 text-xs hover:text-primary transition-colors">Terms and Conditions</Link>
+ <Link href="/refund-policy" className="text-gray-700 dark:text-gray-300 text-xs hover:text-primary transition-colors">Refund Policy</Link>
+ <Link href="/installment-policy" className="text-gray-700 dark:text-gray-300 text-xs hover:text-primary transition-colors">Installment Policy</Link>
+ <Link href="/privacy-policy" className="text-gray-700 dark:text-gray-300 text-xs hover:text-primary transition-colors">Privacy Policy</Link>
  </div>
  </div>
  </div> {/* end relative z-10 */}

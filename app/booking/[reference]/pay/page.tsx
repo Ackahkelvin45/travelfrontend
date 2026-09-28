@@ -17,11 +17,6 @@ import Spinner from "@/components/ui/Spinner";
 import { fmtMoney, fmtDateLong } from "@/lib/format";
 import { clearPendingBooking } from "@/lib/pendingBooking";
 import { routeAfterInitialize } from "@/lib/payments/paystack";
-import PaymentMethodPicker, {
-  DEFAULT_PAYMENT_METHOD,
-  paymentMethodDisabledReason,
-  type PaymentMethodState,
-} from "@/components/payments/PaymentMethodPicker";
 import {
   AlertTriangleIcon,
   CheckCircleIcon,
@@ -36,7 +31,6 @@ export default function ResumePaymentPage() {
   const { data: booking, isLoading, isError } = useGetBookingByReferenceQuery(reference, { skip: !reference });
   const [initializePayment, { isLoading: isInitializing }] = useInitializePaymentMutation();
   const [error, setError] = useState<string | null>(null);
-  const [payMethod, setPayMethod] = useState<PaymentMethodState>(DEFAULT_PAYMENT_METHOD);
 
   const handlePay = async (intent: "deposit" | "balance") => {
     if (!booking) return;
@@ -45,10 +39,7 @@ export default function ResumePaymentPage() {
       const payment = await initializePayment({
         booking_id: booking.id,
         intent,
-        channel: payMethod.channel,
-        ...(payMethod.channel === "momo"
-          ? { momo_phone: payMethod.momoPhone, momo_provider: payMethod.momoProvider || undefined }
-          : {}),
+        channel: "any", // Paystack's popup collects the method, network and number
       }).unwrap();
       await routeAfterInitialize(payment, (reference) =>
         router.push(`/payment/callback?reference=${reference}`),
@@ -143,10 +134,9 @@ export default function ResumePaymentPage() {
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              <PaymentMethodPicker value={payMethod} onChange={setPayMethod} />
               <button
                 onClick={() => handlePay(needsDeposit ? "deposit" : "balance")}
-                disabled={isInitializing || !!paymentMethodDisabledReason(payMethod)}
+                disabled={isInitializing}
                 className="w-full bg-primary text-white py-3.5 rounded-full font-bold font-open-sans text-sm hover:bg-primary/90 active:scale-[.99] transition-all disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {isInitializing ? <Spinner className="w-4 h-4 text-white" /> : <LockIcon size={14} />}

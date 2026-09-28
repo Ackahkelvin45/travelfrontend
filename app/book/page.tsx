@@ -60,11 +60,6 @@ import {
 import { fmtMoney, fmtDate } from "@/lib/format";
 import { savePendingBooking } from "@/lib/pendingBooking";
 import { routeAfterInitialize } from "@/lib/payments/paystack";
-import PaymentMethodPicker, {
-  DEFAULT_PAYMENT_METHOD,
-  paymentMethodDisabledReason,
-  type PaymentMethodState,
-} from "@/components/payments/PaymentMethodPicker";
 
 type MatrixOption = PricingMatrix["options"][number];
 
@@ -524,7 +519,7 @@ function ReviewSection({
 }
 
 function StepReview({
-  matrix, option, visa, plan, form, error, goTo, payMethod, setPayMethod,
+  matrix, option, visa, plan, form, error, goTo,
 }: {
   matrix: PricingMatrix;
   option: MatrixOption;
@@ -533,8 +528,6 @@ function StepReview({
   form: ContactForm;
   error: string | null;
   goTo: (step: number) => void;
-  payMethod: PaymentMethodState;
-  setPayMethod: (m: PaymentMethodState) => void;
 }) {
   const currency = matrix.currency;
   const { total, dueToday } = summarize(matrix, option, visa, plan);
@@ -578,15 +571,12 @@ function StepReview({
           )}
         </ReviewSection>
 
-        {/* Payment method — chosen HERE: Mobile Money pushes the approve-prompt
-            straight to the phone (no redirect); card opens Paystack's secure
-            popup with a hosted-page fallback. */}
+        {/* Payment method is chosen inside Paystack's popup (card or Mobile
+            Money — network and number included); hosted-page fallback. */}
         <section className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 sm:p-5 bg-gray-50/60 dark:bg-gray-800/40">
-          <h3 className="text-sm font-bold font-raleway text-text-primary mb-3">How would you like to pay?</h3>
-          <PaymentMethodPicker value={payMethod} onChange={setPayMethod} />
-          <p className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-300 font-open-sans leading-relaxed mt-4">
+          <p className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-300 font-open-sans leading-relaxed">
             <ShieldIcon size={13} className="mt-0.5 shrink-0 text-primary" />
-            Payments are processed by Paystack&apos;s encrypted gateway.
+            You&apos;ll choose Card or Mobile Money in Paystack&apos;s secure popup.
             We never see or store your card or mobile money details.
           </p>
         </section>
@@ -670,7 +660,10 @@ function BookContent() {
   const {
     data: matrix, isLoading, isError, refetch,
   } = useGetPackagePricingQuery(packageId, { skip: !packageId });
-  const { data: policies = [] } = useGetCurrentPoliciesQuery();
+  // Only mandatory policies gate this checkout; optional consents (media) are
+  // offered in the core+add-ons flow and never block a booking.
+  const { data: allPolicies = [] } = useGetCurrentPoliciesQuery();
+  const policies = useMemo(() => allPolicies.filter((d) => d.is_required), [allPolicies]);
 
   const [step, setStep] = useState(1);
   const [optionId, setOptionId] = useState<string | null>(searchParams.get("option"));
@@ -684,7 +677,6 @@ function BookContent() {
   const [showAllErrors, setShowAllErrors] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payPhase, setPayPhase] = useState<"creating" | "redirecting" | null>(null);
-  const [payMethod, setPayMethod] = useState<PaymentMethodState>(DEFAULT_PAYMENT_METHOD);
   const [priceChanged, setPriceChanged] = useState<{ message: string; total: string | null } | null>(null);
 
   const [checkout] = useCheckoutMutation();
@@ -753,17 +745,11 @@ function BookContent() {
       : step === 2
         ? "Review your booking"
         : `Pay ${option ? fmtMoney(dueToday, matrix.currency) : ""} securely`;
-  const payMethodProblem = paymentMethodDisabledReason(payMethod);
   const ctaDisabled =
     isPaying ||
     (step === 1 && !option) ||
-    (step === 3 && (!detailsValid || !!payMethodProblem));
-  const ctaHint =
-    step === 1 && !option
-      ? "Select a room to continue"
-      : step === 3 && payMethodProblem
-        ? payMethodProblem
-        : null;
+    (step === 3 && !detailsValid);
+  const ctaHint = step === 1 && !option ? "Select a room to continue" : null;
 
   const handleCta = async () => {
     if (isPaying) return;
@@ -819,14 +805,10 @@ function BookContent() {
       const payment = await initializePayment({
         booking_id: booking.id,
         intent: plan === "installment" ? "deposit" : "balance",
-        channel: payMethod.channel,
-        ...(payMethod.channel === "momo"
-          ? { momo_phone: payMethod.momoPhone, momo_provider: payMethod.momoProvider || undefined }
-          : {}),
+        channel: "any", // Paystack's popup collects the method, network and number
       }).unwrap();
       setPayPhase("redirecting");
-      // MoMo: the approve-prompt is already on their phone → straight to the
-      // polling page. Card: Paystack's popup opens here (hosted fallback).
+      // Paystack's popup opens here (hosted-page fallback), then we poll.
       await routeAfterInitialize(payment, (reference) =>
         router.push(`/payment/callback?reference=${reference}`),
       );
@@ -918,8 +900,6 @@ function BookContent() {
               plan={plan}
               form={form}
               error={error}
-              payMethod={payMethod}
-              setPayMethod={setPayMethod}
               goTo={goTo}
             />
           )}

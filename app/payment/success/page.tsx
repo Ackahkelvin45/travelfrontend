@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useGetBookingByReferenceQuery } from "@/lib/api/bookingsApi";
+import { BASE_URL } from "@/lib/api/baseApi";
 import Link from "next/link";
 import { CheckIcon, MailIcon, PrinterIcon } from "@/components/ui/icons";
 
@@ -153,6 +154,23 @@ function SuccessContent() {
  </div>
  )}
  </div>
+ </div>
+
+ {/* QR encodes the booking's public verification URL; server-rendered PNG */}
+ <div className="border-t border-gray-100 dark:border-gray-800 px-6 py-5 flex items-center gap-4 break-inside-avoid">
+ {/* eslint-disable-next-line @next/next/no-img-element */}
+ <img
+ src={`${BASE_URL}payments/bookings/${booking.reference}/qr.png`}
+ alt={`QR code for booking ${booking.reference}`}
+ width={110}
+ height={110}
+ className="shrink-0 border border-gray-200 dark:border-gray-700 rounded-xl p-1.5 bg-white"
+ />
+ <p className="text-xs font-open-sans text-gray-500 dark:text-gray-400 leading-relaxed">
+ Scan to verify booking{" "}
+ <span className="font-semibold text-text-primary">{booking.reference}</span>{" "}
+ and see its live payment status.
+ </p>
  </div>
  </div>
 

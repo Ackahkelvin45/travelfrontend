@@ -76,15 +76,17 @@ export interface ConfigurableCheckoutRequest {
 
 // ── Payments ─────────────────────────────────────────────────────────────────
 
-export type PaymentChannel = 'card' | 'momo'
+export type PaymentChannel = 'any' | 'card' | 'momo'
 export type MomoProvider = 'mtn' | 'atl' | 'vod'
 
 export interface InitializePaymentRequest {
   booking_id: string
   intent?: 'balance' | 'deposit' | 'custom'
   amount?: string
-  /** card = hosted/Inline popup · momo = approve-prompt pushed to the phone
-   * (MTN/AirtelTigo) or mobile-money-only hosted page (Telecel). */
+  /** any (default) = Paystack popup offering card + Mobile Money, the buyer
+   * picks method/network/number inside Paystack · card = card-only popup ·
+   * momo = approve-prompt pushed to the phone (MTN/AirtelTigo) or
+   * mobile-money-only hosted page (Telecel). */
   channel?: PaymentChannel
   momo_phone?: string
   momo_provider?: MomoProvider

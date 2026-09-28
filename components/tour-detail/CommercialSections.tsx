@@ -18,6 +18,8 @@ import {
 } from "@/lib/api/packagesApi";
 import { fmtMoney, fmtDate } from "@/lib/format";
 import Countdown from "@/components/booking/Countdown";
+import RefundTiersTable, { cancellationSubtitle } from "@/components/booking/RefundTiersTable";
+import PolicyModal from "@/components/booking/PolicyModal";
 import { AccordionItem } from "@/components/ui/Accordion";
 import {
   CreditCardIcon,
@@ -186,43 +188,7 @@ export default function CommercialSections({
               subtitle={cancellationSubtitle(refundTiers)}
               icon={<ShieldIcon size={17} />}
             >
-              <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-                <table className="w-full text-sm font-open-sans">
-                  <thead className="bg-gray-50 dark:bg-gray-800">
-                    <tr className="text-left text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                      <th className="px-4 py-2.5 font-semibold">Cancelling</th>
-                      <th className="px-4 py-2.5 font-semibold text-right">Refund of amount paid</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...refundTiers]
-                      .sort((a, b) => b.min_days - a.min_days)
-                      .map((tier, index, sorted) => {
-                        const upper = index === 0 ? null : sorted[index - 1].min_days - 1;
-                        const label =
-                          upper === null
-                            ? `${tier.min_days}+ days before departure`
-                            : tier.min_days === 0
-                              ? `Less than ${sorted[index - 1].min_days} days before departure`
-                              : `${tier.min_days}–${upper} days before departure`;
-                        return (
-                          <tr key={tier.min_days} className="border-t border-gray-100 dark:border-gray-800">
-                            <td className="px-4 py-2.5">{label}</td>
-                            <td className={`px-4 py-2.5 text-right font-bold ${tier.percent > 0 ? "text-text-primary" : "text-red-600"}`}>
-                              {tier.percent > 0 ? `${tier.percent}%` : "No refund"}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2.5 leading-relaxed">
-                Refunds are calculated on the amount actually paid, excluding non-refundable third-party
-                costs (visa fees, government charges, flights booked on your behalf). No refunds once the
-                tour has commenced, or for missed activities, unused services or voluntary early departure.
-                We strongly recommend comprehensive travel insurance.
-              </p>
+              <RefundTiersTable tiers={refundTiers} />
             </AccordionItem>
           )}
 
@@ -252,41 +218,7 @@ export default function CommercialSections({
         </div>
       </section>
 
-      {openPolicy && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-          onClick={() => setOpenPolicy(null)}
-        >
-          <div
-            className="bg-white dark:bg-gray-900 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 sm:p-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="text-lg font-bold font-raleway text-text-primary">
-                {openPolicy.title}{" "}
-                <span className="text-xs text-gray-400 font-open-sans">v{openPolicy.version}</span>
-              </h3>
-              <button
-                onClick={() => setOpenPolicy(null)}
-                aria-label="Close"
-                className="text-gray-400 hover:text-text-primary p-1 -m-1"
-              >
-                <XIcon size={16} />
-              </button>
-            </div>
-            <div className="text-sm font-open-sans text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
-              {openPolicy.body}
-            </div>
-          </div>
-        </div>
-      )}
+      <PolicyModal doc={openPolicy} onClose={() => setOpenPolicy(null)} />
     </>
   );
-}
-
-/** "90% refund up to 60 days before departure" from the most generous tier. */
-function cancellationSubtitle(tiers: { min_days: number; percent: number }[]): string {
-  const best = [...tiers].sort((a, b) => b.percent - a.percent)[0];
-  if (!best || best.percent <= 0) return "See the refund schedule";
-  return `Up to ${best.percent}% refund when cancelling ${best.min_days}+ days before departure`;
 }

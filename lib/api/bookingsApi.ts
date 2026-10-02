@@ -81,8 +81,10 @@ export type MomoProvider = 'mtn' | 'atl' | 'vod'
 
 export interface InitializePaymentRequest {
   booking_id: string
-  intent?: 'balance' | 'deposit' | 'custom'
+  intent?: 'balance' | 'deposit' | 'custom' | 'addon'
   amount?: string
+  /** intent=addon: the experience to buy; it joins the booking once paid. */
+  addon_code?: string
   /** any (default) = Paystack popup offering card + Mobile Money, the buyer
    * picks method/network/number inside Paystack · card = card-only popup ·
    * momo = approve-prompt pushed to the phone (MTN/AirtelTigo) or
@@ -138,6 +140,8 @@ export interface PaymentRow {
   charged_currency: string | null
   purpose: 'full' | 'deposit' | 'installment'
   method: 'paystack' | 'bank_transfer' | 'other'
+  /** Chargeback open with the card issuer — refunds on this payment are blocked. */
+  disputed: boolean
   status: PaymentStatus
   paid_at: string | null
   created_at: string
@@ -174,7 +178,44 @@ export interface BookingDetail {
   payment_status: PaymentStatus | null
   payment_reference: string | null
   payments: PaymentRow[]
+  /** What the total is made of — same decomposition the receipts use. */
+  line_items: {
+    lines: { label: string; detail: string; amount: string; category: string }[]
+    subtotal: string
+    discount: string
+    discount_note: string
+    total: string
+  }
+  /** Installment Policy: set once the overdue notice went out; cure ends 72h later. */
+  overdue_notice_sent_at: string | null
+  cure_deadline: string | null
+  /** Latest cancellation request, if the guest ever lodged one. */
+  cancellation_request: {
+    status: 'pending' | 'approved' | 'rejected'
+    requested_at: string
+    refund_total: string | null
+    percent: string | null
+    resolved_at: string | null
+    staff_note: string
+  } | null
   created_at: string
+}
+
+export interface AvailableAddons {
+  can_add: boolean
+  reason: string | null
+  open_until: string | null
+  currency: string
+  addons: { code: string; name: string; description: string | null; unit: string; unit_price: string; quantity: number; line_total: string; refundable: boolean }[]
+}
+
+export interface CancellationQuote {
+  eligible: boolean
+  pending: boolean
+  refund_total: string
+  currency: string
+  breakdown: { days_before_departure: number; percent: string; net_paid: string; tier_applied: { min_days: number; percent: number } }
+  arrival_rule: string
 }
 
 export const bookingsApi = baseApi.injectEndpoints({
@@ -229,6 +270,26 @@ export const bookingsApi = baseApi.injectEndpoints({
       query: (body) => ({ url: '/bookings/claim/', method: 'POST', body }),
       invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
     }),
+
+    // Experiences the owner can still add (until 7 days before departure)
+    availableAddons: builder.query<AvailableAddons, string>({
+      query: (reference) => `/bookings/${reference}/addons/available/`,
+      providesTags: (_r, _e, reference) => [{ type: 'Booking', id: reference }],
+    }),
+
+    // Refund Policy: preview, then lodge, a cancellation request (owner only)
+    cancellationQuote: builder.query<CancellationQuote, string>({
+      query: (reference) => `/bookings/${reference}/cancellation-quote/`,
+    }),
+    requestCancellation: builder.mutation<
+      { detail: string; requested_at: string; refund_total: string | null; currency: string },
+      { reference: string; reason?: string }
+    >({
+      query: ({ reference, reason }) => ({
+        url: `/bookings/${reference}/cancellation-request/`, method: 'POST', body: { reason },
+      }),
+      invalidatesTags: (_r, _e, { reference }) => [{ type: 'Booking', id: 'LIST' }, { type: 'Booking', id: reference }],
+    }),
   }),
 })
 
@@ -244,4 +305,7 @@ export const {
   useGetBookingByReferenceQuery,
   useGetMyBookingsQuery,
   useClaimBookingMutation,
+  useAvailableAddonsQuery,
+  useLazyCancellationQuoteQuery,
+  useRequestCancellationMutation,
 } = bookingsApi

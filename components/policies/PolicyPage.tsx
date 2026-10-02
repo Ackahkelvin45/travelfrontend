@@ -32,10 +32,18 @@ export default function PolicyPage({ type, fallbackTitle }: { type: PolicyDoc["t
         <div className="py-16 flex justify-center"><Spinner /></div>
       ) : doc ? (
         <>
-          <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans mb-8">
-            Version {doc.version}
-            {doc.published_at && ` · published ${new Date(doc.published_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-8 print:hidden">
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans">
+              Version {doc.version}
+              {doc.published_at && ` · published ${new Date(doc.published_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`}
+            </p>
+            <button
+              onClick={() => window.print()}
+              className="text-xs font-semibold font-open-sans border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 text-text-primary hover:border-primary"
+            >
+              Print / save as PDF
+            </button>
+          </div>
           <div className="text-sm font-open-sans text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
             {doc.body}
           </div>
@@ -43,7 +51,7 @@ export default function PolicyPage({ type, fallbackTitle }: { type: PolicyDoc["t
       ) : (
         <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300">
           This policy has not been published yet. Please{" "}
-          <a href="mailto:hello@azuratravels.com" className="text-primary underline">contact us</a>{" "}
+          <a href="mailto:hello@azuratravels.live" className="text-primary underline">contact us</a>{" "}
           for a copy.
         </p>
       )}

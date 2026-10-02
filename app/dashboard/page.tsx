@@ -21,7 +21,13 @@ import {
 import { useGetTripUpdatesQuery, useGetPackageDetailQuery } from "@/lib/api/packagesApi";
 import Spinner from "@/components/ui/Spinner";
 import { routeAfterInitialize } from "@/lib/payments/paystack";
+import {
+  useLazyCancellationQuoteQuery,
+  useRequestCancellationMutation,
+  useAvailableAddonsQuery,
+} from "@/lib/api/bookingsApi";
 import { fmtMoney, fmtDate, fmtDateLong, daysUntil } from "@/lib/format";
+import { useRequestAccountDeletionMutation } from "@/lib/api/authApi";
 
 // ── Payment panel ────────────────────────────────────────────────────────────
 
@@ -73,6 +79,33 @@ function PaymentPanel({ booking }: { booking: BookingDetail }) {
         )}
       </div>
 
+      {/* What the total is made of — server-computed, matches the receipt */}
+      <details className="mb-4 rounded-xl border border-gray-100 dark:border-gray-800 open:bg-gray-50/60 dark:open:bg-gray-800/40">
+        <summary className="cursor-pointer px-4 py-2.5 text-sm font-semibold font-open-sans text-text-primary">
+          Price breakdown · {fmtMoney(booking.line_items.total, booking.currency)}
+        </summary>
+        <div className="px-4 pb-3 flex flex-col gap-1.5 text-sm font-open-sans">
+          {booking.line_items.lines.map((l) => (
+            <div key={l.label + l.detail} className="flex justify-between gap-4">
+              <span className="text-gray-700 dark:text-gray-300">
+                {l.label}
+                <span className="block text-xs text-gray-500 dark:text-gray-400">{l.detail}</span>
+              </span>
+              <span className="text-text-primary shrink-0">{fmtMoney(l.amount, booking.currency)}</span>
+            </div>
+          ))}
+          {parseFloat(booking.line_items.discount) > 0 && (
+            <div className="flex justify-between gap-4 text-green-700 dark:text-green-400">
+              <span>{booking.line_items.discount_note || "Bundle discount"}</span>
+              <span className="shrink-0">− {fmtMoney(booking.line_items.discount, booking.currency)}</span>
+            </div>
+          )}
+          <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-1.5 font-semibold text-text-primary">
+            <span>Total</span><span>{fmtMoney(booking.line_items.total, booking.currency)}</span>
+          </div>
+        </div>
+      </details>
+
       {/* Progress */}
       <div className="mb-2 flex justify-between text-sm font-open-sans">
         <span className="text-gray-700 dark:text-gray-300">
@@ -97,7 +130,9 @@ function PaymentPanel({ booking }: { booking: BookingDetail }) {
             const overdue = days !== null && days < 0;
             return (
               <p className={`text-sm font-open-sans mb-4 ${overdue ? "text-red-600 font-bold" : "text-gray-700 dark:text-gray-300"}`}>
-                {overdue
+                {overdue && booking.cure_deadline
+                  ? `Overdue — please pay by ${new Date(booking.cure_deadline).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Accra" })} GMT. No late fee; we'll contact you before anything changes.`
+                  : overdue
                   ? `Payment deadline passed on ${fmtDate(booking.payment_deadline)} — please pay now or contact us.`
                   : <>Full balance due by <span className="font-bold text-text-primary">{fmtDate(booking.payment_deadline)}</span>{days !== null && ` (in ${days} day${days === 1 ? "" : "s"})`}</>}
               </p>
@@ -114,6 +149,16 @@ function PaymentPanel({ booking }: { booking: BookingDetail }) {
               GHS amount is shown on the secure payment page.
             </p>
           )}
+          {booking.cancellation_request?.status === "pending" ? (
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl text-sm font-open-sans text-amber-800 dark:text-amber-200">
+              <p className="font-semibold">Cancellation requested on {fmtDate(booking.cancellation_request.requested_at)} — under review.</p>
+              <p className="mt-1">
+                Estimated refund {fmtMoney(booking.cancellation_request.refund_total ?? "0", booking.currency)}
+                {booking.cancellation_request.percent && ` (${parseFloat(booking.cancellation_request.percent)}% of amount paid)`}.
+                Payments are paused until we confirm the outcome by email.
+              </p>
+            </div>
+          ) : (
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => pay("balance")}
@@ -130,6 +175,7 @@ function PaymentPanel({ booking }: { booking: BookingDetail }) {
               Pay a custom amount
             </button>
           </div>
+          )}
 
           {customOpen && (
             <div className="mt-4 flex gap-3 items-start">
@@ -158,6 +204,167 @@ function PaymentPanel({ booking }: { booking: BookingDetail }) {
               </button>
             </div>
           )}
+        </>
+      )}
+
+      {(booking.status === "pending" || booking.status === "confirmed") &&
+        booking.cancellation_request?.status !== "pending" && (
+          <CancellationRequestPanel booking={booking} />
+        )}
+      {booking.cancellation_request && booking.cancellation_request.status !== "pending" && (
+        <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 font-open-sans">
+          Cancellation request of {fmtDate(booking.cancellation_request.requested_at)}:{" "}
+          <span className="font-semibold capitalize">{booking.cancellation_request.status}</span>
+          {booking.cancellation_request.staff_note && ` — ${booking.cancellation_request.staff_note}`}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Cancellation request (Refund Policy) ─────────────────────────────────────
+
+function CancellationRequestPanel({ booking }: { booking: BookingDetail }) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [done, setDone] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [fetchQuote, { data: quote, isFetching }] = useLazyCancellationQuoteQuery();
+  const [request, { isLoading }] = useRequestCancellationMutation();
+
+  const start = () => {
+    setOpen(true);
+    fetchQuote(booking.reference);
+  };
+
+  const submit = async () => {
+    setError(null);
+    try {
+      const r = await request({ reference: booking.reference, reason }).unwrap();
+      setDone(`Request received ${new Date(r.requested_at).toLocaleString("en-GB")}. We've emailed you a confirmation.`);
+    } catch (err: unknown) {
+      setError((err as { data?: { detail?: string } })?.data?.detail ?? "Could not submit the request.");
+    }
+  };
+
+  if (done) {
+    return <p className="mt-6 text-sm font-open-sans text-green-700 dark:text-green-400">{done}</p>;
+  }
+
+  return (
+    <div className="mt-6 border-t border-gray-100 dark:border-gray-800 pt-4">
+      {!open ? (
+        <button onClick={start} className="text-xs font-semibold font-open-sans text-gray-500 hover:text-red-600 underline underline-offset-2">
+          Need to cancel? Request cancellation
+        </button>
+      ) : (
+        <div className="flex flex-col gap-3 text-sm font-open-sans">
+          <p className="font-bold font-raleway text-text-primary">Request cancellation</p>
+          {isFetching || !quote ? (
+            <Spinner />
+          ) : (
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col gap-1.5">
+              <div className="flex justify-between"><span className="text-gray-500">Amount paid</span><span>{fmtMoney(quote.breakdown.net_paid, quote.currency)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Days before departure</span><span>{quote.breakdown.days_before_departure}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Refund rate</span><span>{parseFloat(quote.breakdown.percent)}%</span></div>
+              <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-1.5 font-bold text-text-primary">
+                <span>Estimated refund if you request today</span><span>{fmtMoney(quote.refund_total, quote.currency)}</span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Calculated from the moment your request is received. {quote.arrival_rule} No further balance is
+                collected after cancellation.
+              </p>
+            </div>
+          )}
+          <textarea
+            rows={2}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Reason (optional)"
+            className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary outline-none focus:border-primary resize-none"
+          />
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+          <div className="flex gap-3">
+            <button
+              onClick={submit}
+              disabled={isLoading || !quote?.eligible}
+              className="bg-red-600 text-white px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-red-700 disabled:opacity-50"
+            >
+              {isLoading ? "Submitting…" : "Submit cancellation request"}
+            </button>
+            <button onClick={() => setOpen(false)} className="px-5 py-2.5 rounded-full border border-gray-200 dark:border-gray-700 text-sm font-semibold text-text-primary">
+              Keep my booking
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Add an experience after booking ──────────────────────────────────────────
+
+function AddExperience({ booking }: { booking: BookingDetail }) {
+  const router = useRouter();
+  const { data } = useAvailableAddonsQuery(booking.reference);
+  const [initializePayment, { isLoading }] = useInitializePaymentMutation();
+  const [chosen, setChosen] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!data || (!data.can_add && !data.reason) || (data.can_add && data.addons.length === 0)) return null;
+  const addon = data.addons.find((a) => a.code === chosen);
+
+  const pay = async () => {
+    if (!addon) return;
+    setError(null);
+    try {
+      const payment = await initializePayment({ booking_id: booking.id, intent: "addon", addon_code: addon.code, channel: "any" }).unwrap();
+      await routeAfterInitialize(payment, (reference) => router.push(`/payment/callback?reference=${reference}`));
+    } catch (err: unknown) {
+      setError((err as { data?: { detail?: string } })?.data?.detail ?? "Could not start the payment.");
+    }
+  };
+
+  return (
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+      <h2 className="text-lg font-bold font-raleway text-text-primary mb-1">Add an experience</h2>
+      {!data.can_add ? (
+        <p className="text-sm text-gray-500 dark:text-gray-400 font-open-sans">{data.reason}</p>
+      ) : (
+        <>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-open-sans mb-4">
+            Pay for it now and it&apos;s added to your booking straight away. Available until {data.open_until ? fmtDate(data.open_until) : "a week before departure"}.
+          </p>
+          <div className="flex flex-col gap-2">
+            {data.addons.map((a) => (
+              <button
+                key={a.code}
+                onClick={() => setChosen(chosen === a.code ? null : a.code)}
+                className={`text-left rounded-xl border p-4 flex justify-between gap-4 transition-colors ${chosen === a.code ? "border-primary bg-primary/5" : "border-gray-200 dark:border-gray-700 hover:border-primary/50"}`}
+              >
+                <span>
+                  <span className="text-sm font-semibold font-open-sans text-text-primary">{a.name}</span>
+                  {a.description && <span className="block text-xs text-gray-500 dark:text-gray-400">{a.description}</span>}
+                  <span className="block text-xs text-gray-500 dark:text-gray-400">{a.quantity} × {fmtMoney(a.unit_price, data.currency)}</span>
+                </span>
+                <span className="text-sm font-bold font-open-sans text-text-primary shrink-0">{fmtMoney(a.line_total, data.currency)}</span>
+              </button>
+            ))}
+          </div>
+          {addon && (
+            <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
+              <button
+                onClick={pay}
+                disabled={isLoading}
+                className="bg-primary text-white px-6 py-3 rounded-full font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {isLoading && <Spinner className="w-4 h-4 text-white" />}
+                Pay {fmtMoney(addon.line_total, data.currency)} and add {addon.name}
+              </button>
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-open-sans">Cancelling it later keeps 50% of its price (booking terms).</span>
+            </div>
+          )}
+          {error && <p className="mt-3 text-sm text-red-600 font-open-sans">{error}</p>}
         </>
       )}
     </div>
@@ -306,6 +513,9 @@ function BookingBlock({ booking }: { booking: BookingDetail }) {
       {/* Payment panel */}
       <PaymentPanel booking={booking} />
 
+      {/* Add an experience (owner rule: until 7 days before departure) */}
+      {(booking.status === "pending" || booking.status === "confirmed") && <AddExperience booking={booking} />}
+
       {/* Payment history */}
       {successfulPayments.length > 0 && (
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
@@ -333,6 +543,9 @@ function BookingBlock({ booking }: { booking: BookingDetail }) {
                       {fmtMoney(payment.amount, payment.currency)}
                       {payment.status === "refunded" && (
                         <span className="ml-2 text-xs text-red-500 font-open-sans">refunded</span>
+                      )}
+                      {payment.disputed && (
+                        <span className="ml-2 text-xs text-amber-700 font-open-sans" title="Your bank has opened a dispute on this payment">disputed</span>
                       )}
                     </td>
                     <td className="py-3 text-right">
@@ -496,7 +709,10 @@ export default function DashboardPage() {
 
   return (
     <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-6xl mx-auto">
-      <h1 className="text-2xl md:text-3xl font-bold font-raleway text-text-primary mb-8">My Bookings</h1>
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold font-raleway text-text-primary">My Bookings</h1>
+        <SupportAndPrivacy />
+      </div>
 
       {!bookings || bookings.length === 0 ? (
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-10 text-center">
@@ -598,5 +814,34 @@ export default function DashboardPage() {
         </div>
       )}
     </main>
+  );
+}
+
+
+/** Appendix C: the account shows how to reach us, and the Privacy Policy right to ask for deletion. */
+function SupportAndPrivacy() {
+  const [requestDeletion, { isLoading }] = useRequestAccountDeletionMutation();
+  const [phase, setPhase] = useState<"idle" | "confirm" | "done">("idle");
+  return (
+    <div className="text-xs font-open-sans text-gray-600 dark:text-gray-300 text-right flex flex-col gap-1">
+      <p>
+        Need help? <a href="mailto:hello@azuratravels.live" className="text-primary font-semibold">hello@azuratravels.live</a>
+      </p>
+      {phase === "idle" && (
+        <button onClick={() => setPhase("confirm")} className="text-gray-400 hover:text-red-600 underline underline-offset-2">Request account deletion</button>
+      )}
+      {phase === "confirm" && (
+        <span className="flex gap-2 justify-end items-center">
+          <span>Ask us to delete your account and personal data?</span>
+          <button
+            disabled={isLoading}
+            onClick={async () => { try { await requestDeletion().unwrap(); } finally { setPhase("done"); } }}
+            className="text-red-600 font-semibold"
+          >Yes</button>
+          <button onClick={() => setPhase("idle")} className="text-gray-500">No</button>
+        </span>
+      )}
+      {phase === "done" && <span className="text-green-700 dark:text-green-400">Request received — we&apos;ll confirm by email.</span>}
+    </div>
   );
 }

@@ -133,6 +133,21 @@ function SuccessContent() {
  <Row label="Email" value={booking.email} />
 
  <div className="border-t border-gray-100 dark:border-gray-800 pt-5 flex flex-col gap-2.5">
+ {booking.line_items.lines.map((l) => (
+ <div key={l.label + l.detail} className="flex justify-between items-start gap-4">
+ <span className="text-sm font-open-sans text-gray-700 dark:text-gray-300">
+ {l.label}
+ <span className="block text-xs text-gray-500 dark:text-gray-400">{l.detail}</span>
+ </span>
+ <span className="text-sm font-open-sans text-text-primary shrink-0">{fmt(l.amount, booking.currency)}</span>
+ </div>
+ ))}
+ {parseFloat(booking.line_items.discount) > 0 && (
+ <div className="flex justify-between items-center text-green-700 dark:text-green-400">
+ <span className="text-sm font-open-sans">{booking.line_items.discount_note || "Bundle discount"}</span>
+ <span className="text-sm font-open-sans">− {fmt(booking.line_items.discount, booking.currency)}</span>
+ </div>
+ )}
  <div className="flex justify-between items-center">
  <span className="text-sm font-open-sans text-gray-700 dark:text-gray-300">Total booking amount</span>
  <span className="text-sm font-semibold font-open-sans text-text-primary">

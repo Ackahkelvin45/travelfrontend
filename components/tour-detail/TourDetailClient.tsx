@@ -138,7 +138,7 @@ export default function TourDetailClient({ id }: Props) {
                 schedule and policies get their own section here. */}
             {!pkg.has_options && pkg.pricing_model === "core_plus_addons" && (
               <Reveal>
-                <PolicySections refundTiers={pkg.refund_tiers ?? []} />
+                <PolicySections refundTiers={pkg.refund_tiers ?? []} showEntryRequirements />
               </Reveal>
             )}
 
@@ -211,7 +211,7 @@ export default function TourDetailClient({ id }: Props) {
           >
             {pkg.pricing_model === "core_plus_addons" ? (
               <Reveal variant="scale" delay={120}>
-                <ConfigurableBookingPanel packageId={pkg.id} />
+                <ConfigurableBookingPanel packageId={pkg.id} spotsLeft={pkg.spots_left} />
               </Reveal>
             ) : pkg.has_options ? (
               <Reveal variant="scale" delay={120}>

@@ -53,6 +53,9 @@ export const authApi = baseApi.injectEndpoints({
       providesTags: ['User'],
     }),
 
+    requestAccountDeletion: builder.mutation<{ detail: string }, void>({
+      query: () => ({ url: '/auth/delete-request/', method: 'POST' }),
+    }),
     resendVerification: builder.mutation<{ detail: string }, { email: string }>({
       query: (body) => ({
         url: '/auth/resend-verification/',
@@ -69,4 +72,5 @@ export const {
   useRefreshTokenMutation,
   useGetMeQuery,
   useResendVerificationMutation,
+  useRequestAccountDeletionMutation,
 } = authApi

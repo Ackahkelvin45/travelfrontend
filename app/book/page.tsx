@@ -579,6 +579,9 @@ function StepReview({
             You&apos;ll choose Card or Mobile Money in Paystack&apos;s secure popup.
             We never see or store your card or mobile money details.
           </p>
+          {matrix.notices?.fees && (
+            <p className="text-xs text-gray-600 dark:text-gray-300 font-open-sans mt-2">{matrix.notices.fees}</p>
+          )}
         </section>
       </div>
 

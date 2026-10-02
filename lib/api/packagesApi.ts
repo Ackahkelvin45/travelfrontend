@@ -86,6 +86,10 @@ export interface PackageDetail {
  max_guests: number
  /** Minimum planning group for the tour to run (display only); null = hidden. */
  min_group_size: number | null
+ /** Total capacity across bookings; null = unlimited. */
+ capacity: number | null
+ /** Places still available; null = unlimited. */
+ spots_left: number | null
  price_shared: string
  price_private: string
  price_vip: string
@@ -164,6 +168,7 @@ export interface ConfigurableMatrix {
  ungrouped_addons: ConfigurableAddon[]
  discount_rules: { name: string; percent: string; required_addons: string[] }[]
  installments: { enabled: boolean; deposit_minimum: string | null; deposit_unit: 'per_booking' | 'per_traveller'; final_payment_deadline: string | null }
+ notices: { fees: string }
  charge: { currency: string; exchange_rate: string | null; rate_source: string | null }
 }
 
@@ -213,6 +218,7 @@ export interface PricingMatrix {
   rate_source: string | null
  }
  server_now: string
+ notices: { fees: string }
 }
 
 export interface PolicyDoc {

@@ -14,7 +14,7 @@ import { FileTextIcon, ShieldIcon } from "@/components/ui/icons";
 import RefundTiersTable, { cancellationSubtitle, type RefundTier } from "@/components/booking/RefundTiersTable";
 import PolicyModal from "@/components/booking/PolicyModal";
 
-export default function PolicySections({ refundTiers }: { refundTiers: RefundTier[] }) {
+export default function PolicySections({ refundTiers, showEntryRequirements }: { refundTiers: RefundTier[]; showEntryRequirements?: boolean }) {
   const { data: policies = [] } = useGetCurrentPoliciesQuery();
   const [openPolicy, setOpenPolicy] = useState<PolicyDoc | null>(null);
 
@@ -59,6 +59,16 @@ export default function PolicySections({ refundTiers }: { refundTiers: RefundTie
         )}
       </div>
 
+      {showEntryRequirements && (
+        <p className="mt-4 text-xs text-gray-600 dark:text-gray-300 font-open-sans leading-relaxed">
+          <span className="font-semibold text-text-primary">Passports, visas and health entry rules</span> are your responsibility and change over time —
+          check the official{" "}
+          <a href="https://evisa.immigration.gov.gh/visa-requirements" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+            Ghana Immigration Service requirements
+          </a>{" "}
+          for your nationality before you travel. This tour does not include a Visa on Arrival service. We strongly recommend travel insurance.
+        </p>
+      )}
       <PolicyModal doc={openPolicy} onClose={() => setOpenPolicy(null)} />
     </section>
   );

@@ -60,6 +60,8 @@ function ExperienceContent() {
   });
   const [accepted, setAccepted] = useState<Record<string, boolean>>({});
   const [openPolicy, setOpenPolicy] = useState<PolicyDoc | null>(null);
+  // Installment Policy: initial payment may be anything from the deposit up to the total.
+  const [initialExtra, setInitialExtra] = useState("");
   const [payPhase, setPayPhase] = useState<null | "creating" | "redirecting">(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -140,6 +142,10 @@ function ExperienceContent() {
   const requiredAccepted = policies.every((doc) => accepted[doc.type]);
   const contactValid = form.firstName.trim() && form.lastName.trim() && EMAIL_RE.test(form.email);
   const canPay = !!contactValid && requiredAccepted && payPhase === null;
+  const dueNow =
+    plan === "installment" && parseFloat(initialExtra) > pricing.deposit
+      ? Math.min(parseFloat(initialExtra), pricing.total)
+      : pricing.dueToday;
 
   if (!packageId) return <Center>No experience selected.</Center>;
   if (isLoading || !matrix) return <Center><Spinner /></Center>;
@@ -169,9 +175,14 @@ function ExperienceContent() {
         currency: booking.currency, expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
       });
 
+      const customInitial = plan === "installment" && parseFloat(initialExtra) > pricing.deposit
+        ? Math.min(parseFloat(initialExtra), pricing.total).toFixed(2)
+        : null;
       const payment = await initializePayment({
         booking_id: booking.id,
-        intent: plan === "installment" ? "deposit" : "balance",
+        ...(customInitial
+          ? { intent: "custom" as const, amount: customInitial }
+          : { intent: plan === "installment" ? ("deposit" as const) : ("balance" as const) }),
         channel: "any", // Paystack's popup collects the method, network and number
       }).unwrap();
       setPayPhase("redirecting");
@@ -261,6 +272,10 @@ function ExperienceContent() {
               <Field id="ph" label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
               <Field id="co" label="Country" value={form.country} onChange={(v) => setForm({ ...form, country: v })} />
             </div>
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 font-open-sans">
+              We use these details to manage your booking and payments. See how in our{" "}
+              <Link href="/privacy-policy" className="text-primary underline">Privacy Policy</Link>.
+            </p>
           </section>
 
           {/* Policies — the cancellation schedule and the full policy text
@@ -279,7 +294,11 @@ function ExperienceContent() {
                   <label key={doc.type} className="flex items-start gap-2.5 text-sm font-open-sans text-gray-700 dark:text-gray-300">
                     <input type="checkbox" checked={!!accepted[doc.type]} onChange={(e) => setAccepted({ ...accepted, [doc.type]: e.target.checked })} className="accent-primary w-4 h-4 mt-0.5" />
                     <span>
-                      I accept the{" "}
+                      {doc.type === "terms"
+                        ? "I have read and agree to the "
+                        : doc.type === "privacy"
+                        ? "I have read the "
+                        : "I accept the "}
                       <button
                         type="button"
                         onClick={(e) => { e.preventDefault(); setOpenPolicy(doc); }}
@@ -288,6 +307,10 @@ function ExperienceContent() {
                         {doc.title}
                       </button>
                       <span className="text-xs text-gray-400"> v{doc.version}</span>
+                      {doc.type === "terms" && (
+                        <span>, including the installment deadlines and the cancellation and refund policy. I confirm the traveller information is accurate and that I am authorised to book for the travellers listed.</span>
+                      )}
+                      {doc.type === "privacy" && <span>, which explains how my booking information is used.</span>}
                     </span>
                   </label>
                 ))}
@@ -328,6 +351,22 @@ function ExperienceContent() {
                 ))}
               </div>
             )}
+            {installmentsEnabled && plan === "installment" && (
+              <div className="mb-3">
+                <label className="block text-xs font-semibold font-open-sans text-text-primary mb-1.5">
+                  Pay more now? <span className="text-gray-400 font-normal">(optional — minimum {money(pricing.currency, pricing.deposit)}, up to the total)</span>
+                </label>
+                <input
+                  type="number" min={pricing.deposit} max={pricing.total} step="0.01"
+                  value={initialExtra} onChange={(e) => setInitialExtra(e.target.value)}
+                  placeholder={money(pricing.currency, pricing.deposit)}
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary outline-none focus:border-primary bg-white dark:bg-gray-900"
+                />
+              </div>
+            )}
+            {matrix.notices?.fees && (
+              <p className="text-xs text-gray-600 dark:text-gray-300 font-open-sans mb-2">{matrix.notices.fees}</p>
+            )}
             {installmentsEnabled && matrix.installments.final_payment_deadline && (
               <p className="text-xs text-gray-600 dark:text-gray-300 font-open-sans mb-2">
                 Balance due in full by{" "}
@@ -367,8 +406,8 @@ function ExperienceContent() {
               </div>
               {plan === "installment" && (
                 <>
-                  <Row label="Due today (deposit)" value={money(pricing.currency, pricing.dueToday)} />
-                  <Row label="Balance after deposit" value={money(pricing.currency, Math.max(0, pricing.total - pricing.dueToday))} muted />
+                  <Row label="Due today" value={money(pricing.currency, dueNow)} />
+                  <Row label="Balance after this payment" value={money(pricing.currency, Math.max(0, pricing.total - dueNow))} muted />
                 </>
               )}
             </div>
@@ -381,7 +420,7 @@ function ExperienceContent() {
               className="mt-5 w-full bg-primary text-white py-3.5 rounded-full font-bold font-open-sans text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {payPhase && <Spinner className="w-4 h-4 text-white" />}
-              {payPhase ? "Securing…" : `Pay ${money(pricing.currency, pricing.dueToday)}`}
+              {payPhase ? "Securing…" : `Pay ${money(pricing.currency, dueNow)}`}
             </button>
             <p className="mt-2 text-[11px] text-center text-gray-500">Secured by Paystack · charged in GHS at the live rate</p>
           </div>

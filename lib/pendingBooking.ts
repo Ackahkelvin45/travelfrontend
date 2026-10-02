@@ -50,3 +50,6 @@ export function clearPendingBooking(): void {
     notify();
   } catch { /* noop */ }
 }
+
+/** Claim token parked while a guest registers/verifies before signing in. */
+export const PENDING_CLAIM_KEY = "azura.pendingClaim";

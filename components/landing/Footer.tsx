@@ -97,8 +97,8 @@ export default function Footer() {
  +233 24 123 4567<br />
  +233 20 987 6543
  </p>
- <a href="mailto:hello@azuratravels.com" className="text-text-primary text-sm hover:text-primary transition-colors">
- hello@azuratravels.com
+ <a href="mailto:hello@azuratravels.live" className="text-text-primary text-sm hover:text-primary transition-colors">
+ hello@azuratravels.live
  </a>
  </div>
 

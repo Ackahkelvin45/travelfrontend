@@ -9,6 +9,7 @@ import { setCredentials, setUser } from "@/lib/features/auth/authSlice";
 import { store } from "@/lib/store/store";
 import Spinner from "@/components/ui/Spinner";
 import VerifyEmailBanner from "@/components/auth/VerifyEmailBanner";
+import { PENDING_CLAIM_KEY } from "@/lib/pendingBooking";
 
 const EyeIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -33,6 +34,9 @@ function LoginContent() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Correct password, unverified account: the backend refuses with
+  // code "email_not_verified" — show the resend banner, not "bad credentials".
+  const [unverified, setUnverified] = useState(false);
 
   const next = searchParams.get("next") || "/dashboard";
   const verified = searchParams.get("verified"); // "1" | "invalid" | null
@@ -40,14 +44,28 @@ function LoginContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setUnverified(false);
     try {
       const tokens = await login({ email, password }).unwrap();
       dispatch(setCredentials({ token: tokens.access, refreshToken: tokens.refresh }));
       const me = await store.dispatch(authApi.endpoints.getMe.initiate(undefined, { forceRefetch: true })).unwrap();
       dispatch(setUser(me));
+      // A guest who came from a confirmation-email claim link and had to
+      // register first: finish attaching their booking now.
+      let pendingClaim: string | null = null;
+      try { pendingClaim = localStorage.getItem(PENDING_CLAIM_KEY); } catch { /* ignore */ }
+      if (pendingClaim) {
+        router.replace(`/claim?token=${encodeURIComponent(pendingClaim)}`);
+        return;
+      }
       router.replace(next);
-    } catch {
-      setError("Invalid email or password.");
+    } catch (err: unknown) {
+      const code = (err as { data?: { code?: string[] } })?.data?.code;
+      if (code?.includes("email_not_verified")) {
+        setUnverified(true);
+      } else {
+        setError("Invalid email or password.");
+      }
     }
   };
 
@@ -64,7 +82,7 @@ function LoginContent() {
             Your email is confirmed — welcome aboard! 🎉
           </div>
         )}
-        {verified === "invalid" && (
+        {(verified === "invalid" || unverified) && (
           <div className="mb-6">
             <VerifyEmailBanner email={email} variant="warning" />
           </div>

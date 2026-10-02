@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useGetConfigurableMatrixQuery } from "@/lib/api/packagesApi";
 import Spinner from "@/components/ui/Spinner";
 
-export default function ConfigurableBookingPanel({ packageId }: { packageId: string }) {
+export default function ConfigurableBookingPanel({ packageId, spotsLeft }: { packageId: string; spotsLeft?: number | null }) {
+  const soldOut = spotsLeft === 0;
   const router = useRouter();
   const { data: matrix, isLoading } = useGetConfigurableMatrixQuery(packageId);
 
@@ -34,10 +35,14 @@ export default function ConfigurableBookingPanel({ packageId }: { packageId: str
 
           <button
             onClick={() => router.push(`/experience?package=${packageId}`)}
-            className="block w-full bg-primary text-white py-3.5 rounded-2xl font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors text-center"
+            disabled={soldOut}
+            className="block w-full bg-primary text-white py-3.5 rounded-2xl font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors text-center disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Build your experience
+            {soldOut ? "Fully booked" : "Build your experience"}
           </button>
+          {typeof spotsLeft === "number" && spotsLeft > 0 && spotsLeft <= 10 && (
+            <p className="mt-2 text-[11px] text-center text-amber-700 dark:text-amber-500 font-semibold">Only {spotsLeft} place{spotsLeft === 1 ? "" : "s"} left</p>
+          )}
           <p className="mt-3 text-[11px] text-center text-gray-500">
             Deposit from {matrix.installments.deposit_minimum ? `${currency} ${parseFloat(matrix.installments.deposit_minimum).toLocaleString()}` : "—"} · secure checkout via Paystack
           </p>

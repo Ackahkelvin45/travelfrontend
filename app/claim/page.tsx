@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@/lib/store/store";
 import { useClaimBookingMutation } from "@/lib/api/bookingsApi";
 import Spinner from "@/components/ui/Spinner";
+import { PENDING_CLAIM_KEY } from "@/lib/pendingBooking";
 
 function ClaimContent() {
   const searchParams = useSearchParams();
@@ -25,9 +26,13 @@ function ClaimContent() {
   useEffect(() => {
     if (!hydrated || !token || attempted.current) return;
     if (!authToken) {
+      // Survives the register → verify-email → login detour: the login page
+      // completes the claim from storage once the guest is signed in.
+      try { localStorage.setItem(PENDING_CLAIM_KEY, token); } catch { /* storage unavailable — the next= fallback still works */ }
       router.replace(`/login?next=${encodeURIComponent(`/claim?token=${token}`)}`);
       return;
     }
+    try { localStorage.removeItem(PENDING_CLAIM_KEY); } catch { /* ignore */ }
     attempted.current = true;
     claim({ token })
       .unwrap()

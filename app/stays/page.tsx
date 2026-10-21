@@ -7,7 +7,26 @@ import PageHero from "@/components/ghana/PageHero";
 import SectionHeading from "@/components/ghana/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 import { Accent, BlackStar, Eyebrow } from "@/components/ghana/Decor";
-import { STAYS } from "@/lib/content/site";
+import { STAYS, type Stay } from "@/lib/content/site";
+import { getFlagship } from "@/lib/content/server";
+import type { ComponentMatrix } from "@/lib/api/packagesApi";
+
+type LiveStay = Stay & { soldOut?: boolean; discount?: string };
+
+/** Live stay types from the price list; meal notes stay editorial. */
+function fromMatrix(m: ComponentMatrix): LiveStay[] {
+  return m.stay_types.map((t) => ({
+    key: t.code,
+    tier: t.kind === "airbnb" ? "Airbnb" : "Hotel",
+    name: t.name,
+    guests: t.capacity === 1 ? "1 guest, private room" : t.min_occupancy >= 2 ? `${t.capacity} guests sharing` : `Up to ${t.capacity} guests`,
+    price: parseFloat(t.price_per_night),
+    note: t.note || (t.kind === "airbnb" ? "Meals not included" : "Breakfast [TO CONFIRM]"),
+    status: t.on_sale ? "live" : "tbc",
+    soldOut: t.on_sale && t.units_available === 0,
+    discount: `${parseFloat(t.discount_percent)}%`,
+  }));
+}
 
 export const metadata: Metadata = {
   title: "Stays in Accra · Airbnb & Four Points | Azura Travels",
@@ -20,8 +39,7 @@ const NOTES = [
   { title: "Every guest holds Core", text: "Each person in a room needs a Core ticket. Rooms are not sold on their own." },
 ];
 
-function StayCard({ i }: { i: number }) {
-  const s = STAYS[i];
+function StayCard({ s, i, bookHref, nights }: { s: LiveStay; i: number; bookHref: string; nights: number }) {
   const tbc = s.status === "tbc";
   return (
     <Reveal delay={(i % 2) * 90} className="h-full">
@@ -34,6 +52,7 @@ function StayCard({ i }: { i: number }) {
           <div className="flex items-center justify-between gap-3">
             <span className="font-montserrat text-xs font-bold uppercase tracking-wider text-[#8A6420] dark:text-[#C9A96E]">{s.tier}</span>
             {tbc && <span className="bg-amber-100 text-amber-900 text-xs font-bold px-2.5 py-1 rounded-full">Awaiting confirmation</span>}
+            {s.soldOut && <span className="bg-gray-100 text-gray-700 text-xs font-bold px-2.5 py-1 rounded-full">Sold out</span>}
           </div>
           <h3 className="font-raleway font-bold text-xl text-text-primary">{s.name}</h3>
           <div className="flex flex-wrap gap-2">
@@ -43,10 +62,10 @@ function StayCard({ i }: { i: number }) {
           <p className="text-sm text-gray-700 dark:text-gray-300">Location, amenities and bedding: [TO BE SUPPLIED]</p>
           <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3">
             <span className="text-sm text-gray-700 dark:text-gray-300">
-              <strong className="font-montserrat text-xl text-text-primary">USD {s.price}</strong> / night · USD {(s.price * 4).toLocaleString("en-US")} for 4 nights
+              <strong className="font-montserrat text-xl text-text-primary">USD {s.price}</strong> / night · USD {(s.price * nights).toLocaleString("en-US")} for {nights} nights
             </span>
-            {!tbc && (
-              <Link href="/ghana-experience-2027" className="bg-primary text-white font-montserrat font-semibold text-sm px-4 py-2.5 rounded-xl hover:brightness-95 transition">Book</Link>
+            {!tbc && !s.soldOut && (
+              <Link href={bookHref} className="bg-primary text-white font-montserrat font-semibold text-sm px-4 py-2.5 rounded-xl hover:brightness-95 transition">Book</Link>
             )}
           </div>
         </div>
@@ -55,7 +74,13 @@ function StayCard({ i }: { i: number }) {
   );
 }
 
-export default function StaysPage() {
+export default async function StaysPage() {
+  const { detail, matrix } = await getFlagship();
+  const stays: LiveStay[] = matrix ? fromMatrix(matrix) : STAYS;
+  const nights = matrix?.stay_types[0]?.nights ?? 4;
+  const bookHref = detail ? `/tour/${detail.id}#book` : "/ghana-experience-2027";
+  const tier = (t: Stay["tier"]) => stays.filter((x) => x.tier === t);
+  const pct = (t: Stay["tier"], fallback: string) => tier(t)[0]?.discount ?? fallback;
   return (
     <main className="w-full bg-background">
       <PageHero
@@ -67,18 +92,16 @@ export default function StaysPage() {
       />
 
       <section className="px-4 md:px-10 lg:px-20 pt-6 pb-10">
-        <SectionHeading eyebrow="First choice" title="Airbnb" intro="3% off when booked with Core tickets. Airbnb meals are not included." />
+        <SectionHeading eyebrow="First choice" title="Airbnb" intro={`${pct("Airbnb", "3%")} off when booked with Core tickets. Airbnb meals are not included.`} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StayCard i={0} />
-          <StayCard i={1} />
+          {tier("Airbnb").map((s, i) => <StayCard key={s.key} s={s} i={i} bookHref={bookHref} nights={nights} />)}
         </div>
       </section>
 
       <section className="px-4 md:px-10 lg:px-20 py-10">
-        <SectionHeading eyebrow="Hotel" title="Four Points by Sheraton" intro="5% off when booked with Core tickets. Couple rooms open once the shared rate is confirmed." />
+        <SectionHeading eyebrow="Hotel" title="Four Points by Sheraton" intro={`${pct("Hotel", "5%")} off when booked with Core tickets. Couple rooms open once the shared rate is confirmed.`} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StayCard i={2} />
-          <StayCard i={3} />
+          {tier("Hotel").map((s, i) => <StayCard key={s.key} s={s} i={i} bookHref={bookHref} nights={nights} />)}
         </div>
       </section>
 

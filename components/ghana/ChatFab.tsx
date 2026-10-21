@@ -1,21 +1,39 @@
 "use client";
 
+import { useSiteContact } from "@/lib/content/useSiteContact";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { CONTACT, FAQS, whatsappHref } from "@/lib/content/site";
+import { FAQS } from "@/lib/content/site";
+import { useCreateLeadMutation } from "@/lib/api/bookingsApi";
 
 // ponytail: answers come from the static FAQ list; swap for the real
 // assistant endpoint once it exists (Change Request: chatbot + human handoff).
 const QUICK = [0, 1, 6, 4].map((i) => FAQS[i]);
 
 export default function ChatFab() {
+  const contact = useSiteContact();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [answer, setAnswer] = useState<number | null>(null);
+  const [handoff, setHandoff] = useState<null | "form" | "sending" | "sent" | string>(null);
+  const [msg, setMsg] = useState({ name: "", email: "", message: "", consent: false });
+  const [createLead] = useCreateLeadMutation();
 
   // Staff tools and booking/checkout flows have their own fixed bottom bars.
-  if (/^\/(staff|tour|book|booking|experience|payment|claim)(\/|$)/.test(pathname)) return null;
+  if (/^\/(staff|tour|book|booking|checkout|experience|payment|claim)(\/|$)/.test(pathname)) return null;
+
+  const sendToTeam = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setHandoff("sending");
+    try {
+      await createLead({ name: msg.name, email: msg.email, message: msg.message, source: "chat", marketing_consent: msg.consent }).unwrap();
+      setHandoff("sent");
+    } catch (err) {
+      setHandoff((err as { data?: { detail?: string } }).data?.detail ?? "We couldn't send that. Please try WhatsApp instead.");
+    }
+  };
+  const field = "w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm focus:outline-none focus:border-primary";
 
   return (
     <>
@@ -51,11 +69,32 @@ export default function ChatFab() {
             </div>
           </div>
           <div className="p-4 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-2">
-            <a href={whatsappHref} className="text-center bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm rounded-xl py-3 hover:brightness-95 transition">
+            {handoff === "sent" ? (
+              <p role="status" className="text-sm text-center text-green-700 dark:text-green-400">Sent. Our team will reply to {msg.email}.</p>
+            ) : handoff === null ? (
+              <button type="button" onClick={() => setHandoff("form")} className="rounded-xl border border-gray-200 dark:border-gray-700 py-3 font-montserrat font-semibold text-sm text-text-primary">
+                Send a message to the team
+              </button>
+            ) : (
+              <form onSubmit={sendToTeam} className="flex flex-col gap-2">
+                <input required aria-label="Your name" placeholder="Your name" value={msg.name} onChange={(e) => setMsg({ ...msg, name: e.target.value })} className={field} />
+                <input required type="email" aria-label="Your email" placeholder="Email" value={msg.email} onChange={(e) => setMsg({ ...msg, email: e.target.value })} className={field} />
+                <textarea required aria-label="Your message" placeholder="How can we help?" rows={3} value={msg.message} onChange={(e) => setMsg({ ...msg, message: e.target.value })} className={field} />
+                <label className="flex gap-2 items-start text-xs text-gray-700 dark:text-gray-300">
+                  <input type="checkbox" checked={msg.consent} onChange={(e) => setMsg({ ...msg, consent: e.target.checked })} className="mt-0.5 accent-primary" />
+                  Optional. Send me offers and updates by email.
+                </label>
+                {handoff !== "form" && handoff !== "sending" && <p role="alert" className="text-xs text-red-700 dark:text-red-400">{handoff}</p>}
+                <button type="submit" disabled={handoff === "sending"} className="rounded-xl bg-primary text-white py-2.5 font-montserrat font-semibold text-sm disabled:opacity-50">
+                  {handoff === "sending" ? "Sending…" : "Send"}
+                </button>
+              </form>
+            )}
+            <a href={contact.whatsappHref} className="text-center bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm rounded-xl py-3 hover:brightness-95 transition">
               Talk to a person on WhatsApp
             </a>
             <p className="text-[11px] text-center text-gray-600 dark:text-gray-400">
-              We reply within one business hour during {CONTACT.staffedHours}, otherwise within 24 hours. <Link href="/faqs" className="text-primary font-semibold">All FAQs</Link>
+              We reply within one business hour during {contact.staffedHours}, otherwise within 24 hours. <Link href="/faqs" className="text-primary font-semibold">All FAQs</Link>
             </p>
           </div>
         </div>

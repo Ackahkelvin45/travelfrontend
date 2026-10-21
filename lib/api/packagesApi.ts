@@ -1,3 +1,4 @@
+import type { SiteSettings } from '@/lib/content/contact'
 import { baseApi } from './baseApi'
 
 export interface PackageCoverImage {
@@ -64,6 +65,7 @@ export interface PackageItinerary {
 
 export interface PackageFAQ {
  id: string
+ topic?: string
  question: string
  answer: string
  order: number
@@ -360,6 +362,10 @@ export const packagesApi = baseApi.injectEndpoints({
  providesTags: (_result, _error, id) => [{ type: 'Tour', id: `component-${id}` }],
  }),
 
+ getSiteSettings: builder.query<SiteSettings, void>({
+ query: () => '/site-settings/',
+ }),
+
  getTripUpdates: builder.query<TripUpdate[], string>({
  query: (id) => `/packages/${id}/updates/`,
  }),
@@ -401,6 +407,7 @@ export const {
  useGetPackagePricingQuery,
  useGetConfigurableMatrixQuery,
  useGetComponentMatrixQuery,
+ useGetSiteSettingsQuery,
  useGetTripUpdatesQuery,
  useGetCurrentPoliciesQuery,
 } = packagesApi

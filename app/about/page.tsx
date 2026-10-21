@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { getSiteContact } from "@/lib/content/server";
 import Link from "next/link";
 import ghana from "../../assets/images/ghana.png";
 import PageHero from "@/components/ghana/PageHero";
 import SectionHeading from "@/components/ghana/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 import { Accent, Eyebrow } from "@/components/ghana/Decor";
-import { CONTACT, EXCLUDED, INCLUDED, whatsappHref } from "@/lib/content/site";
+import { EXCLUDED, INCLUDED } from "@/lib/content/site";
 
 export const metadata: Metadata = {
   title: "About Azura Travels · Contact & Policies",
@@ -18,12 +19,6 @@ const VALUES = [
   { title: "People First", text: "Local guides, a named coordinator for every booking and partner communities are at the heart of what we do." },
 ];
 
-const CONTACTS = [
-  { label: "Email", value: CONTACT.email, note: "Bookings, quotes and documents.", href: null },
-  { label: "WhatsApp", value: CONTACT.whatsapp, note: "Message a person during staffed hours.", href: whatsappHref },
-  { label: "Phone", value: CONTACT.phone, note: "Include your country code when calling.", href: null },
-  { label: "Trip emergency line", value: CONTACT.emergency, note: "For guests on the trip, 6 to 11 January.", href: null },
-];
 
 const POLICIES = [
   { href: "/terms-and-conditions", title: "Terms and Conditions", text: "The approved terms you accept at checkout. The version is recorded with your booking." },
@@ -32,7 +27,14 @@ const POLICIES = [
   { href: "/privacy-policy", title: "Privacy Notice", text: "We collect only what the trip needs. Marketing and photo consent are optional and separate." },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const contact = await getSiteContact();
+  const CONTACTS = [
+  { label: "Email", value: contact.email, note: "Bookings, quotes and documents.", href: null },
+  { label: "WhatsApp", value: contact.whatsapp, note: "Message a person during staffed hours.", href: contact.whatsappHref },
+  { label: "Phone", value: contact.phone, note: "Include your country code when calling.", href: null },
+  { label: "Trip emergency line", value: contact.emergency, note: "For guests on the trip, 6 to 11 January.", href: null },
+];
   return (
     <main className="w-full bg-background">
       <PageHero
@@ -77,9 +79,9 @@ export default function AboutPage() {
           ))}
         </div>
         <Reveal className="mt-5 bg-[#FAF5EB] dark:bg-gray-900 rounded-2xl px-6 py-5 flex flex-wrap gap-x-10 gap-y-3 text-sm text-gray-700 dark:text-gray-300">
-          <span><strong className="text-text-primary">Staffed hours:</strong> {CONTACT.staffedHours}</span>
+          <span><strong className="text-text-primary">Staffed hours:</strong> {contact.staffedHours}</span>
           <span><strong className="text-text-primary">Reply time:</strong> within 1 business hour when staffed, within 24 hours otherwise</span>
-          <span><strong className="text-text-primary">Operator:</strong> {CONTACT.legal}</span>
+          <span><strong className="text-text-primary">Operator:</strong> {contact.legal}</span>
         </Reveal>
       </section>
 

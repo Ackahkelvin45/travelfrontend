@@ -1,3 +1,4 @@
+import { getSiteContact } from "@/lib/content/server";
 import Image from "next/image";
 import Link from "next/link";
 import ghana from "../assets/images/ghana.png";
@@ -12,7 +13,7 @@ import SeasonPackages from "../components/home/SeasonPackages";
 import SectionHeading from "../components/ghana/SectionHeading";
 import LeadForm from "../components/ghana/LeadForm";
 import { Accent, BlackStar, Eyebrow, HeroCurve } from "../components/ghana/Decor";
-import { CONTACT, STAYS, TRIP, whatsappHref } from "@/lib/content/site";
+import { STAYS, TRIP } from "@/lib/content/site";
 
 const PLACES = [
   { img: accraNight, alt: "Accra skyline at night", when: "December", name: "Accra After Dark", note: "Detty December nights, concerts and homecomings", span: "md:col-span-7 md:row-span-2", big: true },
@@ -35,7 +36,8 @@ const WHY = [
   { title: "Clear Pricing", text: "See every ticket, room, experience and saving before you pay. No hidden extras.", d: "M12 3a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM8.5 14 7 22l5-3 5 3-1.5-8" },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const contact = await getSiteContact();
   return (
     <div className="flex w-full bg-background flex-col overflow-hidden">
       {/* Hero */}
@@ -187,11 +189,11 @@ export default function Home() {
             <Eyebrow>Questions before you book</Eyebrow>
             <h2 className="font-raleway font-bold text-2xl md:text-3xl text-text-primary leading-snug">Ask our assistant any time, or message a real person</h2>
             <p className="font-open-sans text-gray-700 dark:text-gray-300 leading-relaxed">
-              Quick answers on prices, dates and stays are always available. Anything else goes to our team, who reply within one business hour during {CONTACT.staffedHours} and within 24 hours otherwise.
+              Quick answers on prices, dates and stays are always available. Anything else goes to our team, who reply within one business hour during {contact.staffedHours} and within 24 hours otherwise.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               <Link href="/faqs" className="bg-primary text-white font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:-translate-y-0.5 hover:brightness-95 transition-all">Read the FAQs</Link>
-              <a href={whatsappHref} className="bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:brightness-95 transition">WhatsApp {CONTACT.whatsapp}</a>
+              <a href={contact.whatsappHref} className="bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:brightness-95 transition">WhatsApp {contact.whatsapp}</a>
             </div>
           </div>
           <div className="flex-1 bg-[#FAF5EB] dark:bg-gray-900 p-8 md:p-12">

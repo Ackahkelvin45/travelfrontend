@@ -105,6 +105,49 @@ body {
  box-shadow: 0 12px 28px rgb(0 0 0 / 0.12);
 }
 
+/* ── Ghana redesign (Change Request v2) ─────────────────────────────────
+   .kente       woven gold/green/red/black band, slowly sliding
+   .hero-zoom   hero photo settles in on load
+   .img-zoom    image scales inside an overflow-hidden parent on .card-lift hover
+   .star-spin   slow black-star rotation
+   .fab-pulse   gold ring pulse for the chat button                         */
+.kente {
+ background: repeating-linear-gradient(90deg,
+  #bd8f3a 0 26px, #060504 26px 32px, #1e6b45 32px 50px, #060504 50px 56px,
+  #b83a2e 56px 66px, #060504 66px 72px, #bd8f3a 72px 80px, #e9d3a3 80px 84px,
+  #bd8f3a 84px 96px, #060504 96px 102px, #1e6b45 102px 110px, #060504 110px 116px,
+  #b83a2e 116px 134px, #060504 134px 140px, #bd8f3a 140px 144px);
+ background-size: 144px 100%;
+ animation: kente-weave 14s linear infinite;
+}
+@keyframes kente-weave { to { background-position: 288px 0; } }
+.kente-v {
+ background: repeating-linear-gradient(180deg,
+  #bd8f3a 0 26px, #060504 26px 32px, #1e6b45 32px 50px, #060504 50px 56px,
+  #b83a2e 56px 66px, #060504 66px 72px, #bd8f3a 72px 80px, #e9d3a3 80px 84px,
+  #bd8f3a 84px 96px, #060504 96px 102px, #1e6b45 102px 110px, #060504 110px 116px,
+  #b83a2e 116px 134px, #060504 134px 140px, #bd8f3a 140px 144px);
+ background-size: 100% 144px;
+ animation: kente-weave-v 14s linear infinite;
+}
+@keyframes kente-weave-v { to { background-position: 0 288px; } }
+
+.hero-zoom { animation: hero-zoom 2.6s var(--ease-out-soft) both; }
+@keyframes hero-zoom { from { transform: scale(1.1); } to { transform: scale(1); } }
+
+.img-zoom { transition: transform 0.8s var(--ease-out-soft); }
+.card-lift:hover .img-zoom { transform: scale(1.06); }
+
+.star-spin { animation: star-spin 24s linear infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+@keyframes star-spin { to { transform: rotate(360deg); } }
+
+.fab-pulse { animation: fab-pulse 2.4s ease-out infinite; }
+@keyframes fab-pulse {
+ 0% { box-shadow: 0 0 0 0 rgb(189 143 58 / 0.55); }
+ 70% { box-shadow: 0 0 0 16px rgb(189 143 58 / 0); }
+ 100% { box-shadow: 0 0 0 0 rgb(189 143 58 / 0); }
+}
+
 .acc-body {
  display: grid;
  grid-template-rows: 0fr;
@@ -122,7 +165,12 @@ body {
   transition: none !important;
  }
  .page-enter,
- .content-in { animation: none !important; }
+ .content-in,
+ .kente,
+ .kente-v,
+ .hero-zoom,
+ .star-spin,
+ .fab-pulse { animation: none !important; }
  .card-lift,
  .card-lift:hover {
   transform: none !important;

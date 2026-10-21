@@ -40,7 +40,7 @@ function SuccessContent() {
  No booking reference found.
  </p>
  <button
- onClick={() => router.push("/destinations")}
+ onClick={() => router.push("/experiences")}
  className="text-primary font-semibold font-open-sans text-sm underline"
  >
  Browse tours
@@ -220,7 +220,7 @@ function SuccessContent() {
  Print receipt
  </button>
  <Link
- href="/destinations"
+ href="/experiences"
  className="flex-1 border border-gray-200 dark:border-gray-700 text-text-primary py-3.5 rounded-full font-semibold font-open-sans text-sm hover:border-gray-300 transition-colors text-center"
  >
  Back to tours

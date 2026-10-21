@@ -3,6 +3,8 @@ import { useState } from "react";
 import BlogCard from "@/components/blog/BlogCard";
 import BlogSidebar from "@/components/blog/BlogSidebar";
 import FeaturedPost from "@/components/blog/FeaturedPost";
+import PageHero from "@/components/ghana/PageHero";
+import ghanaImg from "../../assets/images/ghana.png";
 import { useGetBlogsQuery, type Blog } from "@/lib/api/blogApi";
 
 const SORT_OPTIONS = ["Newest First", "Most Popular", "Oldest First"];
@@ -68,23 +70,17 @@ export default function BlogPage() {
  };
 
  return (
- <div className="w-full px-4 md:px-10 mt-20 py-6 bg-background min-h-screen">
- {/* Top bar */}
- <div className="flex items-center justify-between mb-1">
- <nav className="flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300 font-open-sans">
- <a href="/" className="hover:text-primary transition-colors">Home</a>
- <span>{">"}</span>
- <span className="text-text-primary">Blog</span>
- </nav>
- <p className="text-xs font-semibold font-open-sans text-gray-500 dark:text-gray-400 uppercase tracking-wide">
- stories from across <span className="text-text-primary font-raleway">Africa</span>
- </p>
- </div>
-
- <h1 className="text-3xl font-bold font-raleway text-text-primary mb-6">
- Travel Stories & Guides
- </h1>
-
+ <div className="w-full bg-background min-h-screen">
+ <PageHero
+ image={ghanaImg}
+ alt="Black Star Gate, Accra"
+ objectPosition="center 30%"
+ heightClass="min-h-[300px] md:min-h-[340px]"
+ eyebrow="Stay inspired"
+ title={<>Ghana Travel <em className="font-cormorant italic">Guides</em></>}
+ subtitle="Planning tips, December in Ghana, culture and the places on our trips."
+ />
+ <div className="px-4 md:px-10 lg:px-20 py-6">
  <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
  {/* Sidebar */}
  <BlogSidebar
@@ -212,6 +208,7 @@ export default function BlogPage() {
  </div>
  </div>
  )}
+ </div>
  </div>
  </div>
  </div>

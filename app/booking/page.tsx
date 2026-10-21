@@ -563,7 +563,7 @@ function BookingContent() {
  <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-5xl mx-auto flex items-center justify-center min-h-[40vh]">
  <p className="text-gray-700 dark:text-gray-300 font-open-sans text-sm">
  No package selected.{" "}
- <button onClick={() => router.push("/destinations")} className="text-primary underline">
+ <button onClick={() => router.push("/experiences")} className="text-primary underline">
  Browse tours
  </button>
  </p>

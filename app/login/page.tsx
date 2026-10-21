@@ -10,6 +10,7 @@ import { store } from "@/lib/store/store";
 import Spinner from "@/components/ui/Spinner";
 import VerifyEmailBanner from "@/components/auth/VerifyEmailBanner";
 import { PENDING_CLAIM_KEY } from "@/lib/pendingBooking";
+import AuthShell from "@/components/auth/AuthShell";
 
 const EyeIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -70,11 +71,11 @@ function LoginContent() {
   };
 
   return (
-    <main className="w-full px-4 mt-24 py-16 flex items-center justify-center min-h-[60vh]">
-      <div className="w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-8">
-        <h1 className="text-2xl font-bold font-raleway text-text-primary mb-2">Welcome back</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 font-open-sans mb-6">
-          Sign in to manage your bookings and payments.
+    <AuthShell eyebrow="Akwaaba back" heading={<>Ghana is waiting <em className="font-cormorant italic text-[#E9D3A3]">for you.</em></>}>
+      <div className="content-in">
+        <h1 className="text-3xl font-bold font-raleway text-text-primary mb-2">Welcome back</h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400 font-open-sans mb-8">
+          Sign in to manage your Ghana trip, bookings and payments.
         </p>
 
         {verified === "1" && (
@@ -90,20 +91,21 @@ function LoginContent() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
-            <label className="block text-sm font-semibold font-open-sans text-text-primary mb-2">Email</label>
+            <label htmlFor="login-email" className="block text-sm font-semibold font-open-sans text-text-primary mb-2">Email</label>
             <input
-              type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+              id="login-email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary outline-none focus:border-primary transition-colors"
+              className="w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl px-4 py-3.5 text-sm font-open-sans text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold font-open-sans text-text-primary mb-2">Password</label>
+            <label htmlFor="login-password" className="block text-sm font-semibold font-open-sans text-text-primary mb-2">Password</label>
             <div className="relative">
               <input
+                id="login-password" autoComplete="current-password"
                 type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 pr-12 text-sm font-open-sans text-text-primary outline-none focus:border-primary transition-colors"
+                placeholder="Your password"
+                className="w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl px-4 py-3.5 pr-12 text-sm font-open-sans text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
               />
               <button
                 type="button"
@@ -117,26 +119,26 @@ function LoginContent() {
           </div>
 
           {error && (
-            <p className="text-sm text-red-600 font-open-sans bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>
+            <p role="alert" className="content-in text-sm text-red-700 font-open-sans bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>
           )}
 
           <button
             type="submit" disabled={isLoading}
-            className="w-full bg-primary text-white py-3.5 rounded-full font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            className="w-full bg-primary text-white py-3.5 rounded-xl font-semibold font-montserrat text-sm hover:-translate-y-0.5 hover:brightness-95 transition-all disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {isLoading && <Spinner className="w-4 h-4 text-white" />}
             Sign in
           </button>
         </form>
 
-        <p className="text-sm text-gray-500 dark:text-gray-400 font-open-sans mt-6 text-center">
-          No account yet?{" "}
+        <p className="text-sm text-gray-600 dark:text-gray-400 font-open-sans mt-8 text-center">
+          New to Azura?{" "}
           <Link href={`/register?next=${encodeURIComponent(next)}`} className="text-primary font-semibold hover:underline">
-            Create one
+            Create an account
           </Link>
         </p>
       </div>
-    </main>
+    </AuthShell>
   );
 }
 

@@ -130,7 +130,7 @@ function CallbackContent() {
     return (
       <div className="text-center">
         <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm mb-4">Invalid payment reference.</p>
-        <button onClick={() => router.push("/destinations")} className="text-primary font-semibold font-open-sans text-sm underline">
+        <button onClick={() => router.push("/experiences")} className="text-primary font-semibold font-open-sans text-sm underline">
           Browse tours
         </button>
       </div>
@@ -158,7 +158,7 @@ function CallbackContent() {
           </button>
         )}
         <button
-          onClick={() => router.push("/destinations")}
+          onClick={() => router.push("/experiences")}
           className="text-sm font-semibold font-open-sans text-gray-500 dark:text-gray-400 hover:text-text-primary transition-colors"
         >
           Back to tours

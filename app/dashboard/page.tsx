@@ -724,7 +724,7 @@ export default function DashboardPage() {
             that booking to this account.
           </p>
           <Link
-            href="/destinations"
+            href="/experiences"
             className="inline-block bg-primary text-white px-6 py-3 rounded-full font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors"
           >
             Browse tours

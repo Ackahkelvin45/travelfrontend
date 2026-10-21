@@ -1,146 +1,101 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import logo from "../../assets/logo/logo.png";
 import logoDark from "../../assets/logo/logodark.png";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import ThemeToggle from "../ui/ThemeToggle";
 import AccountMenu from "../ui/AccountMenu";
+import { NAV_LINKS } from "@/lib/content/site";
+
+function isActive(pathname: string, href: string) {
+  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+}
 
 export default function Navbar() {
- const [scrolled, setScrolled] = useState(false);
- const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
- useEffect(() => {
- const onScroll = () => setScrolled(window.scrollY > 10);
- window.addEventListener("scroll", onScroll, { passive: true });
- return () => window.removeEventListener("scroll", onScroll);
- }, []);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
- return (
- <nav className={`w-full z-50 fixed font-work-sans px-4 md:px-10 h-20 py-2 flex items-center justify-between transition-all duration-300 ${
- scrolled
- ? "bg-white/60 dark:bg-gray-900/60 backdrop-blur-md border-b border-white/30 dark:border-gray-800 shadow-sm"
- : "bg-background"
- }`}>
- {/* Logo */}
- <Link href="/" className="flex items-center gap-2 flex-shrink-0">
- <Image src={logo} alt="TravelandTour Logo" className="h-16 w-28 dark:hidden" />
- <Image src={logoDark} alt="TravelandTour Logo" className="h-16 w-28 hidden dark:block" />
- </Link>
+  return (
+    <nav
+      aria-label="Main"
+      className={`w-full z-50 fixed font-work-sans px-4 md:px-10 h-20 flex items-center justify-between gap-6 transition-all duration-300 ${
+        scrolled
+          ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm"
+          : "bg-background"
+      }`}
+    >
+      <Link href="/" className="flex items-center shrink-0" aria-label="Azura Travels home">
+        <Image src={logo} alt="Azura Travels" className="h-16 w-28 object-contain dark:hidden" priority />
+        <Image src={logoDark} alt="Azura Travels" className="h-16 w-28 object-contain hidden dark:block" priority />
+      </Link>
 
- {/* Search */}
- <div className="hidden md:block relative max-w-xs w-full ml-10">
- <svg
- className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-500 pointer-events-none"
- width="15" height="15" viewBox="0 0 24 24" fill="none"
- stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
- >
- <circle cx="11" cy="11" r="8" />
- <line x1="21" y1="21" x2="16.65" y2="16.65" />
- </svg>
- <input
- type="text"
- placeholder="Search destinations or activities"
- className="w-full pl-9 pr-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-500 dark:text-gray-400 placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary focus:bg-white dark:focus:bg-gray-700 transition-colors"
- />
- </div>
+      <ul className="hidden lg:flex items-center gap-6 xl:gap-7 list-none">
+        {NAV_LINKS.map((l) => (
+          <li key={l.href}>
+            <Link
+              href={l.href}
+              aria-current={isActive(pathname, l.href) ? "page" : undefined}
+              className={`relative text-[15px] whitespace-nowrap transition-colors hover:text-primary after:absolute after:left-0 after:-bottom-1.5 after:h-0.5 after:bg-primary after:transition-all ${
+                isActive(pathname, l.href) ? "text-primary font-medium after:w-full" : "text-text-primary after:w-0 hover:after:w-full"
+              }`}
+            >
+              {l.label}
+            </Link>
+          </li>
+        ))}
+        <li><AccountMenu /></li>
+        <li>
+          <Link href="/ghana-experience-2027" className="bg-primary text-white font-montserrat font-semibold text-sm px-5 py-3 rounded-xl hover:-translate-y-0.5 hover:brightness-95 transition-all whitespace-nowrap">
+            Book Now
+          </Link>
+        </li>
+      </ul>
 
- {/* Spacer */}
- <div className="hidden md:flex justify-end w-full" >
+      <button
+        type="button"
+        onClick={() => setMenuOpen((v) => !v)}
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        aria-expanded={menuOpen}
+        className="lg:hidden text-text-primary w-11 h-11 flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700"
+      >
+        {menuOpen ? (
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+        ) : (
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+        )}
+      </button>
 
+      <div aria-hidden="true" className="kente absolute inset-x-0 bottom-0 h-1" />
 
- {/* Nav Links */}
- <ul className="flex items-center gap-7 list-none">
- <li>
- <Link href="/explore" className="text-base text-text-primary hover:text-primary transition-colors">
- Explore 
- </Link>
- </li>
- <li>
-    <Link href="/destinations" className="text-base text-text-primary hover:text-primary transition-colors">
-        Destinations  
-    </Link>
- </li>
- 
- <li>
- <Link href="/gallery" className="text-base text-text-primary hover:text-primary transition-colors">
- Gallery
- </Link>
- </li>
- <li>
- <Link href="/blog" className="text-base text-text-primary hover:text-primary transition-colors">
- Blog
- </Link>
- </li>
- <li>
- <Link href="/about" className="text-base text-text-primary hover:text-primary transition-colors">
- About Us
- </Link>
- </li>
- <li>
- <AccountMenu />
- </li>
-
-
- </ul>
-
- 
-
- 
- </div>
-
- {/* Mobile Hamburger */}
- <div className="md:hidden flex items-center">
- <button onClick={() => setMenuOpen(!menuOpen)} className="text-text-primary p-2 focus:outline-none">
- {menuOpen ? (
- <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
- ) : (
- <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
- )}
- </button>
- </div>
-
- {/* Mobile Menu Overlay */}
- {menuOpen && (
- <div className="absolute top-20 left-0 w-full bg-white dark:bg-gray-900 shadow-md border-b border-gray-100 dark:border-gray-800 flex flex-col p-4 gap-4 md:hidden">
- <div className="relative w-full">
- <svg
- className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
- width="15" height="15" viewBox="0 0 24 24" fill="none"
- stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
- >
- <circle cx="11" cy="11" r="8" />
- <line x1="21" y1="21" x2="16.65" y2="16.65" />
- </svg>
- <input
- type="text"
- placeholder="Search destinations or activities"
- className="w-full pl-9 pr-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-500 dark:text-gray-400 placeholder-gray-300 dark:placeholder-gray-500 outline-none focus:border-primary focus:bg-white dark:focus:bg-gray-700 transition-colors"
- />
- </div>
- <Link href="/explore" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100 dark:border-gray-800">
- Explore
- </Link>
- <Link href="/destinations" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100 dark:border-gray-800">
- Destinations
- </Link>
- <Link href="/gallery" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100 dark:border-gray-800">
- Gallery
- </Link>
- <Link href="/blog" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100 dark:border-gray-800">
- Blog
- </Link>
- <Link href="/about" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-2 border-b border-gray-100 dark:border-gray-800">
- About Us
- </Link>
- <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-primary py-2">
- My Bookings
- </Link>
- 
- </div>
- )}
- </nav>
- );
+      {menuOpen && (
+        <div className="content-in absolute top-20 left-0 w-full bg-white dark:bg-gray-900 shadow-md border-b border-gray-100 dark:border-gray-800 flex flex-col px-4 pb-5 lg:hidden">
+          {NAV_LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={() => setMenuOpen(false)}
+              className={`text-base font-semibold py-3.5 border-b border-gray-100 dark:border-gray-800 ${isActive(pathname, l.href) ? "text-primary" : "text-text-primary"}`}
+            >
+              {l.label}
+            </Link>
+          ))}
+          <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-3.5 border-b border-gray-100 dark:border-gray-800">
+            My Bookings
+          </Link>
+          <Link href="/ghana-experience-2027" onClick={() => setMenuOpen(false)} className="mt-4 text-center bg-primary text-white font-montserrat font-semibold py-3.5 rounded-xl">
+            Book Now
+          </Link>
+        </div>
+      )}
+    </nav>
+  );
 }

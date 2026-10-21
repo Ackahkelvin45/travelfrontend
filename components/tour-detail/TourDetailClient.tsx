@@ -103,10 +103,7 @@ export default function TourDetailClient({ id }: Props) {
           reviewCount={pkg.review_count}
           breadcrumb={[
             { label: "Home", href: "/" },
-            { label: "Tours", href: "/destinations" },
-            ...(pkg.destination
-              ? [{ label: pkg.destination, href: `/destinations?destination=${pkg.destination}` }]
-              : []),
+            { label: "All experiences", href: "/experiences" },
           ]}
         />
 

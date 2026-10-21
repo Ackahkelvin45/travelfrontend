@@ -6,6 +6,7 @@
  * (progress, balance, deadline, top-up) is the centerpiece.
  */
 
+import { CoordinatorPanel, GuestsPanel, MessagePreferences, TripHero, UpgradesPanel } from "@/components/booking/TripPanels";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -474,10 +475,12 @@ function BookingBlock({ booking }: { booking: BookingDetail }) {
     completed: "bg-blue-100 text-blue-700",
   };
 
+  const isTrip = !!booking.mode;
   return (
     <div className="flex flex-col gap-6">
-      {/* Trip header */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+      {isTrip && <TripHero booking={booking} />}
+      {/* Trip header (older booking flows) */}
+      {!isTrip && <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
         <PackageCoverImage packageId={booking.package_id} alt={booking.package_title} />
         <div className="bg-primary/5 px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -508,13 +511,22 @@ function BookingBlock({ booking }: { booking: BookingDetail }) {
             <p className="font-semibold text-text-primary">{fmtDate(booking.created_at)}</p>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Payment panel */}
       <PaymentPanel booking={booking} />
 
-      {/* Add an experience (owner rule: until 7 days before departure) */}
-      {(booking.status === "pending" || booking.status === "confirmed") && <AddExperience booking={booking} />}
+      {isTrip && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <CoordinatorPanel booking={booking} />
+          <GuestsPanel booking={booking} />
+        </div>
+      )}
+
+      {/* Add an experience (owner rule: until 7 days before departure). Component
+          bookings add experiences per guest — that upgrade flow is still to come. */}
+      {!isTrip && (booking.status === "pending" || booking.status === "confirmed") && <AddExperience booking={booking} />}
+      {isTrip && <UpgradesPanel />}
 
       {/* Payment history */}
       {successfulPayments.length > 0 && (
@@ -567,6 +579,8 @@ function BookingBlock({ booking }: { booking: BookingDetail }) {
       {/* Trip updates */}
       <TripUpdates packageId={booking.package_id} />
 
+      {isTrip && <MessagePreferences booking={booking} />}
+
       {receiptFor && <ReceiptModal booking={booking} payment={receiptFor} onClose={() => setReceiptFor(null)} />}
     </div>
   );
@@ -580,7 +594,7 @@ function TripUpdates({ packageId }: { packageId: string }) {
       <h2 className="text-lg font-bold font-raleway text-text-primary mb-4">Trip updates</h2>
       <div className="flex flex-col gap-5">
         {updates.map((update) => (
-          <div key={update.id} className="border-l-2 border-primary pl-4">
+          <div key={update.id} className="rounded-xl bg-gray-50 dark:bg-gray-800/60 px-4 py-3">
             <p className="text-sm font-bold font-open-sans text-text-primary">{update.title}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans mb-1.5">{fmtDate(update.published_at)}</p>
             <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">{update.body}</p>

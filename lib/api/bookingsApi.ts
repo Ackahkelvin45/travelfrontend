@@ -155,6 +155,10 @@ export interface BookingDetail {
   /** Component bookings only ("single" | "couple" | "group"); empty for older flows. */
   mode: TravelMode | ''
   coordinator_name: string | null
+  lead_contacted_at: string | null
+  travellers: { full_name: string; is_lead: boolean; unit: string | null; experiences: string[]; travel_info_submitted: boolean }[]
+  marketing_consent: boolean
+  photo_consent: boolean
   first_name: string
   last_name: string
   email: string
@@ -411,6 +415,13 @@ export const bookingsApi = baseApi.injectEndpoints({
       query: ({ reference, travellers }) => ({ url: `/bookings/${reference}/travel/`, method: 'PUT', body: { travellers } }),
       invalidatesTags: (_r, _e, { reference }) => [{ type: 'Booking', id: `travel-${reference}` }],
     }),
+    updatePreferences: builder.mutation<
+      { marketing_consent: boolean; photo_consent: boolean },
+      { reference: string; marketing_consent?: boolean; photo_consent?: boolean }
+    >({
+      query: ({ reference, ...body }) => ({ url: `/bookings/${reference}/preferences/`, method: 'PATCH', body }),
+      invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
+    }),
     createLead: builder.mutation<{ id: string; detail: string }, LeadRequest>({
       query: (body) => ({ url: '/leads/', method: 'POST', body }),
     }),
@@ -448,4 +459,5 @@ export const {
   useTravelInfoQuery,
   useSaveTravelInfoMutation,
   useCreateLeadMutation,
+  useUpdatePreferencesMutation,
 } = bookingsApi

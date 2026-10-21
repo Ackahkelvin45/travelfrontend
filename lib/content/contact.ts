@@ -12,6 +12,8 @@ export interface SiteSettings {
   legal_name: string;
   legal_address: string;
   hold_minutes: number;
+  /** Academy donations are live (verified settlement account). */
+  donations_open?: boolean;
 }
 
 export type Contact = typeof CONTACT & { whatsappHref: string };

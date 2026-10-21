@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useUpdatePreferencesMutation, type BookingDetail } from "@/lib/api/bookingsApi";
-import { fmtDate, fmtDateRange } from "@/lib/format";
+import { fmtDate, fmtDateRange, fmtMoney } from "@/lib/format";
 
 const card = "rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 flex flex-col gap-4";
 const heading = "font-raleway font-bold text-[17px] text-text-primary";
@@ -93,23 +93,29 @@ export function GuestsPanel({ booking }: { booking: BookingDetail }) {
       <h2 className={heading}>Guests, Rooms &amp; Experiences</h2>
       <ul className="flex flex-col gap-2.5">
         {booking.travellers.map((t) => (
-          <li key={t.full_name} className="flex flex-wrap justify-between gap-2 rounded-xl bg-gray-50 dark:bg-gray-800/60 px-4 py-3">
+          <li key={t.id} className="flex flex-wrap justify-between gap-2 rounded-xl bg-gray-50 dark:bg-gray-800/60 px-4 py-3">
             <div className="flex flex-col">
               <strong className="text-sm text-text-primary">{t.full_name}{t.is_lead ? " (lead)" : ""}</strong>
               <span className="text-[13px] text-gray-600 dark:text-gray-400">{t.experiences.length ? t.experiences.join(" · ") : "No experiences added"}</span>
+              {booking.pay_separately && (
+                <span className="text-[13px] text-gray-600 dark:text-gray-400">
+                  {parseFloat(t.outstanding) > 0
+                    ? <>{fmtMoney(t.outstanding, booking.currency)} of {fmtMoney(t.share, booking.currency)} to pay · <Link href={`/pay/${t.id}`} className="font-semibold text-[#8A6420] dark:text-primary">Pay link</Link></>
+                    : "Share paid"}
+                </span>
+              )}
             </div>
             <span className="self-center text-xs font-semibold text-[#6B4E1A] dark:text-primary">{t.unit ?? "Own stay"}</span>
           </li>
         ))}
       </ul>
-      <span className="text-xs text-gray-500 dark:text-gray-400">Stay: 6–7 Jan and 8–11 Jan. Crown Forest on 7 Jan is included.</span>
+      <span className="text-xs text-gray-500 dark:text-gray-400">Airbnb: 6–11 Jan, kept for you on the Crown Forest night. Four Points: 6 Jan and 8–10 Jan. Crown Forest on 7 Jan is included.</span>
     </section>
   );
 }
 
 const UPGRADES = [
   { name: "Extra night in Accra", note: "Arrive Tuesday 5 Jan or stay on." },
-  { name: "Private airport transfer", note: "Met at Kotoka arrivals." },
   { name: "Trip photography", note: "Photos of key moments." },
 ];
 
@@ -120,7 +126,7 @@ export function UpgradesPanel() {
         <h2 className={heading}>Upgrade Your Trip</h2>
         <span className="text-xs text-gray-500 dark:text-gray-400">Added to your balance. Prices shown once confirmed.</span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {UPGRADES.map((u) => (
           <div key={u.name} className="rounded-xl border border-gray-100 dark:border-gray-800 p-4 flex flex-col gap-1.5">
             <span className="font-raleway font-bold text-sm text-text-primary">{u.name}</span>

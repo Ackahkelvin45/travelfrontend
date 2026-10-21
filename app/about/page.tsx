@@ -54,7 +54,7 @@ export default async function AboutPage() {
             Azura Travels was founded in Accra with a simple belief: Ghana&apos;s beauty, culture and spirit deserve to be experienced in full, not sampled from a distance.
           </p>
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            We are not a mass-market travel agency. We are curators, storytellers and connectors, from Detty December in Accra to Cape Coast, Crown Forest and the Aburi hills.
+            We are not a mass-market travel agency. We are curators, storytellers and connectors, from Detty December in Accra to Cape Coast, Crown Forest and Boti Falls.
           </p>
         </Reveal>
         <div className="grid grid-cols-1 gap-4">

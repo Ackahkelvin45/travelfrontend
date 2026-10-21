@@ -24,6 +24,7 @@ const SUPPORT = [
   { href: "/about", label: "About Us" },
   { href: "/blog", label: "Travel Guides" },
   { href: "/gallery", label: "Gallery" },
+  { href: "/donate", label: "Support the Academy" },
 ];
 // All four customer policies stay linked from every page (policy requirement).
 const POLICIES = [

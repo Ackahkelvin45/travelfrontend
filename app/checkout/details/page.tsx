@@ -215,7 +215,7 @@ export default function CheckoutDetailsPage() {
             <span className="text-xs text-gray-700 dark:text-gray-300">{matrix ? fmtDateRange(matrix.tour_start, matrix.tour_end) : ""} · <span className="capitalize">{state.choices.mode}</span></span>
           </div>
           {quote ? <QuoteSummary quote={quote} /> : <Spinner />}
-          <p className="text-[11px] text-center text-gray-500 dark:text-gray-400">No promo codes. Savings are applied automatically.</p>
+          <p className="text-[11px] text-center text-gray-500 dark:text-gray-400">No promo codes. Core tickets are never discounted.</p>
         </aside>
       </div>
       <PolicyModal doc={openPolicy} onClose={() => setOpenPolicy(null)} />

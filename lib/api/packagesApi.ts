@@ -192,18 +192,23 @@ export interface ComponentMatrix {
   price_per_night: string
   nights: number
   unit_total: string
-  discount_percent: string
   on_sale: boolean
   note: string
   units_available: number
  }[]
- experiences: { code: string; name: string; description: string | null; price: string; refundable: boolean }[]
- bundles: { name: string; percent: string; members: string[] }[]
+ experiences: {
+  code: string; name: string; description: string | null; price: string; refundable: boolean
+  /** per_vehicle = airport transfer, shared by up to vehicle_capacity guests. */
+  unit: 'per_person' | 'per_vehicle'
+  adults_only: boolean
+  requires_stay: boolean
+  vehicle_capacity: number
+ }[]
+ /** Group accommodation discounts (rooms only, never Core); empty while switched off. */
+ group_discounts: { name: string; percent: string; min_travellers: number }[]
  installments: {
   enabled: boolean
-  deposit_minimum: string | null
-  deposit_unit: 'per_booking' | 'per_traveller'
-  deposit_threshold: string | null
+  accommodation_deposit_percent: string
   final_payment_deadline: string | null
  }
  notices: { fees: string }

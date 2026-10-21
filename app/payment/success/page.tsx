@@ -12,12 +12,81 @@ import { PrinterIcon } from "@/components/ui/icons";
 import { fmtDate, fmtMoney } from "@/lib/format";
 import { clearCheckout } from "@/lib/trip";
 import { clearPendingBooking } from "@/lib/pendingBooking";
+import { useStartDonationMutation } from "@/lib/api/donationsApi";
+import { loadPendingDonation, payDonation, savePendingDonation, type PendingDonation } from "@/lib/donation";
 
+// Not on sale until the client confirms them (Change Request v4 §8).
 const UPSELLS = [
   { name: "Extra nights in Accra", note: "Arrive Tuesday or stay on after Monday." },
-  { name: "Private airport transfer", note: "Met at arrivals and driven to your stay." },
   { name: "Trip photography", note: "A photographer for key moments of the trip." },
 ];
+
+/** Pay links for a group whose members pay their own share. */
+function GroupShares({ booking }: { booking: { currency: string; travellers: { id: string; full_name: string; is_lead: boolean; share: string; outstanding: string }[] } }) {
+  const [copied, setCopied] = useState<string | null>(null);
+  const copy = async (id: string) => {
+    try { await navigator.clipboard.writeText(`${window.location.origin}/pay/${id}`); setCopied(id); } catch { /* clipboard blocked */ }
+  };
+  return (
+    <section className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 flex flex-col gap-3 print:hidden">
+      <h2 className="font-raleway font-bold text-[17px] text-text-primary">Each guest&apos;s share</h2>
+      <p className="text-[13px] text-gray-700 dark:text-gray-300">Send each guest their pay link. Every share must be paid before the trip starts on 6 January.</p>
+      <ul className="flex flex-col gap-2">
+        {booking.travellers.map((t) => {
+          const due = parseFloat(t.outstanding);
+          return (
+            <li key={t.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-gray-50 dark:bg-gray-800/60 px-4 py-2.5 text-sm">
+              <span className="text-text-primary">{t.full_name}{t.is_lead ? " (organiser)" : ""}</span>
+              <span className="flex items-center gap-3">
+                <span className={due > 0 ? "text-gray-700 dark:text-gray-300" : "text-green-700 dark:text-green-400"}>
+                  {due > 0 ? `${fmtMoney(t.outstanding, booking.currency)} to pay` : "Paid"}
+                </span>
+                {due > 0 && (
+                  <button type="button" onClick={() => copy(t.id)} className="rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-[#8A6420] dark:text-primary">
+                    {copied === t.id ? "Link copied" : "Copy pay link"}
+                  </button>
+                )}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/** The Academy gift chosen at checkout, charged now that the booking is paid. */
+function PendingDonationCard({ donation, currency, onDismiss }: { donation: PendingDonation; currency: string; onDismiss: () => void }) {
+  const router = useRouter();
+  const [start, { isLoading }] = useStartDonationMutation();
+  const [error, setError] = useState<string | null>(null);
+  const label = "percent" in donation.choice ? `${donation.choice.percent}% of your booking` : fmtMoney(donation.choice.amount, currency);
+  const go = async () => {
+    setError(null);
+    try {
+      const res = await start({ name: donation.name, email: donation.email, booking_id: donation.bookingId, ...donation.choice }).unwrap();
+      savePendingDonation(null);
+      await payDonation(res, (ref) => router.push(`/donate/thanks?reference=${ref}`));
+    } catch (e) {
+      setError((e as { data?: { detail?: string } })?.data?.detail ?? "The donation didn't start. Please try again.");
+    }
+  };
+  return (
+    <section className="rounded-2xl border border-primary/40 bg-white dark:bg-gray-900 p-6 flex flex-wrap items-center justify-between gap-4 print:hidden">
+      <div className="flex flex-col gap-1 min-w-0">
+        <h2 className="font-raleway font-bold text-[17px] text-text-primary">Complete your Academy donation</h2>
+        <p className="text-[13px] text-gray-700 dark:text-gray-300">{label}, paid separately to the Michael Blackson Academy&apos;s own account.</p>
+        {error && <p role="alert" className="text-[13px] text-red-700 dark:text-red-400">{error}</p>}
+      </div>
+      <div className="flex gap-3">
+        <button type="button" onClick={() => { savePendingDonation(null); onDismiss(); }} className="text-sm font-semibold text-gray-600 dark:text-gray-400">Not now</button>
+        <button type="button" onClick={go} disabled={isLoading} className="bg-primary text-white font-montserrat font-semibold text-sm px-5 py-2.5 rounded-xl disabled:opacity-50">
+          {isLoading ? "Opening…" : "Donate"}
+        </button>
+      </div>
+    </section>
+  );
+}
 
 const Spin = () => (
   <svg className="animate-spin w-10 h-10 text-primary" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -32,6 +101,11 @@ function SuccessContent() {
   const reference = searchParams.get("reference") ?? "";
   const { data: booking, isLoading, isError } = useGetBookingByReferenceQuery(reference, { skip: !reference });
   const [copied, setCopied] = useState(false);
+  const [donation, setDonation] = useState<PendingDonation | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read sessionStorage after hydration
+    setDonation(loadPendingDonation());
+  }, []);
 
   // Paid: the checkout is finished, so a new trip starts clean.
   useEffect(() => {
@@ -83,6 +157,10 @@ function SuccessContent() {
           <button type="button" onClick={copy} className="rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-[#8A6420] dark:text-primary print:hidden">{copied ? "Copied" : "Copy"}</button>
         </div>
       </div>
+
+      {donation && donation.bookingId === booking.id && parseFloat(booking.amount_paid) > 0 && (
+        <PendingDonationCard donation={donation} currency={c} onDismiss={() => setDonation(null)} />
+      )}
 
       <div className="flex flex-wrap gap-5 items-start">
         <section className={`${card} flex-[1.2_1_420px] min-w-0`}>
@@ -153,13 +231,15 @@ function SuccessContent() {
         </section>
       </div>
 
+      {booking.pay_separately && <GroupShares booking={booking} />}
+
       {isTrip && (
         <section className={`${card} gap-4 print:hidden`}>
           <div className="flex flex-wrap justify-between items-baseline gap-2">
             <h2 className="font-raleway font-bold text-[17px] text-text-primary">Make it even better</h2>
             <span className="text-xs text-gray-500 dark:text-gray-400">Add any time before the trip</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {UPSELLS.map((u) => (
               <div key={u.name} className="rounded-2xl border border-gray-100 dark:border-gray-800 p-4 flex flex-col gap-2">
                 <span className="font-raleway font-bold text-text-primary">{u.name}</span>

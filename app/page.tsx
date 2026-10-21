@@ -20,20 +20,20 @@ const PLACES = [
   { img: crownForest, alt: "Crown Forest lodge at sunset", when: "Thu 7 Jan", name: "Crown Forest", note: "One night included, with activities and breakfast", span: "md:col-span-5" },
   { img: boats, alt: "Guests on pedal boats", when: "Fri 8 Jan", name: "Forest Activities", note: "Crown Forest activities and breakfast, then back to Accra", span: "md:col-span-5" },
   { img: null, alt: "", when: "Thu 7 Jan", name: "Cape Coast", note: "Castle, Academy and Lemon Beach · photo to supply", span: "md:col-span-6" },
-  { img: null, alt: "", when: "Sat 9 Jan", name: "Aburi & Oboadaka Falls", note: "Waterfalls, Aburi and Peduase · photo to supply", span: "md:col-span-6", green: true },
+  { img: null, alt: "", when: "Sat 9 Jan", name: "Boti Falls", note: "Group excursion, optional waterfall massage · photo to supply", span: "md:col-span-6", green: true },
 ];
 
 const STEPS = [
   { n: "1", img: guests, tag: `$${TRIP.corePrice} per traveller`, title: "Who's Travelling", text: "Single, Couple or Group. Every guest holds one Core ticket, with the Crown Forest night included." },
-  { n: "2", img: accraNight, tag: "Save 3–5%", title: "Where You Stay", text: "Airbnb from $220 or Four Points from $330 a night, for four Accra nights. Or arrange your own." },
-  { n: "3", img: boats, tag: "Save 5% on all three", title: "What You Add", text: "ENZO VIP, Waterfall Massage and the farewell dinner, chosen guest by guest." },
+  { n: "2", img: accraNight, tag: "Priced per unit", title: "Where You Stay", text: "A five-night Airbnb from $1,100 or four nights at Four Points from $1,320, charged once per unit. Or arrange your own." },
+  { n: "3", img: boats, tag: "Guest by guest", title: "What You Add", text: "ENZO VIP, a waterfall massage and airport transfers, chosen guest by guest. The farewell dinner is already included." },
 ];
 
 const WHY = [
-  { title: "Cultural Authenticity", text: "Cape Coast, Aburi and Accra with people who know them, not surface-level tourism.", d: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" },
+  { title: "Cultural Authenticity", text: "Cape Coast, Boti Falls and Accra with people who know them, not surface-level tourism.", d: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" },
   { title: "Stays You Choose", text: "Airbnb units or Four Points rooms, priced once per unit, never per head.", d: "M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6" },
   { title: "A Coordinator for Every Booking", text: "A named coordinator contacts you within 24 hours of payment to confirm every detail.", d: "M12 21s-7-4.5-7-11a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 6.5-7 11-7 11z" },
-  { title: "Clear Pricing", text: "See every ticket, room, experience and saving before you pay. No hidden extras.", d: "M12 3a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM8.5 14 7 22l5-3 5 3-1.5-8" },
+  { title: "Clear Pricing", text: "See every ticket, room and experience, what is due now and the balance, before you pay. No hidden extras.", d: "M12 3a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM8.5 14 7 22l5-3 5 3-1.5-8" },
 ];
 
 export default async function Home() {
@@ -118,7 +118,7 @@ export default async function Home() {
         <SectionHeading
           eyebrow="How booking works"
           title={<>Your Trip, <Accent>Your Way</Accent></>}
-          intro="Three choices, one clear price. Savings apply automatically."
+          intro="Three choices, one clear price. Every guest's share is shown."
           action={<Link href="/ghana-experience-2027" className="self-start sm:self-auto bg-primary text-white font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:-translate-y-0.5 hover:brightness-95 transition-all">Build your trip</Link>}
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

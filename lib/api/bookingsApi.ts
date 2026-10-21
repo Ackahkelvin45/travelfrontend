@@ -81,8 +81,12 @@ export type MomoProvider = 'mtn' | 'atl' | 'vod'
 
 export interface InitializePaymentRequest {
   booking_id: string
-  intent?: 'balance' | 'deposit' | 'custom' | 'addon'
+  intent?: 'balance' | 'deposit' | 'custom' | 'addon' | 'traveller'
   amount?: string
+  /** intent=traveller: pay this group member's outstanding share. */
+  traveller_id?: string
+  /** intent=traveller: receipt email of the member paying. */
+  payer_email?: string
   /** intent=addon: the experience to buy; it joins the booking once paid. */
   addon_code?: string
   /** any (default) = Paystack popup offering card + Mobile Money, the buyer
@@ -156,7 +160,11 @@ export interface BookingDetail {
   mode: TravelMode | ''
   coordinator_name: string | null
   lead_contacted_at: string | null
-  travellers: { full_name: string; is_lead: boolean; unit: string | null; experiences: string[]; travel_info_submitted: boolean }[]
+  pay_separately: boolean
+  travellers: {
+    id: string; full_name: string; is_lead: boolean; unit: string | null; experiences: string[]
+    travel_info_submitted: boolean; share: string; paid: string; outstanding: string
+  }[]
   marketing_consent: boolean
   photo_consent: boolean
   first_name: string
@@ -226,7 +234,7 @@ export interface CancellationQuote {
 }
 
 
-// ── Component pricing (Change Request v2) ────────────────────────────────────
+// ── Component pricing (Change Request v4) ────────────────────────────────────
 
 export type TravelMode = 'single' | 'couple' | 'group'
 
@@ -234,7 +242,8 @@ export type TravelMode = 'single' | 'couple' | 'group'
 export interface TripSelection {
   package_id: string
   mode: TravelMode
-  travellers: { name?: string; experiences: string[] }[]
+  /** adult: the guest confirmed they are 18+ (needed for adults-only experiences). */
+  travellers: { name?: string; experiences: string[]; adult?: boolean }[]
   rooms: { stay_type: string; occupants: number[] }[]
   payment_plan?: PaymentPlan
   /** This checkout's hold: its own held rooms don't count as sold out. */
@@ -253,10 +262,17 @@ export interface ComponentQuote {
     name: string
     core: string
     room: string | null
+    adult: boolean
     experiences: { code: string; name: string; price: string; refundable: boolean }[]
+    /** Airport transfer code, priced per vehicle in `transfers`. */
+    transfer: string | null
     experiences_subtotal: string
-    bundle: string
-    bundle_discount: string
+    room_share: string
+    transfer_share: string
+    /** This guest's part of the total; shares add up to the total exactly. */
+    share: string
+    room_deposit: string
+    due_now: string
   }[]
   rooms: {
     stay_type: string
@@ -265,15 +281,20 @@ export interface ComponentQuote {
     price_per_night: string
     nights: number
     charge: string
-    discount_percent: string
     discount: string
+    deposit: string
     unit?: string
   }[]
+  transfers: { code: string; name: string; guests: number[]; vehicles: number; price: string; charge: string; refundable: boolean }[]
   core_total: string
   rooms_total: string
   experiences_total: string
+  transfers_total: string
   subtotal: string
+  discount_name: string
+  discount_percent: string
   discount_total: string
+  accommodation_deposit_percent: string
   total: string
   average_per_person: string
   deposit_required: string | null
@@ -298,6 +319,8 @@ export interface ComponentCheckoutRequest extends TripSelection {
   special_requests?: string
   accepted_policies: string[]
   marketing_consent: boolean
+  /** Group only: each member pays their own share under this reference. */
+  pay_separately?: boolean
   expected_total?: string
 }
 

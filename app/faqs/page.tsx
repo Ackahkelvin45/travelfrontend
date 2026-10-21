@@ -8,7 +8,7 @@ import { Accent, Eyebrow } from "@/components/ghana/Decor";
 
 export const metadata: Metadata = {
   title: "FAQs · Ghana Experience 2027 | Azura Travels",
-  description: "Dates, inclusions, stays, discounts, payments and travel questions about December in Ghana and the Ghana Experience 2027.",
+  description: "Dates, inclusions, stays, prices, payments and travel questions about December in Ghana and the Ghana Experience 2027.",
 };
 
 export default async function FaqsPage() {

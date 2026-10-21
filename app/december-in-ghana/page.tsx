@@ -42,7 +42,7 @@ export default function DecemberInGhanaPage() {
             <Eyebrow>{TRIP.dates}</Eyebrow>
             <h2 className="font-raleway font-bold text-2xl md:text-3xl text-text-primary">{TRIP.name}</h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              Press and Jubilee House, Cape Coast Castle, a night at Crown Forest, Aburi and the Oboadaka Waterfalls, and evenings in Accra including ENZO VIP.
+              A welcome dinner with Michael, Cape Coast Castle and the Academy, a night at Crown Forest, Boti Falls, an Accra city tour and the farewell dinner.
             </p>
             <div className="flex flex-wrap gap-2">
               {[TRIP.nights, "Airbnb or Four Points", "Experiences per guest"].map((t) => (

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import footerBg from "../../assets/images/bgfooter.png";
 import footerBgDark from "../../assets/images/bgfooterdark.png";
 import logofull from "../../assets/logo/logofull.png";
@@ -32,6 +33,7 @@ const POLICIES = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [subscribe, { isLoading }] = useSubscribeNewsletterMutation();
@@ -55,6 +57,9 @@ export default function Footer() {
     }
     setTimeout(() => setMessage(null), 5000);
   };
+
+  // Checkout has its own focused header (canvas: CheckoutDetails / CheckoutPayment).
+  if (pathname.startsWith("/checkout")) return null;
 
   return (
     <footer className="relative w-full font-open-sans mt-16 md:mt-24 overflow-hidden">

@@ -152,6 +152,9 @@ export interface PaymentRow {
 export interface BookingDetail {
   id: string
   reference: string
+  /** Component bookings only ("single" | "couple" | "group"); empty for older flows. */
+  mode: TravelMode | ''
+  coordinator_name: string | null
   first_name: string
   last_name: string
   email: string
@@ -218,6 +221,113 @@ export interface CancellationQuote {
   arrival_rule: string
 }
 
+
+// ── Component pricing (Change Request v2) ────────────────────────────────────
+
+export type TravelMode = 'single' | 'couple' | 'group'
+
+/** Travellers by list index; rooms list occupants by that index. */
+export interface TripSelection {
+  package_id: string
+  mode: TravelMode
+  travellers: { name?: string; experiences: string[] }[]
+  rooms: { stay_type: string; occupants: number[] }[]
+  payment_plan?: PaymentPlan
+  /** This checkout's hold: its own held rooms don't count as sold out. */
+  hold_token?: string
+}
+
+export interface ComponentQuote {
+  package_id: string
+  mode: TravelMode
+  payment_plan: PaymentPlan
+  currency: string
+  core_price_per_person: string
+  num_guests: number
+  travellers: {
+    index: number
+    name: string
+    core: string
+    room: string | null
+    experiences: { code: string; name: string; price: string; refundable: boolean }[]
+    experiences_subtotal: string
+    bundle: string
+    bundle_discount: string
+  }[]
+  rooms: {
+    stay_type: string
+    name: string
+    occupants: number[]
+    price_per_night: string
+    nights: number
+    charge: string
+    discount_percent: string
+    discount: string
+    unit?: string
+  }[]
+  core_total: string
+  rooms_total: string
+  experiences_total: string
+  subtotal: string
+  discount_total: string
+  total: string
+  average_per_person: string
+  deposit_required: string | null
+  amount_due_today: string
+  balance_after_today: string
+  final_payment_deadline: string | null
+}
+
+export interface RoomHold {
+  token: string
+  held_until: string
+  server_now: string
+  units: { stay_type: string; label: string }[]
+}
+
+export interface ComponentCheckoutRequest extends TripSelection {
+  first_name: string
+  last_name: string
+  email: string
+  phone?: string
+  country?: string
+  special_requests?: string
+  accepted_policies: string[]
+  marketing_consent: boolean
+  expected_total?: string
+}
+
+export interface ComponentCheckoutResponse extends CheckoutResponse {
+  discount_amount: string
+  quote: ComponentQuote
+}
+
+export interface TravelInfo {
+  id: string
+  full_name: string
+  is_lead: boolean
+  arrival_at: string | null
+  arrival_flight: string
+  departure_at: string | null
+  departure_flight: string
+  needs_transfer: boolean
+  emergency_contact: string
+  emergency_phone: string
+  dietary: string
+  accessibility: string
+  travel_info_submitted_at: string | null
+}
+
+export interface LeadRequest {
+  name: string
+  email: string
+  phone?: string
+  source: 'chat' | 'saved_quote' | 'contact'
+  message?: string
+  marketing_consent?: boolean
+  selection?: TripSelection
+}
+
 export const bookingsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Legacy tier flow
@@ -281,6 +391,29 @@ export const bookingsApi = baseApi.injectEndpoints({
     cancellationQuote: builder.query<CancellationQuote, string>({
       query: (reference) => `/bookings/${reference}/cancellation-quote/`,
     }),
+    componentQuote: builder.mutation<ComponentQuote, TripSelection>({
+      query: (body) => ({ url: '/bookings/quote/', method: 'POST', body }),
+    }),
+    createHold: builder.mutation<RoomHold, { package_id: string; stay_types: string[]; replace_token?: string }>({
+      query: (body) => ({ url: '/bookings/holds/', method: 'POST', body }),
+    }),
+    releaseHold: builder.mutation<void, string>({
+      query: (token) => ({ url: `/bookings/holds/${token}/`, method: 'DELETE' }),
+    }),
+    componentCheckout: builder.mutation<ComponentCheckoutResponse, ComponentCheckoutRequest>({
+      query: (body) => ({ url: '/bookings/checkout/component/', method: 'POST', body }),
+    }),
+    travelInfo: builder.query<{ travellers: TravelInfo[] }, string>({
+      query: (reference) => `/bookings/${reference}/travel/`,
+      providesTags: (_r, _e, reference) => [{ type: 'Booking', id: `travel-${reference}` }],
+    }),
+    saveTravelInfo: builder.mutation<{ travellers: TravelInfo[] }, { reference: string; travellers: Partial<TravelInfo>[] }>({
+      query: ({ reference, travellers }) => ({ url: `/bookings/${reference}/travel/`, method: 'PUT', body: { travellers } }),
+      invalidatesTags: (_r, _e, { reference }) => [{ type: 'Booking', id: `travel-${reference}` }],
+    }),
+    createLead: builder.mutation<{ id: string; detail: string }, LeadRequest>({
+      query: (body) => ({ url: '/leads/', method: 'POST', body }),
+    }),
     requestCancellation: builder.mutation<
       { detail: string; requested_at: string; refund_total: string | null; currency: string },
       { reference: string; reason?: string }
@@ -308,4 +441,11 @@ export const {
   useAvailableAddonsQuery,
   useLazyCancellationQuoteQuery,
   useRequestCancellationMutation,
+  useComponentQuoteMutation,
+  useCreateHoldMutation,
+  useReleaseHoldMutation,
+  useComponentCheckoutMutation,
+  useTravelInfoQuery,
+  useSaveTravelInfoMutation,
+  useCreateLeadMutation,
 } = bookingsApi

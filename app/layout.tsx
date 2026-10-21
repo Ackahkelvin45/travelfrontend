@@ -11,7 +11,7 @@ export const metadata: Metadata = {
  title: "Azura Travels · December in Ghana & Ghana Experience 2027",
  description: "Experience December in Ghana: Detty December, festive travel in Accra and the Michael Blackson Ghana Experience, 6–11 January 2027.",
  icons: {
- icon: "icon.png",
+ icon: "/icon.png",
 
  },
 };

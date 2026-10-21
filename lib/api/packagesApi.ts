@@ -111,7 +111,7 @@ export interface PackageDetail {
  is_day_tour: boolean
  price_usd_estimate: string | null
  departures: TourDeparture[]
- pricing_model: 'option_based' | 'flat' | 'core_plus_addons'
+ pricing_model: 'option_based' | 'flat' | 'core_plus_addons' | 'component'
  base_price_per_person: string | null
  early_bird_deadline: string | null
  early_bird_active: boolean
@@ -170,6 +170,43 @@ export interface ConfigurableMatrix {
  installments: { enabled: boolean; deposit_minimum: string | null; deposit_unit: 'per_booking' | 'per_traveller'; final_payment_deadline: string | null }
  notices: { fees: string }
  charge: { currency: string; exchange_rate: string | null; rate_source: string | null }
+}
+
+/** GET /packages/{id}/pricing/ for a component package (Change Request v2).
+ * Catalogue only — totals always come from POST /bookings/quote/. */
+export interface ComponentMatrix {
+ package_id: string
+ pricing_model: 'component'
+ currency: string
+ core_price_per_person: string | null
+ tour_start: string | null
+ tour_end: string | null
+ stay_types: {
+  code: string
+  name: string
+  kind: 'airbnb' | 'hotel'
+  capacity: number
+  min_occupancy: number
+  price_per_night: string
+  nights: number
+  unit_total: string
+  discount_percent: string
+  on_sale: boolean
+  note: string
+  units_available: number
+ }[]
+ experiences: { code: string; name: string; description: string | null; price: string; refundable: boolean }[]
+ bundles: { name: string; percent: string; members: string[] }[]
+ installments: {
+  enabled: boolean
+  deposit_minimum: string | null
+  deposit_unit: 'per_booking' | 'per_traveller'
+  deposit_threshold: string | null
+  final_payment_deadline: string | null
+ }
+ notices: { fees: string }
+ charge: { currency: string; exchange_rate: string | null; rate_source: string | null }
+ server_now: string
 }
 
 /** GET /packages/{id}/pricing/ — the full server-priced matrix. All money
@@ -318,6 +355,11 @@ export const packagesApi = baseApi.injectEndpoints({
  providesTags: (_result, _error, id) => [{ type: 'Tour', id: `config-${id}` }],
  }),
 
+ getComponentMatrix: builder.query<ComponentMatrix, string>({
+ query: (id) => `/packages/${id}/pricing/`,
+ providesTags: (_result, _error, id) => [{ type: 'Tour', id: `component-${id}` }],
+ }),
+
  getTripUpdates: builder.query<TripUpdate[], string>({
  query: (id) => `/packages/${id}/updates/`,
  }),
@@ -358,6 +400,7 @@ export const {
  useSubmitPackageReviewMutation,
  useGetPackagePricingQuery,
  useGetConfigurableMatrixQuery,
+ useGetComponentMatrixQuery,
  useGetTripUpdatesQuery,
  useGetCurrentPoliciesQuery,
 } = packagesApi

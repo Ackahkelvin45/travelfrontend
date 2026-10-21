@@ -24,6 +24,9 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Checkout has its own focused header (canvas: CheckoutDetails / CheckoutPayment).
+  if (pathname.startsWith("/checkout")) return null;
+
   return (
     <nav
       aria-label="Main"

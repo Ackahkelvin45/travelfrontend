@@ -3,12 +3,16 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  --skeleton-base: #e5e7eb;
+  --skeleton-highlight: #f3f4f6;
  --background: #ffffff;
  --foreground: #171717;
  --text-primary: #060504;
 }
 
 .dark {
+  --skeleton-base: #1f2937;
+  --skeleton-highlight: #374151;
  --background: #0a0a0a;
  --foreground: #e5e7eb;
  --text-primary: #e5e7eb;

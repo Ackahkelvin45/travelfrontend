@@ -17,7 +17,7 @@ export default function PolicyModal({ doc, onClose }: { doc: PolicyDoc | null; o
       >
         <div className="flex items-start justify-between mb-4">
           <h3 className="text-lg font-bold font-raleway text-text-primary">
-            {doc.title} <span className="text-xs text-gray-400 font-open-sans">v{doc.version}</span>
+            {doc.title}
           </h3>
           <button onClick={onClose} aria-label="Close" className="text-gray-400 hover:text-text-primary p-1 -m-1">
             <XIcon size={16} />

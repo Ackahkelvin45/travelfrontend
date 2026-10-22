@@ -18,7 +18,7 @@ import CommercialSections from "@/components/tour-detail/CommercialSections";
 import PolicySections from "@/components/tour-detail/PolicySections";
 import MobileBookingBar from "@/components/tour-detail/MobileBookingBar";
 import TourDetailSkeleton from "@/components/tour-detail/TourDetailSkeleton";
-import { TripBuilder, TripSummary, useTripBuilder } from "@/components/booking/TripBuilder";
+import ExperienceDetail from "@/components/tour-detail/ExperienceDetail";
 import { AccordionItem } from "@/components/ui/Accordion";
 import Reveal from "@/components/ui/Reveal";
 import { MegaphoneIcon } from "@/components/ui/icons";
@@ -48,7 +48,6 @@ export default function TourDetailClient({ id }: Props) {
   const { data: matrix } = useGetPackagePricingQuery(id, { skip: !id });
   const { data: tripUpdates = [] } = useGetTripUpdatesQuery(id, { skip: !id });
   const isComponent = pkg?.pricing_model === "component";
-  const trip = useTripBuilder(id, pkg?.title ?? "", isComponent);
 
   if (isLoading) return <TourDetailSkeleton />;
 
@@ -61,6 +60,9 @@ export default function TourDetailClient({ id }: Props) {
       </main>
     );
   }
+
+  // Component-priced trips use the Change Request v2 layout (canvas: Experience).
+  if (isComponent) return <ExperienceDetail pkg={pkg} />;
 
   const imageUrls = pkg.images.map((img) => img.image);
   const datesLabel =
@@ -136,7 +138,7 @@ export default function TourDetailClient({ id }: Props) {
 
             {/* Core + add-ons packages have no option matrix, so their refund
                 schedule and policies get their own section here. */}
-            {!pkg.has_options && (pkg.pricing_model === "core_plus_addons" || isComponent) && (
+            {!pkg.has_options && pkg.pricing_model === "core_plus_addons" && (
               <Reveal>
                 <PolicySections refundTiers={pkg.refund_tiers ?? []} showEntryRequirements />
               </Reveal>
@@ -154,8 +156,6 @@ export default function TourDetailClient({ id }: Props) {
             <Reveal>
               <TourInclusions included={pkg.whats_included ?? []} notIncluded={pkg.whats_excluded ?? []} />
             </Reveal>
-
-            {isComponent && <TripBuilder trip={trip} />}
 
             <Reveal>
               <TourVideos videos={pkg.videos ?? []} />
@@ -211,11 +211,7 @@ export default function TourDetailClient({ id }: Props) {
           <aside
             className={`${pkg.has_options ? "hidden lg:block" : "mt-8 lg:mt-0"} lg:sticky lg:top-24`}
           >
-            {isComponent ? (
-              <Reveal variant="scale" delay={120}>
-                <TripSummary trip={trip} />
-              </Reveal>
-            ) : pkg.pricing_model === "core_plus_addons" ? (
+            {pkg.pricing_model === "core_plus_addons" ? (
               <Reveal variant="scale" delay={120}>
                 <ConfigurableBookingPanel packageId={pkg.id} spotsLeft={pkg.spots_left} />
               </Reveal>

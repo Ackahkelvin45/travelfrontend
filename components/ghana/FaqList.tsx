@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { FAQS } from "@/lib/content/site";
+import { FAQS, type Faq } from "@/lib/content/site";
 
-const TOPICS = ["All", ...Array.from(new Set(FAQS.map((f) => f.topic)))];
-
-export default function FaqList() {
+/** FAQs from the admin (package FAQs) when the page passes them, else the static list. */
+export default function FaqList({ faqs = FAQS }: { faqs?: Faq[] }) {
+  const TOPICS = ["All", ...Array.from(new Set(faqs.map((f) => f.topic)))];
   const [topic, setTopic] = useState("All");
-  const [open, setOpen] = useState<string | null>(FAQS[0].q);
-  const list = FAQS.filter((f) => topic === "All" || f.topic === topic);
+  const [open, setOpen] = useState<string | null>(faqs[0]?.q ?? null);
+  const list = faqs.filter((f) => topic === "All" || f.topic === topic);
 
   return (
     <div className="flex flex-col gap-3">

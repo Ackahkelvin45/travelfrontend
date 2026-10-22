@@ -83,9 +83,9 @@ export type Stay = {
 };
 
 export const STAYS: Stay[] = [
-  { key: "b1", tier: "Airbnb", name: "One Bedroom Airbnb", guests: "Up to 2 guests", price: 220, nights: 5, note: "Meals not included", status: "live" },
-  { key: "b2", tier: "Airbnb", name: "Two Bedroom Airbnb", guests: "Up to 4 guests", price: 340, nights: 5, note: "Meals not included", status: "live" },
-  { key: "fp", tier: "Hotel", name: "Four Points Standard Room", guests: "1 guest, private room", price: 330, nights: 4, note: "Breakfast [TO CONFIRM]", status: "live" },
+  { key: "b1", tier: "Airbnb", name: "One Bedroom Airbnb", guests: "Up to 2 guests", price: 220, nights: 5, note: "", status: "live" },
+  { key: "b2", tier: "Airbnb", name: "Two Bedroom Airbnb", guests: "Up to 4 guests", price: 340, nights: 5, note: "", status: "live" },
+  { key: "fp", tier: "Hotel", name: "Four Points Standard Room", guests: "1 guest, private room", price: 330, nights: 4, note: "Breakfast to be confirmed", status: "live" },
   { key: "fpc", tier: "Hotel", name: "Four Points Couple Room", guests: "2 guests sharing", price: 380, nights: 4, note: "Proposed rate, awaiting confirmation", status: "tbc" },
 ];
 
@@ -102,7 +102,7 @@ export const FAQS: Faq[] = [
   { topic: "Trip", q: "Will Michael Blackson be there the whole time?", a: "Michael's planned appearances are the Wednesday welcome dinner, the Thursday Academy visit and the Friday ENZO VIP night. Timings are subject to final confirmation, and a Jubilee House visit is possible but not confirmed." },
   { topic: "Stays", q: "Do I have to book accommodation with you?", a: "No. You can arrange your own. If you add an Airbnb or a Four Points room, every guest in it needs their own Core ticket." },
   { topic: "Stays", q: "How is accommodation priced?", a: "Per unit, for a fixed package. Airbnb is five nights, 6 to 11 January, and stays yours on the Crown Forest night for your luggage. Four Points is four paid nights, 6 and 8 to 10 January. A one-bedroom Airbnb sleeps up to 2 and a two-bedroom up to 4, and the unit is charged once however many guests share it." },
-  { topic: "Stays", q: "Are meals included at the Airbnb?", a: "No. Airbnb meals are not included. Breakfast at Crown Forest is included in Core. Four Points breakfast is [TO BE CONFIRMED]." },
+  { topic: "Stays", q: "Is breakfast included?", a: "Breakfast at Crown Forest on 7 January is included in Core. Four Points breakfast is still being confirmed with the hotel." },
   { topic: "Prices", q: "Are there any discounts?", a: "Not at the moment. The $899 Core ticket is never discounted, and there are no coupon codes." },
   { topic: "Prices", q: "Can my partner and I choose different experiences?", a: "Yes. Experiences are chosen per guest. ENZO VIP is for guests aged 18 and over." },
   { topic: "Prices", q: "Do you offer airport transfers?", a: "Yes, for guests staying in Azura accommodation: $40 for an arrival pickup or $70 for pickup and drop-off, per vehicle of up to two guests." },

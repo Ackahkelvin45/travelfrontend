@@ -21,7 +21,7 @@ function fromMatrix(m: ComponentMatrix): LiveStay[] {
     name: t.name,
     guests: t.capacity === 1 ? "1 guest, private room" : t.min_occupancy >= 2 ? `${t.capacity} guests sharing` : `Up to ${t.capacity} guests`,
     price: parseFloat(t.price_per_night),
-    note: t.note || (t.kind === "airbnb" ? "Meals not included" : "Breakfast [TO CONFIRM]"),
+    note: t.note || (t.kind === "hotel" ? "Breakfast to be confirmed" : ""),
     status: t.on_sale ? "live" : "tbc",
     soldOut: t.on_sale && t.units_available === 0,
     nights: t.nights,
@@ -35,8 +35,8 @@ export const metadata: Metadata = {
 };
 
 const NOTES = [
-  { title: "Arriving early or staying on?", text: "Extra nights, including a Tuesday arrival, are booked separately once rates are confirmed." },
-  { title: "Four Points and the Crown Forest night", text: "Four Points is booked for 6 January and 8 to 10 January. Re-check-in and baggage handling around the Crown Forest night: [TO BE CONFIRMED]." },
+  { title: "Arriving early or staying on?", text: "Extra nights aren't part of this package. Ask our team about arriving early or staying on." },
+  { title: "Four Points and the Crown Forest night", text: "Four Points is booked for 6 January and 8 to 10 January. Re-check-in and baggage handling around the Crown Forest night are still being confirmed with the hotel." },
   { title: "Every guest holds Core", text: "Each person in a room needs a Core ticket. Rooms are not sold on their own." },
 ];
 
@@ -68,7 +68,7 @@ function StayCard({ s, i, bookHref }: { s: LiveStay; i: number; bookHref: string
           <h3 className="font-raleway font-bold text-xl text-text-primary">{s.name}</h3>
           <div className="flex flex-wrap gap-2">
             <span className="bg-[#FAF5EB] text-[#6B4E1A] text-xs px-3 py-1.5 rounded-full">{s.guests}</span>
-            <span className="bg-[#FAF5EB] text-[#6B4E1A] text-xs px-3 py-1.5 rounded-full">{s.note}</span>
+            {s.note && <span className="bg-[#FAF5EB] text-[#6B4E1A] text-xs px-3 py-1.5 rounded-full">{s.note}</span>}
           </div>
           {s.bedding || s.breakfast || s.location || s.amenities?.length ? (
             <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-sm text-gray-700 dark:text-gray-300">
@@ -110,7 +110,7 @@ export default async function StaysPage() {
       />
 
       <section className="px-4 md:px-10 lg:px-20 pt-6 pb-10">
-        <SectionHeading eyebrow="First choice" title="Airbnb" intro="Five nights, 6 to 11 January. The unit stays yours on the Crown Forest night for continuity and luggage. Airbnb meals are not included." />
+        <SectionHeading eyebrow="First choice" title="Airbnb" intro="Five nights, 6 to 11 January. The unit stays yours on the Crown Forest night for continuity and luggage." />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {tier("Airbnb").map((s, i) => <StayCard key={s.key} s={s} i={i} bookHref={bookHref} />)}
         </div>

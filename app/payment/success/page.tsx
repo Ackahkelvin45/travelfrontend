@@ -16,12 +16,6 @@ import { clearPendingBooking } from "@/lib/pendingBooking";
 import { useStartDonationMutation } from "@/lib/api/donationsApi";
 import { loadPendingDonation, payDonation, savePendingDonation, type PendingDonation } from "@/lib/donation";
 
-// Not on sale until the client confirms them (Change Request v4 §8).
-const UPSELLS = [
-  { name: "Extra nights in Accra", note: "Arrive Tuesday or stay on after Monday." },
-  { name: "Trip photography", note: "A photographer for key moments of the trip." },
-];
-
 /** Pay links for a group whose members pay their own share. */
 function GroupShares({ booking }: { booking: { currency: string; travellers: { id: string; full_name: string; is_lead: boolean; share: string; outstanding: string }[] } }) {
   const [copied, setCopied] = useState<string | null>(null);
@@ -236,23 +230,6 @@ function SuccessContent() {
 
       {booking.pay_separately && booking.travellers && <GroupShares booking={booking} />}
 
-      {isTrip && (
-        <section className={`${card} gap-4 print:hidden`}>
-          <div className="flex flex-wrap justify-between items-baseline gap-2">
-            <h2 className="font-raleway font-bold text-[17px] text-text-primary">Make it even better</h2>
-            <span className="text-xs text-gray-500 dark:text-gray-400">Add any time before the trip</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {UPSELLS.map((u) => (
-              <div key={u.name} className="rounded-2xl border border-gray-100 dark:border-gray-800 p-4 flex flex-col gap-2">
-                <span className="font-raleway font-bold text-text-primary">{u.name}</span>
-                <span className="text-[13px] leading-relaxed text-gray-700 dark:text-gray-300">{u.note}</span>
-                <span className="self-start mt-1 rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-400">Coming soon · price on approval</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }

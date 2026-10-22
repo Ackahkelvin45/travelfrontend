@@ -82,7 +82,7 @@ export default function ExperienceDetail({ pkg }: { pkg: PackageDetail }) {
               <p className="text-[15px] leading-relaxed text-gray-700 dark:text-gray-300 whitespace-pre-line">{pkg.description}</p>
               <p className="flex gap-3 items-start rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm text-amber-900 dark:text-amber-200">
                 <span aria-hidden>ⓘ</span>
-                Arriving on Tuesday 5 January? That night isn&apos;t part of the package. Add an extra night separately once rates are confirmed.
+                Arriving on Tuesday 5 January? That night isn&apos;t part of the package. Ask our team about arriving early or staying on.
               </p>
             </section>
           </Reveal>

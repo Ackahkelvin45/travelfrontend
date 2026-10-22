@@ -18,11 +18,12 @@ import LeadForm from "../components/ghana/LeadForm";
 import { Accent, Eyebrow, HeroCurve } from "../components/ghana/Decor";
 import { STAYS } from "@/lib/content/site";
 
+// Highlights of the 6–11 January programme (Change Request v4 §3).
 const PLACES = [
-  { img: accraNight, alt: "Accra skyline at night", when: "December", name: "Accra After Dark", note: "Detty December nights, concerts and homecomings", span: "md:col-span-7 md:row-span-2", big: true },
+  { img: accraNight, alt: "Accra skyline at night", when: "Sun 10 Jan", name: "Accra City Tour", note: "National Museum, Kwame Nkrumah Mausoleum and Arts Centre, with lunch and the farewell dinner included", span: "md:col-span-7 md:row-span-2", big: true },
+  { img: capeCoast, alt: "Cape Coast Castle's white walls and courtyard", when: "Thu 7 Jan", name: "Cape Coast", note: "Castle, Academy and Lemon Beach", span: "md:col-span-5" },
   { img: crownForest, alt: "Crown Forest lodge at sunset", when: "Thu 7 Jan", name: "Crown Forest", note: "One night included, with activities and breakfast", span: "md:col-span-5" },
-  { img: boats, alt: "Guests on pedal boats", when: "Fri 8 Jan", name: "Forest Activities", note: "Crown Forest activities and breakfast, then back to Accra", span: "md:col-span-5" },
-  { img: capeCoast, alt: "Cape Coast Castle's white walls and courtyard", when: "Thu 7 Jan", name: "Cape Coast", note: "Castle, Academy and Lemon Beach", span: "md:col-span-6" },
+  { img: boats, alt: "Guests on pedal boats", when: "Fri 8 Jan", name: "Forest Activities", note: "Crown Forest activities and breakfast, then back to Accra", span: "md:col-span-6" },
   { img: botiFalls, alt: "Boti Falls pouring over a forested cliff", when: "Sat 9 Jan", name: "Boti Falls", note: "Group excursion, optional waterfall massage", span: "md:col-span-6", green: true },
 ];
 
@@ -84,12 +85,12 @@ export default async function Home() {
           <Reveal className="flex-1 flex flex-col gap-3">
             <div className="flex items-center gap-3"><span aria-hidden="true" className="kente w-12 h-2 rounded-sm" /><Eyebrow>Your Ghana</Eyebrow></div>
             <h2 className="font-raleway font-bold text-3xl md:text-4xl text-text-primary leading-tight">
-              From Accra&apos;s December nights <span className="text-[#8A6420] dark:text-[#C9A96E]"><Accent>to the forest and the coast.</Accent></span>
+              From Accra <span className="text-[#8A6420] dark:text-[#C9A96E]"><Accent>to the forest and the coast.</Accent></span>
             </h2>
           </Reveal>
           <Reveal delay={100} className="flex-1">
             <p className="font-open-sans text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-              Akwaaba. December is when Ghana comes alive: homecomings, concerts, beach days and late nights in Accra. Our flagship trip then takes you to Cape Coast, Crown Forest and the Aburi hills.
+              Akwaaba. December is when Ghana comes alive: homecomings, concerts, beach days and late nights in Accra. Our flagship trip then takes you to Cape Coast, Crown Forest and Boti Falls.
             </p>
           </Reveal>
         </div>

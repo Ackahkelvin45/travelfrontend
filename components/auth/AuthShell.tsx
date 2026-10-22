@@ -16,7 +16,6 @@ export default function AuthShell({ eyebrow, heading, children }: { eyebrow: str
       <div className="hidden lg:flex relative flex-[1.1] overflow-hidden">
         <Image src={accraNight} alt="Accra skyline at night" fill priority sizes="55vw" className="object-cover hero-zoom" />
         <div className="absolute inset-0 bg-black/45" />
-        <div aria-hidden="true" className="kente-v absolute top-0 right-0 bottom-0 w-3.5" />
         <div className="relative z-2 flex flex-col justify-center gap-5 p-14 xl:p-20 text-white max-w-2xl">
           <Reveal><BlackStar size={40} /></Reveal>
           <Reveal delay={100}><Eyebrow light>{eyebrow}</Eyebrow></Reveal>

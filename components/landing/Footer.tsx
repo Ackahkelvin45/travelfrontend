@@ -66,7 +66,6 @@ export default function Footer() {
 
   return (
     <footer className="relative w-full font-open-sans mt-16 md:mt-24 overflow-hidden">
-      <div aria-hidden="true" className="kente h-2.5 relative z-10" />
       <div className="absolute inset-0 bg-cover bg-center bg-no-repeat dark:hidden" style={{ backgroundImage: `url(${footerBg.src})` }} />
       <div className="absolute inset-0 bg-cover bg-center bg-no-repeat hidden dark:block" style={{ backgroundImage: `url(${footerBgDark.src})` }} />
 

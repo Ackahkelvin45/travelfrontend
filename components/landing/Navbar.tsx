@@ -77,7 +77,6 @@ export default function Navbar() {
         )}
       </button>
 
-      <div aria-hidden="true" className="kente absolute inset-x-0 bottom-0 h-1" />
 
       {menuOpen && (
         <div className="content-in absolute top-20 left-0 w-full bg-white dark:bg-gray-900 shadow-md border-b border-gray-100 dark:border-gray-800 flex flex-col px-4 pb-5 lg:hidden">

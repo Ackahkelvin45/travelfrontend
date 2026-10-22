@@ -80,7 +80,7 @@ export interface CheckoutState {
   hold: RoomHold | null;
   details?: {
     fullName: string; email: string; phone: string; country: string;
-    acceptedPolicies: string[]; marketingConsent: boolean;
+    acceptedPolicies: string[]; marketingConsent: boolean; whatsappUpdates?: boolean;
   };
   /** Set once the booking exists, so a payment retry never creates a second one. */
   booking?: { id: string; reference: string; plan: PaymentPlan; paySeparately?: boolean };

@@ -108,7 +108,7 @@ export default function CheckoutPaymentPage() {
           hold_token: token,
           first_name: first, last_name: last, email: d.email, phone: d.phone || undefined, country: d.country || undefined,
           accepted_policies: d.acceptedPolicies, marketing_consent: d.marketingConsent,
-          pay_separately: separately,
+          pay_separately: separately, whatsapp_updates: !!d.whatsappUpdates,
           expected_total: quote.total,
         }).unwrap();
         let booking;

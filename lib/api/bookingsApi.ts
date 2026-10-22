@@ -164,6 +164,7 @@ export interface BookingDetail {
   coordinator_name: string | null
   lead_contacted_at: string | null
   pay_separately: boolean
+  whatsapp_updates: boolean
   travellers: {
     id: string; full_name: string; is_lead: boolean; unit: string | null; experiences: string[]
     travel_info_submitted: boolean; share: string; paid: string; outstanding: string
@@ -329,6 +330,8 @@ export interface ComponentCheckoutRequest extends TripSelection {
   marketing_consent: boolean
   /** Group only: each member pays their own share under this reference. */
   pay_separately?: boolean
+  /** Opt in to booking confirmations and receipts on WhatsApp (needs a phone with country code). */
+  whatsapp_updates?: boolean
   expected_total?: string
 }
 
@@ -447,8 +450,8 @@ export const bookingsApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, { reference }) => [{ type: 'Booking', id: `travel-${reference}` }],
     }),
     updatePreferences: builder.mutation<
-      { marketing_consent: boolean; photo_consent: boolean },
-      { reference: string; marketing_consent?: boolean; photo_consent?: boolean }
+      { marketing_consent: boolean; photo_consent: boolean; whatsapp_updates: boolean },
+      { reference: string; marketing_consent?: boolean; photo_consent?: boolean; whatsapp_updates?: boolean }
     >({
       query: ({ reference, ...body }) => ({ url: `/bookings/${reference}/preferences/`, method: 'PATCH', body }),
       invalidatesTags: [{ type: 'Booking', id: 'LIST' }],

@@ -206,7 +206,9 @@ export function TripAddons({ booking }: { booking: BookingDetail }) {
 
 export function MessagePreferences({ booking }: { booking: BookingDetail }) {
   const [update, { isLoading }] = useUpdatePreferencesMutation();
-  const [prefs, setPrefs] = useState({ marketing_consent: booking.marketing_consent, photo_consent: booking.photo_consent });
+  const [prefs, setPrefs] = useState({
+    whatsapp_updates: booking.whatsapp_updates, marketing_consent: booking.marketing_consent, photo_consent: booking.photo_consent,
+  });
   const [error, setError] = useState<string | null>(null);
   const toggle = async (key: keyof typeof prefs) => {
     const next = { ...prefs, [key]: !prefs[key] };
@@ -220,7 +222,8 @@ export function MessagePreferences({ booking }: { booking: BookingDetail }) {
     }
   };
   const rows = [
-    { key: null, label: "Booking and payment messages", note: "Confirmations, receipts and balance reminders. Always on while you have a booking." },
+    { key: null, label: "Booking and payment emails", note: "Confirmations, receipts and balance reminders. Always on while you have a booking." },
+    { key: "whatsapp_updates" as const, label: "Confirmations on WhatsApp", note: booking.phone ? `Payment confirmations to ${booking.phone}.` : "Add a phone number with your country code first." },
     { key: "marketing_consent" as const, label: "Offers and updates", note: "Email and WhatsApp news about future trips." },
     { key: "photo_consent" as const, label: "Photos in promotional material", note: "Azura may use trip photos that include you." },
   ];

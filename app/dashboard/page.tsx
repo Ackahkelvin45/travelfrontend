@@ -6,7 +6,7 @@
  * (progress, balance, deadline, top-up) is the centerpiece.
  */
 
-import { CoordinatorPanel, GuestsPanel, MessagePreferences, TripHero, UpgradesPanel } from "@/components/booking/TripPanels";
+import { CoordinatorPanel, GuestsPanel, MessagePreferences, TripAddons, TripHero } from "@/components/booking/TripPanels";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -29,10 +29,11 @@ import {
 } from "@/lib/api/bookingsApi";
 import { fmtMoney, fmtDate, fmtDateLong, daysUntil } from "@/lib/format";
 import { useRequestAccountDeletionMutation } from "@/lib/api/authApi";
+import { useSiteContact } from "@/lib/content/useSiteContact";
 
 // ── Payment panel ────────────────────────────────────────────────────────────
 
-function PaymentPanel({ booking }: { booking: BookingDetail }) {
+function PaymentPanel({ booking, onReceipt }: { booking: BookingDetail; onReceipt: (p: PaymentRow) => void }) {
   const router = useRouter();
   const [initializePayment, { isLoading }] = useInitializePaymentMutation();
   const [customOpen, setCustomOpen] = useState(false);
@@ -43,6 +44,10 @@ function PaymentPanel({ booking }: { booking: BookingDetail }) {
   const paid = parseFloat(booking.amount_paid);
   const balance = parseFloat(booking.balance);
   const progress = total > 0 ? Math.min(100, (paid / total) * 100) : 0;
+  const ledger = booking.payments.filter((p) => p.status === "success" || p.status === "refunded");
+  const days = booking.payment_deadline ? daysUntil(booking.payment_deadline) : null;
+  const overdue = days !== null && days < 0;
+  const reviewing = booking.cancellation_request?.status === "pending";
 
   const pay = async (intent: "balance" | "custom", amount?: string) => {
     setError(null);
@@ -68,158 +73,143 @@ function PaymentPanel({ booking }: { booking: BookingDetail }) {
     parseFloat(customAmount) <= balance;
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold font-raleway text-text-primary">Payments</h2>
-        {booking.payment_state === "fully_paid" ? (
-          <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold font-open-sans">FULLY PAID</span>
-        ) : paid > 0 ? (
-          <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold font-open-sans">PARTIALLY PAID</span>
-        ) : (
-          <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold font-open-sans">UNPAID</span>
-        )}
-      </div>
+    <section className="h-full rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 flex flex-col gap-4">
+      <h2 className="font-raleway font-bold text-[17px] text-text-primary">Payments</h2>
 
-      {/* What the total is made of — server-computed, matches the receipt */}
-      <details className="mb-4 rounded-xl border border-gray-100 dark:border-gray-800 open:bg-gray-50/60 dark:open:bg-gray-800/40">
-        <summary className="cursor-pointer px-4 py-2.5 text-sm font-semibold font-open-sans text-text-primary">
-          Price breakdown · {fmtMoney(booking.line_items.total, booking.currency)}
-        </summary>
-        <div className="px-4 pb-3 flex flex-col gap-1.5 text-sm font-open-sans">
-          {booking.line_items.lines.map((l) => (
-            <div key={l.label + l.detail} className="flex justify-between gap-4">
-              <span className="text-gray-700 dark:text-gray-300">
-                {l.label}
-                <span className="block text-xs text-gray-500 dark:text-gray-400">{l.detail}</span>
-              </span>
-              <span className="text-text-primary shrink-0">{fmtMoney(l.amount, booking.currency)}</span>
-            </div>
-          ))}
-          {parseFloat(booking.line_items.discount) > 0 && (
-            <div className="flex justify-between gap-4 text-green-700 dark:text-green-400">
-              <span>{booking.line_items.discount_note || "Bundle discount"}</span>
-              <span className="shrink-0">− {fmtMoney(booking.line_items.discount, booking.currency)}</span>
-            </div>
-          )}
-          <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-1.5 font-semibold text-text-primary">
-            <span>Total</span><span>{fmtMoney(booking.line_items.total, booking.currency)}</span>
-          </div>
+      <div>
+        <div className="mb-2 flex justify-between gap-3 text-sm text-gray-700 dark:text-gray-300">
+          <span>Paid <strong className="text-text-primary">{fmtMoney(booking.amount_paid, booking.currency)}</strong></span>
+          <span>of {fmtMoney(booking.total_amount, booking.currency)}</span>
         </div>
-      </details>
-
-      {/* Progress */}
-      <div className="mb-2 flex justify-between text-sm font-open-sans">
-        <span className="text-gray-700 dark:text-gray-300">
-          Paid <span className="font-bold text-text-primary">{fmtMoney(booking.amount_paid, booking.currency)}</span>
-        </span>
-        <span className="text-gray-700 dark:text-gray-300">
-          of <span className="font-semibold">{fmtMoney(booking.total_amount, booking.currency)}</span>
-        </span>
-      </div>
-      <div className="w-full h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-4">
-        <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${progress}%` }} />
+        <div className="h-2 w-full rounded-full bg-[#F1E4C8] dark:bg-gray-800 overflow-hidden">
+          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+        </div>
       </div>
 
-      {balance > 0 && (
-        <>
-          <div className="flex justify-between items-baseline mb-2">
-            <span className="text-sm font-open-sans text-gray-700 dark:text-gray-300">Remaining balance</span>
-            <span className="text-xl font-bold font-raleway text-primary">{fmtMoney(booking.balance, booking.currency)}</span>
+      {balance > 0 ? (
+        <div className={`rounded-xl px-4 py-3.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-3 ${overdue ? "bg-red-50 dark:bg-red-950/30" : "bg-[#FAF5EB] dark:bg-gray-800"}`}>
+          <div className="flex flex-col">
+            <span className={`text-xs font-semibold ${overdue ? "text-red-700 dark:text-red-400" : "text-[#8A6420] dark:text-primary"}`}>
+              {overdue
+                ? booking.cure_deadline
+                  ? `Overdue · please pay by ${new Date(booking.cure_deadline).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Accra" })} GMT`
+                  : `Payment deadline passed on ${fmtDate(booking.payment_deadline)}`
+                : booking.payment_deadline ? `Balance due ${fmtDate(booking.payment_deadline)}` : "Balance due"}
+            </span>
+            <span className="font-montserrat text-xl font-bold text-text-primary whitespace-nowrap">{fmtMoney(booking.balance, booking.currency)}</span>
           </div>
-          {booking.payment_deadline && (() => {
-            const days = daysUntil(booking.payment_deadline);
-            const overdue = days !== null && days < 0;
-            return (
-              <p className={`text-sm font-open-sans mb-4 ${overdue ? "text-red-600 font-bold" : "text-gray-700 dark:text-gray-300"}`}>
-                {overdue && booking.cure_deadline
-                  ? `Overdue — please pay by ${new Date(booking.cure_deadline).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Accra" })} GMT. No late fee; we'll contact you before anything changes.`
-                  : overdue
-                  ? `Payment deadline passed on ${fmtDate(booking.payment_deadline)} — please pay now or contact us.`
-                  : <>Full balance due by <span className="font-bold text-text-primary">{fmtDate(booking.payment_deadline)}</span>{days !== null && ` (in ${days} day${days === 1 ? "" : "s"})`}</>}
-              </p>
-            );
-          })()}
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm font-open-sans text-red-600">{error}</div>
-          )}
-
-          {booking.currency !== "GHS" && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans mb-3">
-              Payments are processed in GHS at today&apos;s live exchange rate — the exact
-              GHS amount is shown on the secure payment page.
-            </p>
-          )}
-          {booking.cancellation_request?.status === "pending" ? (
-            <div className="p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl text-sm font-open-sans text-amber-800 dark:text-amber-200">
-              <p className="font-semibold">Cancellation requested on {fmtDate(booking.cancellation_request.requested_at)} — under review.</p>
-              <p className="mt-1">
-                Estimated refund {fmtMoney(booking.cancellation_request.refund_total ?? "0", booking.currency)}
-                {booking.cancellation_request.percent && ` (${parseFloat(booking.cancellation_request.percent)}% of amount paid)`}.
-                Payments are paused until we confirm the outcome by email.
-              </p>
-            </div>
-          ) : (
-          <div className="flex flex-col sm:flex-row gap-3">
+          {!reviewing && (
             <button
               onClick={() => pay("balance")}
               disabled={isLoading}
-              className="flex-1 bg-primary text-white py-3 rounded-full font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              className="shrink-0 bg-primary text-white font-montserrat font-semibold text-sm px-3.5 py-2.5 rounded-xl hover:brightness-95 transition disabled:opacity-60 flex items-center gap-2"
             >
               {isLoading && <Spinner className="w-4 h-4 text-white" />}
-              Pay remaining {fmtMoney(booking.balance, booking.currency)}
+              Pay balance
             </button>
-            <button
-              onClick={() => setCustomOpen(!customOpen)}
-              className="flex-1 border border-gray-200 dark:border-gray-700 text-text-primary py-3 rounded-full font-semibold font-open-sans text-sm hover:border-primary transition-colors"
-            >
-              Pay a custom amount
-            </button>
-          </div>
           )}
-
-          {customOpen && (
-            <div className="mt-4 flex gap-3 items-start">
-              <div className="flex-1">
-                <input
-                  type="number"
-                  min="1"
-                  max={balance}
-                  step="0.01"
-                  value={customAmount}
-                  onChange={(e) => setCustomAmount(e.target.value)}
-                  placeholder={`Amount in ${booking.currency}`}
-                  className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary outline-none focus:border-primary transition-colors"
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-open-sans mt-1.5">
-                  Between {fmtMoney(1, booking.currency)} and {fmtMoney(booking.balance, booking.currency)}.
-                  {customValid && ` Balance after payment: ${fmtMoney(balance - parseFloat(customAmount), booking.currency)}.`}
-                </p>
-              </div>
-              <button
-                onClick={() => pay("custom", parseFloat(customAmount).toFixed(2))}
-                disabled={!customValid || isLoading}
-                className="bg-primary text-white px-6 py-3 rounded-full font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
-              >
-                Pay
-              </button>
-            </div>
-          )}
-        </>
+        </div>
+      ) : (
+        <div className="rounded-xl bg-green-50 dark:bg-green-950/30 px-4 py-3.5 text-sm font-semibold text-green-800 dark:text-green-300">Paid in full. Thank you.</div>
       )}
 
-      {(booking.status === "pending" || booking.status === "confirmed") &&
-        booking.cancellation_request?.status !== "pending" && (
-          <CancellationRequestPanel booking={booking} />
-        )}
-      {booking.cancellation_request && booking.cancellation_request.status !== "pending" && (
-        <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 font-open-sans">
-          Cancellation request of {fmtDate(booking.cancellation_request.requested_at)}:{" "}
-          <span className="font-semibold capitalize">{booking.cancellation_request.status}</span>
-          {booking.cancellation_request.staff_note && ` — ${booking.cancellation_request.staff_note}`}
+      {reviewing && booking.cancellation_request && (
+        <div className="p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl text-sm text-amber-800 dark:text-amber-200">
+          <p className="font-semibold">Cancellation requested on {fmtDate(booking.cancellation_request.requested_at)}, under review.</p>
+          <p className="mt-1">
+            Estimated refund {fmtMoney(booking.cancellation_request.refund_total ?? "0", booking.currency)}
+            {booking.cancellation_request.percent && ` (${parseFloat(booking.cancellation_request.percent)}% of amount paid)`}.
+            Payments are paused until we confirm the outcome by email.
+          </p>
+        </div>
+      )}
+      {error && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{error}</div>}
+
+      {ledger.length > 0 && (
+        <ul className="flex flex-col gap-2 text-sm">
+          {ledger.map((p) => (
+            <li key={p.id} className="flex justify-between gap-3 text-gray-700 dark:text-gray-300">
+              <span>
+                {p.paid_at ? fmtDate(p.paid_at) : "—"} · <span className="capitalize">{p.purpose}</span>
+                {p.status === "refunded" && <span className="ml-1.5 text-xs text-red-600">refunded</span>}
+                {p.disputed && <span className="ml-1.5 text-xs text-amber-700" title="Your bank has opened a dispute on this payment">disputed</span>}
+              </span>
+              <button onClick={() => onReceipt(p)} title={fmtMoney(p.amount, p.currency)} className="shrink-0 font-semibold text-[#8A6420] dark:text-primary underline underline-offset-2">Receipt</button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {balance > 0 && !reviewing && (
+        <p className="flex justify-between gap-3 text-sm text-gray-700 dark:text-gray-300">
+          <span>Reminders before balance due</span><span className="whitespace-nowrap">30, 14, 7 days</span>
         </p>
       )}
-    </div>
+
+      <div className="mt-auto flex flex-col gap-2 border-t border-gray-100 dark:border-gray-800 pt-3 text-xs text-gray-500 dark:text-gray-400">
+        {balance > 0 && !reviewing && (
+          <button onClick={() => setCustomOpen(!customOpen)} className="self-start font-semibold text-[#8A6420] dark:text-primary underline underline-offset-2">
+            Pay a different amount
+          </button>
+        )}
+        {customOpen && balance > 0 && (
+          <div className="flex gap-2 items-start">
+            <div className="flex-1">
+              <input
+                type="number" min="1" max={balance} step="0.01" value={customAmount}
+                onChange={(e) => setCustomAmount(e.target.value)}
+                placeholder={`Amount in ${booking.currency}`}
+                className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm text-text-primary outline-none focus:border-primary"
+              />
+              <p className="mt-1">
+                Between {fmtMoney(1, booking.currency)} and {fmtMoney(booking.balance, booking.currency)}.
+                {customValid && ` Balance after: ${fmtMoney(balance - parseFloat(customAmount), booking.currency)}.`}
+              </p>
+            </div>
+            <button
+              onClick={() => pay("custom", parseFloat(customAmount).toFixed(2))}
+              disabled={!customValid || isLoading}
+              className="bg-primary text-white px-4 py-2.5 rounded-xl font-semibold text-sm disabled:opacity-50"
+            >
+              Pay
+            </button>
+          </div>
+        )}
+        <details>
+          <summary className="cursor-pointer font-semibold text-gray-600 dark:text-gray-300">Price breakdown</summary>
+          <div className="mt-2 flex flex-col gap-1.5 text-[13px]">
+            {booking.line_items.lines.map((l) => (
+              <div key={l.label + l.detail} className="flex justify-between gap-4">
+                <span className="text-gray-700 dark:text-gray-300">{l.label}<span className="block text-xs text-gray-500 dark:text-gray-400">{l.detail}</span></span>
+                <span className="text-text-primary shrink-0">{fmtMoney(l.amount, booking.currency)}</span>
+              </div>
+            ))}
+            {parseFloat(booking.line_items.discount) > 0 && (
+              <div className="flex justify-between gap-4 text-green-700 dark:text-green-400">
+                <span>{booking.line_items.discount_note || "Discount"}</span>
+                <span className="shrink-0">− {fmtMoney(booking.line_items.discount, booking.currency)}</span>
+              </div>
+            )}
+            <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-1.5 font-semibold text-text-primary">
+              <span>Total</span><span>{fmtMoney(booking.line_items.total, booking.currency)}</span>
+            </div>
+          </div>
+        </details>
+        {booking.currency !== "GHS" && balance > 0 && (
+          <p>Charged in Ghana cedis at today&apos;s rate; the exact amount is shown before you pay.</p>
+        )}
+        {(booking.status === "pending" || booking.status === "confirmed") && !reviewing && (
+          <CancellationRequestPanel booking={booking} />
+        )}
+        {booking.cancellation_request && booking.cancellation_request.status !== "pending" && (
+          <p>
+            Cancellation request of {fmtDate(booking.cancellation_request.requested_at)}:{" "}
+            <span className="font-semibold capitalize">{booking.cancellation_request.status}</span>
+            {booking.cancellation_request.staff_note && ` · ${booking.cancellation_request.staff_note}`}
+          </p>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -253,7 +243,7 @@ function CancellationRequestPanel({ booking }: { booking: BookingDetail }) {
   }
 
   return (
-    <div className="mt-6 border-t border-gray-100 dark:border-gray-800 pt-4">
+    <div>
       {!open ? (
         <button onClick={start} className="text-xs font-semibold font-open-sans text-gray-500 hover:text-red-600 underline underline-offset-2">
           Need to cancel? Request cancellation
@@ -348,7 +338,7 @@ function AddExperience({ booking }: { booking: BookingDetail }) {
                   {a.description && <span className="block text-xs text-gray-500 dark:text-gray-400">{a.description}</span>}
                   <span className="block text-xs text-gray-500 dark:text-gray-400">{a.quantity} × {fmtMoney(a.unit_price, data.currency)}</span>
                 </span>
-                <span className="text-sm font-bold font-open-sans text-text-primary shrink-0">{fmtMoney(a.line_total, data.currency)}</span>
+                <span className="text-sm font-bold font-open-sans text-text-primary shrink-0">{fmtMoney(a.line_total ?? "0", data.currency)}</span>
               </button>
             ))}
           </div>
@@ -360,7 +350,7 @@ function AddExperience({ booking }: { booking: BookingDetail }) {
                 className="bg-primary text-white px-6 py-3 rounded-full font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {isLoading && <Spinner className="w-4 h-4 text-white" />}
-                Pay {fmtMoney(addon.line_total, data.currency)} and add {addon.name}
+                Pay {fmtMoney(addon.line_total ?? "0", data.currency)} and add {addon.name}
               </button>
               <span className="text-xs text-gray-500 dark:text-gray-400 font-open-sans">Cancelling it later keeps 50% of its price (booking terms).</span>
             </div>
@@ -466,7 +456,7 @@ function PackageCoverImage({ packageId, alt }: { packageId: string; alt: string 
 }
 function BookingBlock({ booking }: { booking: BookingDetail }) {
   const [receiptFor, setReceiptFor] = useState<PaymentRow | null>(null);
-  const successfulPayments = booking.payments.filter((p) => p.status === "success" || p.status === "refunded");
+  const contact = useSiteContact();
 
   const statusColor: Record<string, string> = {
     confirmed: "bg-green-100 text-green-700",
@@ -513,68 +503,20 @@ function BookingBlock({ booking }: { booking: BookingDetail }) {
         </div>
       </div>}
 
-      {/* Payment panel */}
-      <PaymentPanel booking={booking} />
-
-      {isTrip && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <CoordinatorPanel booking={booking} />
+      {isTrip ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          <PaymentPanel booking={booking} onReceipt={setReceiptFor} />
+          <CoordinatorPanel booking={booking} whatsapp={contact.whatsappDigits ? contact.whatsapp : undefined} />
           <GuestsPanel booking={booking} />
         </div>
+      ) : (
+        <PaymentPanel booking={booking} onReceipt={setReceiptFor} />
       )}
 
-      {/* Add an experience (owner rule: until 7 days before departure). Component
-          bookings add experiences per guest — that upgrade flow is still to come. */}
+      {/* Add an experience (owner rule: until 7 days before departure); trip
+          bookings add them per guest. */}
       {!isTrip && (booking.status === "pending" || booking.status === "confirmed") && <AddExperience booking={booking} />}
-      {isTrip && <UpgradesPanel />}
-
-      {/* Payment history */}
-      {successfulPayments.length > 0 && (
-        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
-          <h2 className="text-lg font-bold font-raleway text-text-primary mb-4">Payment history</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm font-open-sans">
-              <thead>
-                <tr className="text-left text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                  <th className="pb-3 pr-4">Date</th>
-                  <th className="pb-3 pr-4">Type</th>
-                  <th className="pb-3 pr-4">Method</th>
-                  <th className="pb-3 pr-4 text-right">Amount</th>
-                  <th className="pb-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {successfulPayments.map((payment) => (
-                  <tr key={payment.id} className="border-t border-gray-100 dark:border-gray-800">
-                    <td className="py-3 pr-4 text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                      {payment.paid_at ? fmtDate(payment.paid_at) : "—"}
-                    </td>
-                    <td className="py-3 pr-4 capitalize text-gray-700 dark:text-gray-300">{payment.purpose}</td>
-                    <td className="py-3 pr-4 capitalize text-gray-700 dark:text-gray-300">{payment.method.replace("_", " ")}</td>
-                    <td className="py-3 pr-4 text-right font-semibold text-text-primary whitespace-nowrap">
-                      {fmtMoney(payment.amount, payment.currency)}
-                      {payment.status === "refunded" && (
-                        <span className="ml-2 text-xs text-red-500 font-open-sans">refunded</span>
-                      )}
-                      {payment.disputed && (
-                        <span className="ml-2 text-xs text-amber-700 font-open-sans" title="Your bank has opened a dispute on this payment">disputed</span>
-                      )}
-                    </td>
-                    <td className="py-3 text-right">
-                      <button
-                        onClick={() => setReceiptFor(payment)}
-                        className="text-primary text-xs font-semibold hover:underline"
-                      >
-                        Receipt
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {isTrip && <TripAddons booking={booking} />}
 
       {/* Trip updates */}
       <TripUpdates packageId={booking.package_id} />
@@ -722,7 +664,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-6xl mx-auto">
+    <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-[1222px] mx-auto">
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <h1 className="text-2xl md:text-3xl font-bold font-raleway text-text-primary">My Bookings</h1>
         <SupportAndPrivacy />

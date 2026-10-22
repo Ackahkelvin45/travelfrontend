@@ -173,7 +173,7 @@ export default function ExperiencesListing() {
                     <div className="w-full h-full min-h-40 flex flex-col items-center justify-center gap-2 text-[#8A6420]"><BlackStar size={34} /><span className="text-xs font-semibold">Photo coming soon</span></div>
                   )}
                   <span className={`absolute top-3 left-3 font-montserrat text-[11px] font-bold px-2.5 py-1 rounded-full ${it.flagship ? "bg-primary text-white" : "bg-white/90 text-[#6B4E1A]"}`}>
-                    {it.flagship ? "Flagship" : KINDS.find((k) => k.id === it.kind)!.label.replace(/s$/, "")}
+                    {KINDS.find((k) => k.id === it.kind)!.label.replace(/s$/, "")}
                   </span>
                 </div>
                 <div className="p-4 flex flex-col gap-1.5 flex-1">

@@ -1,9 +1,10 @@
 "use client";
 
 /**
- * Component-pricing trip builder (canvas: Experience → "Build Your Trip").
- * useTripBuilder holds the choices; TripBuilder renders the steps in the main
- * column and TripSummary the sticky price card. Every total shown is the
+ * Component-pricing trip builder (canvas: Experience → "Build Your Trip"),
+ * on its own page (/tour/<id>/build, see BuildTrip). useTripBuilder holds the
+ * choices; TripBuilder renders the steps in the main column and TripSummary
+ * the sticky price card. Every total shown is the
  * server's quote for the current selection.
  */
 
@@ -127,16 +128,19 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
   const { matrix, choices, update, n, stay, units } = trip;
   if (!matrix) return null;
   const c = matrix.currency;
-  const nights = matrix.stay_types[0]?.nights ?? 4;
-  const bundle = matrix.bundles[0];
+  const group = [...matrix.group_discounts].sort((a, b) => a.min_travellers - b.min_travellers)[0];
+  const perGuest = matrix.experiences.filter((e) => e.unit !== "per_vehicle");
+  const transfers = matrix.experiences.filter((e) => e.unit === "per_vehicle");
+  const transferTotal = transfers.reduce((sum, e) => sum + Math.min(n, choices.counts[e.code] ?? 0), 0);
+  const needsAdult = perGuest.some((e) => e.adults_only && (choices.counts[e.code] ?? 0) > 0);
   const [lo, hi] = stay ? unitRange(stay, n) : [0, 0];
   const wordFor = (s: ComponentMatrix["stay_types"][number]) => (s.kind === "airbnb" ? "Unit" : "Room");
 
   return (
-    <section id="book" className="scroll-mt-28 pt-8 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-6">
+    <section id="book" className="scroll-mt-28 flex flex-col gap-6">
       <div>
-        <h2 className="font-raleway text-2xl font-bold text-text-primary">Build Your Trip</h2>
-        <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">Your total updates as you go. No promo codes needed: savings apply automatically.</p>
+        <h1 className="font-raleway text-[28px] md:text-[32px] font-bold leading-tight text-text-primary">Build Your Trip</h1>
+        <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">Your total updates as you go, with each guest&apos;s share. Core tickets are never discounted.</p>
       </div>
 
       <div className={card}>
@@ -165,8 +169,11 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
 
       <div className={card}>
         <div>
-          <h3 className="font-raleway font-bold text-text-primary">2. Accra stay · {nights} nights</h3>
-          <p className="text-xs text-gray-600 dark:text-gray-400">6–7 Jan and 8–11 Jan · Crown Forest night included</p>
+          <h3 className="font-raleway font-bold text-text-primary">2. Accra stay</h3>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            Airbnb: 5 nights, 6–11 Jan, kept for you on the Crown Forest night · Four Points: 4 nights, 6 and 8–10 Jan
+            {group ? ` · Groups of ${group.min_travellers}+ save ${parseFloat(group.percent)}% on accommodation` : ""}
+          </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <button type="button" aria-pressed={!choices.stay} onClick={() => update({ stay: "", units: 0 })} className={option(!choices.stay)}>
@@ -186,7 +193,8 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
                 <span className="text-xs text-gray-600 dark:text-gray-400">
                   {!s.on_sale ? s.note || "Not yet on sale" : soldOut ? "Sold out" : s.capacity === 1 ? "One guest per room" : `Up to ${s.capacity} guests`}
                 </span>
-                <span className="text-sm font-semibold text-text-primary">{fmtMoney(s.price_per_night, c)} / night</span>
+                <span className="text-sm font-semibold text-text-primary">{fmtMoney(s.unit_total, c)} · {s.nights} nights</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">{fmtMoney(s.price_per_night, c)} / night per {wordFor(s).toLowerCase()}</span>
               </button>
             );
           })}
@@ -224,16 +232,16 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
       <div className={card}>
         <div>
           <h3 className="font-raleway font-bold text-text-primary">3. Experiences · per guest</h3>
-          {bundle && <p className="text-xs text-gray-600 dark:text-gray-400">All {bundle.members.length} for a guest saves {parseFloat(bundle.percent)}%</p>}
+          <p className="text-xs text-gray-600 dark:text-gray-400">The welcome and farewell dinners are included in Core.</p>
         </div>
-        {matrix.experiences.map((e) => {
+        {perGuest.map((e) => {
           const count = Math.min(n, choices.counts[e.code] ?? 0);
           const set = (v: number) => update({ counts: { ...choices.counts, [e.code]: Math.max(0, Math.min(n, v)) } });
           return (
             <div key={e.code} className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-col">
                 <span className="font-semibold text-sm text-text-primary">{e.name}</span>
-                <span className="text-xs text-gray-600 dark:text-gray-400">{fmtMoney(e.price, c)} per guest</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">{fmtMoney(e.price, c)} per guest{e.adults_only ? " · 18 and over" : ""}</span>
               </div>
               <Stepper
                 label={`guests for ${e.name}`} value={`${count} of ${n}`} decDisabled={count <= 0} incDisabled={count >= n}
@@ -242,7 +250,40 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
             </div>
           );
         })}
+        {needsAdult && (
+          <label className="flex gap-2 items-start text-sm text-gray-700 dark:text-gray-300">
+            <input type="checkbox" checked={!!choices.adultsConfirmed} onChange={(e) => update({ adultsConfirmed: e.target.checked })} className="mt-1 accent-primary" />
+            I confirm the guests taking 18+ experiences are 18 or over.
+          </label>
+        )}
       </div>
+
+      {transfers.length > 0 && (
+        <div className={card}>
+          <div>
+            <h3 className="font-raleway font-bold text-text-primary">4. Airport transfers</h3>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              {stay ? `Priced per vehicle of up to ${transfers[0].vehicle_capacity} guests. One transfer per guest.` : "For guests staying in Azura accommodation. Choose an Accra stay to add one."}
+            </p>
+          </div>
+          {stay && transfers.map((e) => {
+            const count = Math.min(n, choices.counts[e.code] ?? 0);
+            const set = (v: number) => update({ counts: { ...choices.counts, [e.code]: Math.max(0, v) } });
+            return (
+              <div key={e.code} className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-sm text-text-primary">{e.name}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">{fmtMoney(e.price, c)} per vehicle</span>
+                </div>
+                <Stepper
+                  label={`guests for ${e.name}`} value={`${count} of ${n}`} decDisabled={count <= 0} incDisabled={transferTotal >= n}
+                  onDec={() => set(count - 1)} onInc={() => set(count + 1)}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }
@@ -288,7 +329,7 @@ export function TripSummary({ trip }: { trip: TripBuilderState }) {
 
       {matrix.installments.enabled && (
         <p className="rounded-xl bg-primary/5 px-4 py-3 text-[13px] text-gray-700 dark:text-gray-300">
-          Pay in full or choose a deposit at payment. You always see what&apos;s due now and the balance before you pay.
+          Core tickets and experiences are paid in full. Rooms can be secured with {parseFloat(matrix.installments.accommodation_deposit_percent)}% now and the rest in instalments before 6 January.
         </p>
       )}
 

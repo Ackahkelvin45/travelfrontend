@@ -39,10 +39,12 @@ export default function BlogSidebar({
  return () => clearTimeout(timer);
  }, [localSearch, onSearchChange, search, router]);
 
- // Sync if cleared from outside
- useEffect(() => {
+ // Sync if cleared from outside (adjusted during render, not in an effect)
+ const [syncedSearch, setSyncedSearch] = useState(search);
+ if (search !== syncedSearch) {
+ setSyncedSearch(search);
  setLocalSearch(search);
- }, [search]);
+ }
 
  return (
  <aside className="w-full lg:w-64 shrink-0 flex flex-col gap-6">

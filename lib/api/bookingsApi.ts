@@ -1,4 +1,5 @@
 import { baseApi } from './baseApi'
+import { bookingAccess, keepBookingAccess } from '../bookingAccess'
 
 export type PriceTier = 'shared' | 'private' | 'vip'
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed'
@@ -28,6 +29,8 @@ export interface CreateBookingResponse {
   currency: string
   status: BookingStatus
   message: string
+  /** Signed token unlocking guest details on the status endpoint (kept per reference). */
+  view_token?: string
 }
 
 // ── Option-based checkout (flagship flow) ────────────────────────────────────
@@ -57,6 +60,8 @@ export interface CheckoutResponse {
   currency: string
   status: BookingStatus
   message: string
+  /** Signed token unlocking guest details on the status endpoint (kept per reference). */
+  view_token?: string
 }
 
 export interface ConfigurableCheckoutRequest {
@@ -81,8 +86,15 @@ export type MomoProvider = 'mtn' | 'atl' | 'vod'
 
 export interface InitializePaymentRequest {
   booking_id: string
-  intent?: 'balance' | 'deposit' | 'custom' | 'addon'
+  intent?: 'balance' | 'deposit' | 'custom' | 'addon' | 'traveller'
   amount?: string
+  /** intent=traveller: pay this group member's outstanding share. */
+  traveller_id?: string
+  /** intent=traveller: receipt email of the member paying. */
+  payer_email?: string
+  /** intent=addon on a trip booking: the guests it's for, and their 18+ confirmation. */
+  traveller_ids?: string[]
+  adult?: boolean
   /** intent=addon: the experience to buy; it joins the booking once paid. */
   addon_code?: string
   /** any (default) = Paystack popup offering card + Mobile Money, the buyer
@@ -156,7 +168,12 @@ export interface BookingDetail {
   mode: TravelMode | ''
   coordinator_name: string | null
   lead_contacted_at: string | null
-  travellers: { full_name: string; is_lead: boolean; unit: string | null; experiences: string[]; travel_info_submitted: boolean }[]
+  pay_separately: boolean
+  whatsapp_updates: boolean
+  travellers: {
+    id: string; full_name: string; is_lead: boolean; unit: string | null; experiences: string[]
+    travel_info_submitted: boolean; share: string; paid: string; outstanding: string
+  }[]
   marketing_consent: boolean
   photo_consent: boolean
   first_name: string
@@ -213,7 +230,12 @@ export interface AvailableAddons {
   reason: string | null
   open_until: string | null
   currency: string
-  addons: { code: string; name: string; description: string | null; unit: string; unit_price: string; quantity: number; line_total: string; refundable: boolean }[]
+  /** Trip bookings return per-guest options (eligible_travellers etc.) and no quantity/line_total. */
+  addons: {
+    code: string; name: string; description: string | null; unit: string; unit_price: string; refundable: boolean
+    quantity?: number; line_total?: string
+    adults_only?: boolean; vehicle_capacity?: number; eligible_travellers?: string[]
+  }[]
 }
 
 export interface CancellationQuote {
@@ -226,7 +248,7 @@ export interface CancellationQuote {
 }
 
 
-// ── Component pricing (Change Request v2) ────────────────────────────────────
+// ── Component pricing (Change Request v4) ────────────────────────────────────
 
 export type TravelMode = 'single' | 'couple' | 'group'
 
@@ -234,7 +256,8 @@ export type TravelMode = 'single' | 'couple' | 'group'
 export interface TripSelection {
   package_id: string
   mode: TravelMode
-  travellers: { name?: string; experiences: string[] }[]
+  /** adult: the guest confirmed they are 18+ (needed for adults-only experiences). */
+  travellers: { name?: string; experiences: string[]; adult?: boolean }[]
   rooms: { stay_type: string; occupants: number[] }[]
   payment_plan?: PaymentPlan
   /** This checkout's hold: its own held rooms don't count as sold out. */
@@ -253,10 +276,17 @@ export interface ComponentQuote {
     name: string
     core: string
     room: string | null
+    adult: boolean
     experiences: { code: string; name: string; price: string; refundable: boolean }[]
+    /** Airport transfer code, priced per vehicle in `transfers`. */
+    transfer: string | null
     experiences_subtotal: string
-    bundle: string
-    bundle_discount: string
+    room_share: string
+    transfer_share: string
+    /** This guest's part of the total; shares add up to the total exactly. */
+    share: string
+    room_deposit: string
+    due_now: string
   }[]
   rooms: {
     stay_type: string
@@ -265,15 +295,20 @@ export interface ComponentQuote {
     price_per_night: string
     nights: number
     charge: string
-    discount_percent: string
     discount: string
+    deposit: string
     unit?: string
   }[]
+  transfers: { code: string; name: string; guests: number[]; vehicles: number; price: string; charge: string; refundable: boolean }[]
   core_total: string
   rooms_total: string
   experiences_total: string
+  transfers_total: string
   subtotal: string
+  discount_name: string
+  discount_percent: string
   discount_total: string
+  accommodation_deposit_percent: string
   total: string
   average_per_person: string
   deposit_required: string | null
@@ -298,6 +333,10 @@ export interface ComponentCheckoutRequest extends TripSelection {
   special_requests?: string
   accepted_policies: string[]
   marketing_consent: boolean
+  /** Group only: each member pays their own share under this reference. */
+  pay_separately?: boolean
+  /** Opt in to booking confirmations and receipts on WhatsApp (needs a phone with country code). */
+  whatsapp_updates?: boolean
   expected_total?: string
 }
 
@@ -337,18 +376,21 @@ export const bookingsApi = baseApi.injectEndpoints({
     // Legacy tier flow
     createBooking: builder.mutation<CreateBookingResponse, CreateBookingRequest>({
       query: (body) => ({ url: '/bookings/', method: 'POST', body }),
+      transformResponse: (r: CreateBookingResponse) => keepBookingAccess(r),
       invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
     }),
 
     // Flagship option flow
     checkout: builder.mutation<CheckoutResponse, CheckoutRequest>({
       query: (body) => ({ url: '/bookings/checkout/', method: 'POST', body }),
+      transformResponse: (r: CheckoutResponse) => keepBookingAccess(r),
       invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
     }),
 
     // Core + add-ons flow (Michael Blackson style)
     configurableCheckout: builder.mutation<CheckoutResponse, ConfigurableCheckoutRequest>({
       query: (body) => ({ url: '/bookings/checkout/configurable/', method: 'POST', body }),
+      transformResponse: (r: CheckoutResponse) => keepBookingAccess(r),
       invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
     }),
 
@@ -371,7 +413,12 @@ export const bookingsApi = baseApi.injectEndpoints({
     }),
 
     getBookingByReference: builder.query<BookingDetail, string>({
-      query: (reference) => `/bookings/${reference}/`,
+      // The view token unlocks names and contact details; without it the
+      // endpoint returns status and amounts only.
+      query: (reference) => {
+        const t = bookingAccess(reference)
+        return t ? { url: `/bookings/${reference}/`, params: { t } } : `/bookings/${reference}/`
+      },
       providesTags: (_result, _error, reference) => [{ type: 'Booking', id: reference }],
     }),
 
@@ -406,6 +453,7 @@ export const bookingsApi = baseApi.injectEndpoints({
     }),
     componentCheckout: builder.mutation<ComponentCheckoutResponse, ComponentCheckoutRequest>({
       query: (body) => ({ url: '/bookings/checkout/component/', method: 'POST', body }),
+      transformResponse: (r: ComponentCheckoutResponse) => keepBookingAccess(r),
     }),
     travelInfo: builder.query<{ travellers: TravelInfo[] }, string>({
       query: (reference) => `/bookings/${reference}/travel/`,
@@ -416,14 +464,22 @@ export const bookingsApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, { reference }) => [{ type: 'Booking', id: `travel-${reference}` }],
     }),
     updatePreferences: builder.mutation<
-      { marketing_consent: boolean; photo_consent: boolean },
-      { reference: string; marketing_consent?: boolean; photo_consent?: boolean }
+      { marketing_consent: boolean; photo_consent: boolean; whatsapp_updates: boolean },
+      { reference: string; marketing_consent?: boolean; photo_consent?: boolean; whatsapp_updates?: boolean }
     >({
       query: ({ reference, ...body }) => ({ url: `/bookings/${reference}/preferences/`, method: 'PATCH', body }),
       invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
     }),
     createLead: builder.mutation<{ id: string; detail: string }, LeadRequest>({
       query: (body) => ({ url: '/leads/', method: 'POST', body }),
+    }),
+    /** Site chat: send the conversation so far, get the next reply. `handoff`
+     * is a staff summary when the guest should be passed to a person. */
+    askAssistant: builder.mutation<
+      { reply: string; handoff: string | null },
+      { messages: { role: 'user' | 'assistant'; content: string }[] }
+    >({
+      query: (body) => ({ url: '/assistant/', method: 'POST', body }),
     }),
     requestCancellation: builder.mutation<
       { detail: string; requested_at: string; refund_total: string | null; currency: string },
@@ -459,5 +515,6 @@ export const {
   useTravelInfoQuery,
   useSaveTravelInfoMutation,
   useCreateLeadMutation,
+  useAskAssistantMutation,
   useUpdatePreferencesMutation,
 } = bookingsApi

@@ -1,7 +1,7 @@
 import Image, { type StaticImageData } from "next/image";
 import type { ReactNode } from "react";
 import Reveal from "../ui/Reveal";
-import { Eyebrow, HeroCurve } from "./Decor";
+import { Eyebrow } from "./Decor";
 
 interface PageHeroProps {
   image: StaticImageData;
@@ -16,18 +16,17 @@ interface PageHeroProps {
   objectPosition?: string;
 }
 
-/** Photo hero with a dark scrim, staggered entrance and the curved bottom edge. */
+/** Photo hero with a dark scrim, rounded corners and a staggered entrance. */
 export default function PageHero({
   image, alt, eyebrow, title, subtitle, children,
   heightClass = "min-h-[380px] md:min-h-[440px]", overlay = 0.45, objectPosition = "center",
 }: PageHeroProps) {
   return (
     <section className="w-full px-4 md:px-10 pt-24 md:pt-28">
-      <div className={`relative overflow-hidden rounded-t-xl ${heightClass}`}>
+      <div className={`relative overflow-hidden rounded-2xl ${heightClass}`}>
         <Image src={image} alt={alt} fill priority sizes="100vw" className="object-cover hero-zoom" style={{ objectPosition }} />
         <div className="absolute inset-0" style={{ background: `rgba(6,5,4,${overlay})` }} />
-        <HeroCurve />
-        <div className={`relative z-2 flex flex-col items-center justify-center text-center text-white px-4 pt-12 pb-28 ${heightClass}`}>
+        <div className={`relative z-2 flex flex-col items-center justify-center text-center text-white px-4 py-12 ${heightClass}`}>
           {eyebrow && <Reveal className="mb-3"><Eyebrow light>{eyebrow}</Eyebrow></Reveal>}
           <Reveal delay={120}>
             <h1 className="font-raleway font-bold text-4xl md:text-5xl lg:text-6xl leading-tight max-w-4xl">{title}</h1>

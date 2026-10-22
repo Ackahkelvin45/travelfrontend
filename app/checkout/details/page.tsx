@@ -42,6 +42,7 @@ export default function CheckoutDetailsPage() {
   const [termsOk, setTermsOk] = useState(false);
   const [optionalOk, setOptionalOk] = useState<Record<string, boolean>>({});
   const [marketing, setMarketing] = useState(false);
+  const [whatsapp, setWhatsapp] = useState(false);
   const [openPolicy, setOpenPolicy] = useState<PolicyDoc | null>(null);
   const [tried, setTried] = useState(false);
 
@@ -55,6 +56,7 @@ export default function CheckoutDetailsPage() {
       setTermsOk(required.length > 0 && required.every((r) => d.acceptedPolicies.includes(r.type)));
       setOptionalOk(Object.fromEntries(d.acceptedPolicies.map((t) => [t, true])));
       setMarketing(d.marketingConsent);
+      setWhatsapp(!!d.whatsappUpdates);
     }
     setNames(state.choices.names);
     /* eslint-enable react-hooks/set-state-in-effect */
@@ -78,7 +80,7 @@ export default function CheckoutDetailsPage() {
 
   const n = guestCount(state.choices);
   const guestNames = Array.from({ length: n }, (_, i) => (i === 0 ? names[0] || form.fullName : names[i] ?? ""));
-  const backHref = `/tour/${state.packageId}#book`;
+  const backHref = `/tour/${state.packageId}/build`;
   const rooms = selection?.rooms ?? [];
   const holdLabel = (i: number) => {
     const r = rooms.findIndex((room) => room.occupants.includes(i));
@@ -110,7 +112,7 @@ export default function CheckoutDetailsPage() {
           ...(termsOk ? required.map((d) => d.type) : []),
           ...optional.filter((d) => optionalOk[d.type]).map((d) => d.type),
         ],
-        marketingConsent: marketing,
+        marketingConsent: marketing, whatsappUpdates: whatsapp && !!form.phone,
       },
     });
     router.push("/checkout/payment");
@@ -184,11 +186,15 @@ export default function CheckoutDetailsPage() {
                 <span className="text-text-primary">
                   <strong>Required.</strong> I accept the{" "}
                   {required.map((d, i) => (
-                    <span key={d.type}>{policyLink(d)} (v{d.version}){i < required.length - 2 ? ", " : i === required.length - 2 ? " and " : "."}</span>
+                    <span key={d.type}>{policyLink(d)}{i < required.length - 2 ? ", " : i === required.length - 2 ? " and " : "."}</span>
                   ))}
                 </span>
               </label>
             )}
+            <label className="flex gap-3 items-start text-sm leading-relaxed text-gray-700 dark:text-gray-300 px-3.5">
+              <input type="checkbox" checked={whatsapp} onChange={(e) => setWhatsapp(e.target.checked)} className="w-[18px] h-[18px] mt-1 accent-primary" />
+              <span>Optional. Also send my booking confirmation and receipts on WhatsApp, to the number above.</span>
+            </label>
             <label className="flex gap-3 items-start text-sm leading-relaxed text-gray-700 dark:text-gray-300 px-3.5">
               <input type="checkbox" checked={marketing} onChange={(e) => setMarketing(e.target.checked)} className="w-[18px] h-[18px] mt-1 accent-primary" />
               <span>Optional. Send me offers and updates by email and WhatsApp.</span>
@@ -215,7 +221,7 @@ export default function CheckoutDetailsPage() {
             <span className="text-xs text-gray-700 dark:text-gray-300">{matrix ? fmtDateRange(matrix.tour_start, matrix.tour_end) : ""} · <span className="capitalize">{state.choices.mode}</span></span>
           </div>
           {quote ? <QuoteSummary quote={quote} /> : <Spinner />}
-          <p className="text-[11px] text-center text-gray-500 dark:text-gray-400">No promo codes. Savings are applied automatically.</p>
+          <p className="text-[11px] text-center text-gray-500 dark:text-gray-400">No promo codes. Core tickets are never discounted.</p>
         </aside>
       </div>
       <PolicyModal doc={openPolicy} onClose={() => setOpenPolicy(null)} />

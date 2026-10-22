@@ -29,7 +29,7 @@ function ClaimContent() {
       // Survives the register → verify-email → login detour: the login page
       // completes the claim from storage once the guest is signed in.
       try { localStorage.setItem(PENDING_CLAIM_KEY, token); } catch { /* storage unavailable — the next= fallback still works */ }
-      router.replace(`/login?next=${encodeURIComponent(`/claim?token=${token}`)}`);
+      router.replace(`/login?next=${encodeURIComponent(`/claim?${searchParams.toString()}`)}`);
       return;
     }
     try { localStorage.removeItem(PENDING_CLAIM_KEY); } catch { /* ignore */ }
@@ -37,6 +37,11 @@ function ClaimContent() {
     claim({ token })
       .unwrap()
       .then((result) => {
+        // The confirmation email's "Complete travel information" button.
+        if (searchParams.get("then") === "travel") {
+          router.replace(`/booking/${result.reference}/travel`);
+          return;
+        }
         setState("done");
         setMessage(`Booking ${result.reference} is now linked to your account.`);
       })
@@ -44,7 +49,7 @@ function ClaimContent() {
         setState("error");
         setMessage(err?.data?.detail ?? "This claim link is invalid or has expired.");
       });
-  }, [hydrated, authToken, token, claim, router]);
+  }, [hydrated, authToken, token, claim, router, searchParams]);
 
   if (!token) {
     return <p className="text-sm text-gray-500 font-open-sans">Missing claim token.</p>;

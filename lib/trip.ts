@@ -15,9 +15,11 @@ export interface TripChoices {
   /** Experience code → how many guests take it (guests 1..count). */
   counts: Record<string, number>;
   names: string[];
+  /** The guests taking adults-only experiences are confirmed 18+. */
+  adultsConfirmed?: boolean;
 }
 
-export const DEFAULT_CHOICES: TripChoices = { mode: "couple", groupSize: 3, stay: "", units: 0, counts: {}, names: [] };
+export const DEFAULT_CHOICES: TripChoices = { mode: "couple", groupSize: 3, stay: "", units: 0, counts: {}, names: [], adultsConfirmed: false };
 
 export function guestCount(c: TripChoices): number {
   return c.mode === "single" ? 1 : c.mode === "couple" ? 2 : Math.max(3, c.groupSize);
@@ -37,22 +39,35 @@ export function unitsFor(c: TripChoices, stay: Stay | undefined, n: number): num
 }
 
 /** Guests spread evenly over the units (guest i → unit ⌊i·units/n⌋); the
- * first `count` guests take each experience. */
+ * first `count` guests take each experience. Airport transfers (one per
+ * guest, stay guests only) go to consecutive guests: pickup first, then the
+ * return package. */
 export function toSelection(packageId: string, c: TripChoices, matrix: ComponentMatrix, plan: PaymentPlan = "full"): TripSelection {
   const n = guestCount(c);
   const stay = matrix.stay_types.find((s) => s.code === c.stay);
   const units = unitsFor(c, stay, n);
   const rooms = Array.from({ length: units }, () => ({ stay_type: c.stay, occupants: [] as number[] }));
   for (let i = 0; i < n && units; i++) rooms[Math.floor((i * units) / n)].occupants.push(i);
+  const transferOf: Record<number, string> = {};
+  let next = 0;
+  for (const e of matrix.experiences.filter((x) => x.unit === "per_vehicle" && units)) {
+    for (let k = 0; k < Math.min(c.counts[e.code] ?? 0, n - next); k++) transferOf[next++] = e.code;
+  }
+  const adultsOnly = new Set(matrix.experiences.filter((e) => e.adults_only).map((e) => e.code));
   return {
     package_id: packageId,
     mode: c.mode,
     payment_plan: plan,
     rooms,
-    travellers: Array.from({ length: n }, (_, i) => ({
-      name: c.names[i] ?? "",
-      experiences: matrix.experiences.filter((e) => i < Math.min(n, c.counts[e.code] ?? 0)).map((e) => e.code),
-    })),
+    travellers: Array.from({ length: n }, (_, i) => {
+      const experiences = matrix.experiences
+        .filter((e) => e.unit !== "per_vehicle" && i < Math.min(n, c.counts[e.code] ?? 0)).map((e) => e.code)
+        .concat(transferOf[i] ? [transferOf[i]] : []);
+      return {
+        name: c.names[i] ?? "", experiences,
+        adult: !!c.adultsConfirmed && experiences.some((code) => adultsOnly.has(code)),
+      };
+    }),
   };
 }
 
@@ -65,10 +80,10 @@ export interface CheckoutState {
   hold: RoomHold | null;
   details?: {
     fullName: string; email: string; phone: string; country: string;
-    acceptedPolicies: string[]; marketingConsent: boolean;
+    acceptedPolicies: string[]; marketingConsent: boolean; whatsappUpdates?: boolean;
   };
   /** Set once the booking exists, so a payment retry never creates a second one. */
-  booking?: { id: string; reference: string; plan: PaymentPlan };
+  booking?: { id: string; reference: string; plan: PaymentPlan; paySeparately?: boolean };
 }
 
 const KEY = "azura.checkout";

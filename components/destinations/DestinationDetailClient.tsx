@@ -123,9 +123,9 @@ export default function DestinationDetailClient({ id }: { id: string }) {
       {/* ── Breadcrumb ──────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-1">
         <nav className="flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300 font-open-sans min-w-0">
-          <a href="/" className="hover:text-primary transition-colors shrink-0">Home</a>
+          <Link href="/" className="hover:text-primary transition-colors shrink-0">Home</Link>
           <span className="shrink-0">{">"}</span>
-          <a href="/destinations" className="hover:text-primary transition-colors shrink-0">Destinations</a>
+          <Link href="/destinations" className="hover:text-primary transition-colors shrink-0">Destinations</Link>
           <span className="shrink-0">{">"}</span>
           <span className="text-text-primary truncate">
             {isLoading ? "…" : destination?.name}

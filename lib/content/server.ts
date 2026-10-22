@@ -4,6 +4,7 @@
 import type { ComponentMatrix, PackageDetail } from "@/lib/api/packagesApi";
 import { mergeContact, type Contact, type SiteSettings } from "./contact";
 import { FLAGSHIP_SLUG } from "./site";
+import { flagshipFacts, type FlagshipFacts } from "./flagship";
 
 const API = (process.env.NEXT_PUBLIC_API_URL || "https://azuratravelsbackend.cc/api/").replace(/\/?$/, "/");
 
@@ -27,4 +28,10 @@ export async function getFlagship(): Promise<{ detail: PackageDetail | null; mat
   if (!id) return { detail: null, matrix: null };
   const [detail, matrix] = await Promise.all([get<PackageDetail>(`packages/${id}/`), get<ComponentMatrix>(`packages/${id}/pricing/`)]);
   return { detail, matrix: matrix?.pricing_model === "component" ? matrix : null };
+}
+
+/** Name, dates and "from" prices for marketing copy (prices only from the API). */
+export async function getFlagshipFacts(): Promise<FlagshipFacts> {
+  const { detail, matrix } = await getFlagship();
+  return flagshipFacts(detail, matrix);
 }

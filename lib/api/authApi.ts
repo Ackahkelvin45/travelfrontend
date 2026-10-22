@@ -40,9 +40,18 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
 
-    refreshToken: builder.mutation<{ access: string }, { refresh: string }>({
+    refreshToken: builder.mutation<{ access: string; refresh?: string }, { refresh: string }>({
       query: (body) => ({
         url: '/auth/token/refresh/',
+        method: 'POST',
+        body,
+      }),
+    }),
+
+    /** Sign out: revokes the refresh token server-side. */
+    revokeToken: builder.mutation<void, { refresh: string }>({
+      query: (body) => ({
+        url: '/auth/token/blacklist/',
         method: 'POST',
         body,
       }),
@@ -70,6 +79,7 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useRefreshTokenMutation,
+  useRevokeTokenMutation,
   useGetMeQuery,
   useResendVerificationMutation,
   useRequestAccountDeletionMutation,

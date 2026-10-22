@@ -54,9 +54,14 @@ const authSlice = createSlice({
       state.user = action.payload
       state.isAuthenticated = true
     },
-    updateToken: (state, action: PayloadAction<{ token: string }>) => {
+    /** After a refresh: the server rotates the refresh token too (the old one is revoked). */
+    updateToken: (state, action: PayloadAction<{ token: string; refreshToken?: string }>) => {
       state.token = action.payload.token
       localStorage.setItem('token', action.payload.token)
+      if (action.payload.refreshToken) {
+        state.refreshToken = action.payload.refreshToken
+        localStorage.setItem('refreshToken', action.payload.refreshToken)
+      }
     },
     logout: (state) => {
       state.user = null

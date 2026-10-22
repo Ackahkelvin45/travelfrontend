@@ -11,7 +11,6 @@ import boats from "../assets/images/trending/2.png";
 import botiFalls from "../assets/images/places/boti-falls.jpg";
 import capeCoast from "../assets/images/places/cape-coast-castle.jpg";
 import Reveal from "../components/ui/Reveal";
-import FlagshipBar from "../components/home/FlagshipBar";
 import SeasonPackages from "../components/home/SeasonPackages";
 import SectionHeading from "../components/ghana/SectionHeading";
 import LeadForm from "../components/ghana/LeadForm";
@@ -53,7 +52,7 @@ export default async function Home() {
         <div className="relative overflow-hidden rounded-2xl min-h-[600px] md:min-h-[640px]">
           <Image src={ghana} alt="Black Star Gate, Independence Square, Accra" fill priority sizes="100vw" className="object-cover hero-zoom" style={{ objectPosition: "center 30%" }} />
           <div className="absolute inset-0 bg-black/45" />
-          <div className="relative z-2 min-h-[600px] md:min-h-[640px] flex flex-col items-center justify-center text-center text-white px-4 pt-10 pb-40">
+          <div className="relative z-2 min-h-[600px] md:min-h-[640px] flex flex-col items-center justify-center text-center text-white px-4 py-16">
             <Reveal delay={100}><Eyebrow light>Akwaaba · Welcome to Ghana</Eyebrow></Reveal>
             <Reveal delay={220}>
               <h1 className="mt-3 font-raleway font-bold text-4xl md:text-5xl lg:text-6xl leading-tight">
@@ -72,9 +71,6 @@ export default async function Home() {
               </Link>
             </Reveal>
           </div>
-        </div>
-        <div className="relative z-10 -mt-16 md:-mt-20 max-w-4xl mx-auto">
-          <Reveal variant="scale" delay={500}><FlagshipBar facts={facts} /></Reveal>
         </div>
       </section>
 

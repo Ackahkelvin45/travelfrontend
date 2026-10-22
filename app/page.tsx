@@ -13,7 +13,7 @@ import FlagshipBar from "../components/home/FlagshipBar";
 import SeasonPackages from "../components/home/SeasonPackages";
 import SectionHeading from "../components/ghana/SectionHeading";
 import LeadForm from "../components/ghana/LeadForm";
-import { Accent, BlackStar, Eyebrow, HeroCurve } from "../components/ghana/Decor";
+import { Accent, Eyebrow, HeroCurve } from "../components/ghana/Decor";
 import { STAYS } from "@/lib/content/site";
 
 const PLACES = [
@@ -52,7 +52,6 @@ export default async function Home() {
           <div className="absolute inset-0 bg-black/45" />
           <HeroCurve />
           <div className="relative z-2 min-h-[600px] md:min-h-[640px] flex flex-col items-center justify-center text-center text-white px-4 pt-10 pb-40">
-            <Reveal><BlackStar size={44} spin className="mb-3" /></Reveal>
             <Reveal delay={100}><Eyebrow light>Akwaaba · Welcome to Ghana</Eyebrow></Reveal>
             <Reveal delay={220}>
               <h1 className="mt-3 font-raleway font-bold text-4xl md:text-5xl lg:text-6xl leading-tight">

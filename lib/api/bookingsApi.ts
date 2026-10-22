@@ -456,6 +456,14 @@ export const bookingsApi = baseApi.injectEndpoints({
     createLead: builder.mutation<{ id: string; detail: string }, LeadRequest>({
       query: (body) => ({ url: '/leads/', method: 'POST', body }),
     }),
+    /** Site chat: send the conversation so far, get the next reply. `handoff`
+     * is a staff summary when the guest should be passed to a person. */
+    askAssistant: builder.mutation<
+      { reply: string; handoff: string | null },
+      { messages: { role: 'user' | 'assistant'; content: string }[] }
+    >({
+      query: (body) => ({ url: '/assistant/', method: 'POST', body }),
+    }),
     requestCancellation: builder.mutation<
       { detail: string; requested_at: string; refund_total: string | null; currency: string },
       { reference: string; reason?: string }
@@ -490,5 +498,6 @@ export const {
   useTravelInfoQuery,
   useSaveTravelInfoMutation,
   useCreateLeadMutation,
+  useAskAssistantMutation,
   useUpdatePreferencesMutation,
 } = bookingsApi

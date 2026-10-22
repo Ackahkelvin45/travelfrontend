@@ -3,31 +3,61 @@
 import { useSiteContact } from "@/lib/content/useSiteContact";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FAQS } from "@/lib/content/site";
-import { useCreateLeadMutation } from "@/lib/api/bookingsApi";
+import { useAskAssistantMutation, useCreateLeadMutation } from "@/lib/api/bookingsApi";
 
-// ponytail: answers come from the static FAQ list; swap for the real
-// assistant endpoint once it exists (Change Request: chatbot + human handoff).
-const QUICK = [0, 1, 6, 4].map((i) => FAQS[i]);
+// Starter questions; the answers come live from the assistant.
+const QUICK = [0, 1, 6, 4].map((i) => FAQS[i].q);
+// The API accepts up to 30 turns; older ones drop off the front.
+const MAX_TURNS = 30;
+
+type Turn = { role: "user" | "assistant"; content: string };
 
 export default function ChatFab() {
   const contact = useSiteContact();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [answer, setAnswer] = useState<number | null>(null);
+  const [turns, setTurns] = useState<Turn[]>([]);
+  const [draft, setDraft] = useState("");
+  const [askAssistant, { isLoading: thinking }] = useAskAssistantMutation();
+  const endRef = useRef<HTMLDivElement>(null);
   const [handoff, setHandoff] = useState<null | "form" | "sending" | "sent" | string>(null);
   const [msg, setMsg] = useState({ name: "", email: "", message: "", consent: false });
   const [createLead] = useCreateLeadMutation();
 
+  useEffect(() => endRef.current?.scrollIntoView({ block: "nearest" }), [turns, thinking]);
+
   // Staff tools and booking/checkout flows have their own fixed bottom bars.
   if (/^\/(staff|tour|book|booking|checkout|experience|payment|claim)(\/|$)/.test(pathname)) return null;
+
+  const ask = async (text: string) => {
+    const question = text.trim();
+    if (!question || thinking) return;
+    const next: Turn[] = [...turns, { role: "user" as const, content: question }].slice(-MAX_TURNS);
+    while (next[0]?.role !== "user") next.shift();
+    setTurns(next);
+    setDraft("");
+    try {
+      const res = await askAssistant({ messages: next }).unwrap();
+      setTurns([...next, { role: "assistant", content: res.reply }]);
+      if (res.handoff && handoff === null) {
+        setMsg((m) => ({ ...m, message: m.message || question }));
+        setHandoff("form");
+      }
+    } catch {
+      setTurns([...next, { role: "assistant", content: "Sorry, I can't answer right now. You can message the team below or reach us on WhatsApp." }]);
+    }
+  };
 
   const sendToTeam = async (e: React.FormEvent) => {
     e.preventDefault();
     setHandoff("sending");
+    // The chat so far goes along so the team doesn't ask the guest to repeat themselves.
+    const transcript = turns.map((t) => `${t.role === "user" ? "Guest" : "Assistant"}: ${t.content}`).join("\n");
+    const message = transcript ? `${msg.message}\n\n--- Chat ---\n${transcript}` : msg.message;
     try {
-      await createLead({ name: msg.name, email: msg.email, message: msg.message, source: "chat", marketing_consent: msg.consent }).unwrap();
+      await createLead({ name: msg.name, email: msg.email, message, source: "chat", marketing_consent: msg.consent }).unwrap();
       setHandoff("sent");
     } catch (err) {
       setHandoff((err as { data?: { detail?: string } }).data?.detail ?? "We couldn't send that. Please try WhatsApp instead.");
@@ -54,21 +84,49 @@ export default function ChatFab() {
             <p className="self-start max-w-[85%] bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl rounded-bl-sm px-3 py-2 text-sm text-text-primary">
               Akwaaba! Ask me about dates, prices and stays for December in Ghana and the January flagship.
             </p>
-            {answer !== null && (
-              <>
-                <p className="content-in self-end max-w-[85%] bg-primary text-white rounded-2xl rounded-br-sm px-3 py-2 text-sm">{QUICK[answer].q}</p>
-                <p className="content-in self-start max-w-[85%] bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl rounded-bl-sm px-3 py-2 text-sm text-text-primary">{QUICK[answer].a}</p>
-              </>
+            {turns.map((t, i) => (
+              <p
+                key={i}
+                className={t.role === "user"
+                  ? "content-in self-end max-w-[85%] bg-primary text-white rounded-2xl rounded-br-sm px-3 py-2 text-sm whitespace-pre-line"
+                  : "content-in self-start max-w-[85%] bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl rounded-bl-sm px-3 py-2 text-sm text-text-primary whitespace-pre-line"}
+              >
+                {t.content}
+              </p>
+            ))}
+            {thinking && (
+              <p role="status" className="self-start bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl rounded-bl-sm px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
+                Typing…
+              </p>
             )}
-            <div className="flex flex-wrap gap-2">
-              {QUICK.map((f, i) => (
-                <button key={f.q} type="button" onClick={() => setAnswer(i)} className="text-xs font-semibold font-montserrat text-[#6B4E1A] bg-[#FAF5EB] hover:bg-[#F3E7CF] rounded-full px-3 py-2 transition-colors">
-                  {f.q}
-                </button>
-              ))}
-            </div>
+            {turns.length === 0 && (
+              <div className="flex flex-wrap gap-2">
+                {QUICK.map((q) => (
+                  <button key={q} type="button" onClick={() => ask(q)} className="text-xs font-semibold font-montserrat text-[#6B4E1A] bg-[#FAF5EB] hover:bg-[#F3E7CF] rounded-full px-3 py-2 transition-colors">
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
+            <div ref={endRef} />
           </div>
-          <div className="p-4 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-2">
+          <form
+            onSubmit={(e) => { e.preventDefault(); ask(draft); }}
+            className="px-4 pt-3 flex gap-2 border-t border-gray-100 dark:border-gray-800"
+          >
+            <input
+              aria-label="Ask a question"
+              placeholder="Ask about dates, prices, stays…"
+              maxLength={2000}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              className={field}
+            />
+            <button type="submit" disabled={thinking || !draft.trim()} className="shrink-0 rounded-xl bg-primary text-white px-4 font-montserrat font-semibold text-sm disabled:opacity-50">
+              Send
+            </button>
+          </form>
+          <div className="p-4 flex flex-col gap-2">
             {handoff === "sent" ? (
               <p role="status" className="text-sm text-center text-green-700 dark:text-green-400">Sent. Our team will reply to {msg.email}.</p>
             ) : handoff === null ? (

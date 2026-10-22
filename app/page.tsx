@@ -119,7 +119,7 @@ export default async function Home() {
           eyebrow="How booking works"
           title={<>Your Trip, <Accent>Your Way</Accent></>}
           intro="Three choices, one clear price. Every guest's share is shown."
-          action={<Link href="/ghana-experience-2027" className="self-start sm:self-auto bg-primary text-white font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:-translate-y-0.5 hover:brightness-95 transition-all">Build your trip</Link>}
+          action={<Link href="/ghana-experience-2027/build" className="self-start sm:self-auto bg-primary text-white font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:-translate-y-0.5 hover:brightness-95 transition-all">Build your trip</Link>}
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {STEPS.map((s, i) => (

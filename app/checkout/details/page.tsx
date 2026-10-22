@@ -80,7 +80,7 @@ export default function CheckoutDetailsPage() {
 
   const n = guestCount(state.choices);
   const guestNames = Array.from({ length: n }, (_, i) => (i === 0 ? names[0] || form.fullName : names[i] ?? ""));
-  const backHref = `/tour/${state.packageId}#book`;
+  const backHref = `/tour/${state.packageId}/build`;
   const rooms = selection?.rooms ?? [];
   const holdLabel = (i: number) => {
     const r = rooms.findIndex((room) => room.occupants.includes(i));

@@ -32,7 +32,7 @@ export default function FlagshipBar() {
           </div>
         </div>
       ))}
-      <Link href="/ghana-experience-2027" className="text-center bg-primary text-white font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:-translate-y-0.5 hover:brightness-95 transition-all">
+      <Link href="/ghana-experience-2027/build" className="text-center bg-primary text-white font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:-translate-y-0.5 hover:brightness-95 transition-all">
         Book Now
       </Link>
     </div>

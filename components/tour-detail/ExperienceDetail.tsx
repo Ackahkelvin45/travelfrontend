@@ -1,18 +1,37 @@
 "use client";
 
 /** Tour page for component-priced trips (canvas: Experience). Content comes
- * from the package (admin-editable); the trip builder prices via the API. */
+ * from the package (admin-editable); "Build your trip" opens the builder page. */
 
 import { useState } from "react";
 import Link from "next/link";
 import TourGallery from "@/components/tour-detail/TourGallery";
 import Reveal from "@/components/ui/Reveal";
-import { TripBuilder, TripSummary, type TripBuilderState } from "@/components/booking/TripBuilder";
-import type { PackageDetail } from "@/lib/api/packagesApi";
+import { useGetComponentMatrixQuery, type PackageDetail } from "@/lib/api/packagesApi";
 import { FLAGSHIP_SLUG } from "@/lib/content/site";
-import { fmtDateRange } from "@/lib/format";
+import { fmtDateRange, fmtMoney } from "@/lib/format";
 
-export default function ExperienceDetail({ pkg, trip }: { pkg: PackageDetail; trip: TripBuilderState }) {
+/** The way into the trip builder, which is its own page (/tour/<id>/build). */
+function BookCard({ pkg }: { pkg: PackageDetail }) {
+  const { data: matrix } = useGetComponentMatrixQuery(pkg.id);
+  return (
+    <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-md p-6 flex flex-col gap-4">
+      <div className="flex items-baseline gap-2">
+        <span className="text-xs text-gray-600 dark:text-gray-400">From</span>
+        <span className="font-montserrat text-2xl font-bold text-text-primary">{matrix?.core_price_per_person ? fmtMoney(matrix.core_price_per_person, matrix.currency) : "—"}</span>
+        <span className="text-xs text-gray-600 dark:text-gray-400">per traveller</span>
+      </div>
+      <p className="text-sm text-gray-700 dark:text-gray-300">
+        Choose who&apos;s travelling, your Accra stay, experiences and airport transfers. Your total updates as you go, with each guest&apos;s share.
+      </p>
+      <Link href={`/tour/${pkg.id}/build`} className="text-center bg-primary text-white font-montserrat font-semibold rounded-xl py-3.5 transition hover:brightness-95">
+        Build your trip
+      </Link>
+    </div>
+  );
+}
+
+export default function ExperienceDetail({ pkg }: { pkg: PackageDetail }) {
   const [shared, setShared] = useState(false);
   const days = pkg.itineraries.slice().sort((a, b) => a.day - b.day);
   const share = async () => {
@@ -108,12 +127,11 @@ export default function ExperienceDetail({ pkg, trip }: { pkg: PackageDetail; tr
               </div>
             </section>
           </Reveal>
-
-          <TripBuilder trip={trip} />
         </div>
 
-        <aside className="flex-[1_1_340px] min-w-0 lg:sticky lg:top-24">
-          <TripSummary trip={trip} />
+        {/* First on phones (right under the gallery), beside the content on desktop. */}
+        <aside className="flex-[1_1_340px] min-w-0 order-first lg:order-none lg:sticky lg:top-24">
+          <BookCard pkg={pkg} />
         </aside>
       </div>
     </main>

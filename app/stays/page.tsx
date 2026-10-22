@@ -97,7 +97,7 @@ function StayCard({ s, i, bookHref }: { s: LiveStay; i: number; bookHref: string
 export default async function StaysPage() {
   const { detail, matrix } = await getFlagship();
   const stays: LiveStay[] = matrix ? fromMatrix(matrix) : STAYS;
-  const bookHref = detail ? `/tour/${detail.id}#book` : "/ghana-experience-2027";
+  const bookHref = detail ? `/tour/${detail.id}/build` : "/ghana-experience-2027/build";
   const tier = (t: Stay["tier"]) => stays.filter((x) => x.tier === t);
   return (
     <main className="w-full bg-background">

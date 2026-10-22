@@ -1,9 +1,10 @@
 "use client";
 
 /**
- * Component-pricing trip builder (canvas: Experience → "Build Your Trip").
- * useTripBuilder holds the choices; TripBuilder renders the steps in the main
- * column and TripSummary the sticky price card. Every total shown is the
+ * Component-pricing trip builder (canvas: Experience → "Build Your Trip"),
+ * on its own page (/tour/<id>/build, see BuildTrip). useTripBuilder holds the
+ * choices; TripBuilder renders the steps in the main column and TripSummary
+ * the sticky price card. Every total shown is the
  * server's quote for the current selection.
  */
 
@@ -136,9 +137,9 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
   const wordFor = (s: ComponentMatrix["stay_types"][number]) => (s.kind === "airbnb" ? "Unit" : "Room");
 
   return (
-    <section id="book" className="scroll-mt-28 pt-8 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-6">
+    <section id="book" className="scroll-mt-28 flex flex-col gap-6">
       <div>
-        <h2 className="font-raleway text-2xl font-bold text-text-primary">Build Your Trip</h2>
+        <h1 className="font-raleway text-[28px] md:text-[32px] font-bold leading-tight text-text-primary">Build Your Trip</h1>
         <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">Your total updates as you go, with each guest&apos;s share. Core tickets are never discounted.</p>
       </div>
 

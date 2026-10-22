@@ -6,6 +6,7 @@ const ADMIN_URL = (process.env.NEXT_PUBLIC_API_URL || "https://azuratravelsbacke
 const nextConfig: NextConfig = {
  devIndicators: false,
  images: { unoptimized: true },
+ agentRules: false, // no generated AGENTS.md/CLAUDE.md on next dev
  output: "standalone",
  // Ghana-only site (Change Request v2): old multi-country listing URLs go to
  // the Ghana experiences page. Temporary until the client signs off the IA.

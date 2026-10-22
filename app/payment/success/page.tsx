@@ -11,6 +11,7 @@ import { BASE_URL } from "@/lib/api/baseApi";
 import { PrinterIcon } from "@/components/ui/icons";
 import { fmtDate, fmtMoney } from "@/lib/format";
 import { clearCheckout } from "@/lib/trip";
+import { saveBookingAccess } from "@/lib/bookingAccess";
 import { clearPendingBooking } from "@/lib/pendingBooking";
 import { useStartDonationMutation } from "@/lib/api/donationsApi";
 import { loadPendingDonation, payDonation, savePendingDonation, type PendingDonation } from "@/lib/donation";
@@ -99,6 +100,8 @@ function SuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const reference = searchParams.get("reference") ?? "";
+  // Emailed/WhatsApp links carry the view token; keep it before the lookup runs.
+  saveBookingAccess(reference, searchParams.get("t"));
   const { data: booking, isLoading, isError } = useGetBookingByReferenceQuery(reference, { skip: !reference });
   const [copied, setCopied] = useState(false);
   const [donation, setDonation] = useState<PendingDonation | null>(null);
@@ -148,9 +151,9 @@ function SuccessContent() {
           <svg width="88" height="88" viewBox="0 0 88 88" className="relative"><circle cx="44" cy="44" r="42" fill="#BD8F3A" /><path d="M28 45l11 11 21-23" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </div>
         <h1 className="font-raleway text-3xl md:text-[38px] font-bold text-text-primary">
-          You&apos;re going to Ghana, <em className="font-cormorant italic font-semibold">{booking.first_name}!</em>
+          You&apos;re going to Ghana{booking.first_name ? <>, <em className="font-cormorant italic font-semibold">{booking.first_name}!</em></> : "!"}
         </h1>
-        <p className="text-[15px] text-gray-700 dark:text-gray-300">We&apos;ve emailed your confirmation and receipt to {booking.email}.</p>
+        <p className="text-[15px] text-gray-700 dark:text-gray-300">We&apos;ve emailed your confirmation and receipt{booking.email ? ` to ${booking.email}` : ""}.</p>
         <div className="flex items-center gap-2.5 rounded-xl border border-dashed border-primary bg-white dark:bg-gray-900 px-4 py-2.5">
           <span className="text-xs text-gray-500 dark:text-gray-400">Booking reference</span>
           <strong className="font-montserrat text-lg tracking-wider text-text-primary">{booking.reference}</strong>
@@ -231,7 +234,7 @@ function SuccessContent() {
         </section>
       </div>
 
-      {booking.pay_separately && <GroupShares booking={booking} />}
+      {booking.pay_separately && booking.travellers && <GroupShares booking={booking} />}
 
       {isTrip && (
         <section className={`${card} gap-4 print:hidden`}>

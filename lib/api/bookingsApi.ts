@@ -1,4 +1,5 @@
 import { baseApi } from './baseApi'
+import { bookingAccess, keepBookingAccess } from '../bookingAccess'
 
 export type PriceTier = 'shared' | 'private' | 'vip'
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed'
@@ -28,6 +29,8 @@ export interface CreateBookingResponse {
   currency: string
   status: BookingStatus
   message: string
+  /** Signed token unlocking guest details on the status endpoint (kept per reference). */
+  view_token?: string
 }
 
 // ── Option-based checkout (flagship flow) ────────────────────────────────────
@@ -57,6 +60,8 @@ export interface CheckoutResponse {
   currency: string
   status: BookingStatus
   message: string
+  /** Signed token unlocking guest details on the status endpoint (kept per reference). */
+  view_token?: string
 }
 
 export interface ConfigurableCheckoutRequest {
@@ -371,18 +376,21 @@ export const bookingsApi = baseApi.injectEndpoints({
     // Legacy tier flow
     createBooking: builder.mutation<CreateBookingResponse, CreateBookingRequest>({
       query: (body) => ({ url: '/bookings/', method: 'POST', body }),
+      transformResponse: (r: CreateBookingResponse) => keepBookingAccess(r),
       invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
     }),
 
     // Flagship option flow
     checkout: builder.mutation<CheckoutResponse, CheckoutRequest>({
       query: (body) => ({ url: '/bookings/checkout/', method: 'POST', body }),
+      transformResponse: (r: CheckoutResponse) => keepBookingAccess(r),
       invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
     }),
 
     // Core + add-ons flow (Michael Blackson style)
     configurableCheckout: builder.mutation<CheckoutResponse, ConfigurableCheckoutRequest>({
       query: (body) => ({ url: '/bookings/checkout/configurable/', method: 'POST', body }),
+      transformResponse: (r: CheckoutResponse) => keepBookingAccess(r),
       invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
     }),
 
@@ -405,7 +413,12 @@ export const bookingsApi = baseApi.injectEndpoints({
     }),
 
     getBookingByReference: builder.query<BookingDetail, string>({
-      query: (reference) => `/bookings/${reference}/`,
+      // The view token unlocks names and contact details; without it the
+      // endpoint returns status and amounts only.
+      query: (reference) => {
+        const t = bookingAccess(reference)
+        return t ? { url: `/bookings/${reference}/`, params: { t } } : `/bookings/${reference}/`
+      },
       providesTags: (_result, _error, reference) => [{ type: 'Booking', id: reference }],
     }),
 
@@ -440,6 +453,7 @@ export const bookingsApi = baseApi.injectEndpoints({
     }),
     componentCheckout: builder.mutation<ComponentCheckoutResponse, ComponentCheckoutRequest>({
       query: (body) => ({ url: '/bookings/checkout/component/', method: 'POST', body }),
+      transformResponse: (r: ComponentCheckoutResponse) => keepBookingAccess(r),
     }),
     travelInfo: builder.query<{ travellers: TravelInfo[] }, string>({
       query: (reference) => `/bookings/${reference}/travel/`,

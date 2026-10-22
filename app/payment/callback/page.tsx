@@ -122,7 +122,8 @@ function CallbackContent() {
   useEffect(() => {
     if (status?.status === "success") {
       clearPendingBooking();
-      router.replace(`/payment/success?reference=${status.booking_reference}`);
+      const t = new URLSearchParams(window.location.search).get("t");
+      router.replace(`/payment/success?reference=${status.booking_reference}${t ? `&t=${encodeURIComponent(t)}` : ""}`);
     }
   }, [status, router]);
 

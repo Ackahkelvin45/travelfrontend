@@ -37,7 +37,6 @@ export const TRIP = {
   dates: "Wed 6 – Mon 11 January 2027",
   shortDates: "6–11 Jan 2027",
   nights: "Crown Forest night included",
-  corePrice: 899,
   arrival: "[ARRIVAL TIME]",
 };
 

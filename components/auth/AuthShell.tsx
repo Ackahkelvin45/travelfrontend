@@ -1,13 +1,16 @@
+"use client";
+
 import Image from "next/image";
 import type { ReactNode } from "react";
 import accraNight from "../../assets/images/services/osu.png";
 import crownForest from "../../assets/images/hero.png";
 import Reveal from "../ui/Reveal";
 import { BlackStar, Eyebrow } from "../ghana/Decor";
-import { TRIP } from "@/lib/content/site";
+import { useFlagshipFacts } from "@/lib/useFlagship";
 
 /** Split-screen auth layout: Accra photo panel (desktop) + form column. */
 export default function AuthShell({ eyebrow, heading, children }: { eyebrow: string; heading: ReactNode; children: ReactNode }) {
+  const facts = useFlagshipFacts();
   return (
     <main className="w-full pt-20 min-h-screen flex bg-background">
       <div className="hidden lg:flex relative flex-[1.1] overflow-hidden">
@@ -28,8 +31,8 @@ export default function AuthShell({ eyebrow, heading, children }: { eyebrow: str
               <Image src={crownForest} alt="" className="w-16 h-16 rounded-xl object-cover" />
               <div className="flex flex-col">
                 <span className="font-montserrat text-[11px] font-bold uppercase tracking-widest text-[#E9D3A3]">Flagship · January 2027</span>
-                <span className="font-raleway font-bold">{TRIP.name}</span>
-                <span className="text-sm text-white/80">{TRIP.shortDates} · from ${TRIP.corePrice}</span>
+                <span className="font-raleway font-bold">{facts.name}</span>
+                <span className="text-sm text-white/80">{facts.shortDates}{facts.corePrice ? ` · from ${facts.corePrice}` : ""}</span>
               </div>
             </div>
           </Reveal>

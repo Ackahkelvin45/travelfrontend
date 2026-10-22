@@ -1,4 +1,5 @@
-import { getSiteContact } from "@/lib/content/server";
+import { getFlagshipFacts, getSiteContact } from "@/lib/content/server";
+import type { FlagshipFacts } from "@/lib/content/flagship";
 import Image from "next/image";
 import Link from "next/link";
 import ghana from "../assets/images/ghana.png";
@@ -13,7 +14,7 @@ import SeasonPackages from "../components/home/SeasonPackages";
 import SectionHeading from "../components/ghana/SectionHeading";
 import LeadForm from "../components/ghana/LeadForm";
 import { Accent, BlackStar, Eyebrow, HeroCurve } from "../components/ghana/Decor";
-import { STAYS, TRIP } from "@/lib/content/site";
+import { STAYS } from "@/lib/content/site";
 
 const PLACES = [
   { img: accraNight, alt: "Accra skyline at night", when: "December", name: "Accra After Dark", note: "Detty December nights, concerts and homecomings", span: "md:col-span-7 md:row-span-2", big: true },
@@ -23,9 +24,13 @@ const PLACES = [
   { img: null, alt: "", when: "Sat 9 Jan", name: "Boti Falls", note: "Group excursion, optional waterfall massage · photo to supply", span: "md:col-span-6", green: true },
 ];
 
-const STEPS = [
-  { n: "1", img: guests, tag: `$${TRIP.corePrice} per traveller`, title: "Who's Travelling", text: "Single, Couple or Group. Every guest holds one Core ticket, with the Crown Forest night included." },
-  { n: "2", img: accraNight, tag: "Priced per unit", title: "Where You Stay", text: "A five-night Airbnb from $1,100 or four nights at Four Points from $1,320, charged once per unit. Or arrange your own." },
+const NIGHTS = ["zero", "one", "two", "three", "four", "five", "six", "seven"];
+const steps = (f: FlagshipFacts) => [
+  { n: "1", img: guests, tag: f.corePrice ? `${f.corePrice} per traveller` : "One Core ticket each", title: "Who's Travelling", text: "Single, Couple or Group. Every guest holds one Core ticket, with the Crown Forest night included." },
+  { n: "2", img: accraNight, tag: "Priced per unit", title: "Where You Stay", text: [
+      f.airbnbFrom && `A ${NIGHTS[f.airbnbFrom.nights] ?? f.airbnbFrom.nights}-night Airbnb from ${f.airbnbFrom.price}`,
+      f.hotelFrom && `${NIGHTS[f.hotelFrom.nights] ?? f.hotelFrom.nights} nights at Four Points from ${f.hotelFrom.price}`,
+    ].filter(Boolean).join(" or ").replace(/^./, (c) => c.toUpperCase()).concat(f.airbnbFrom || f.hotelFrom ? ", charged once per unit. Or arrange your own." : "An Airbnb or Four Points, charged once per unit. Or arrange your own.") },
   { n: "3", img: boats, tag: "Guest by guest", title: "What You Add", text: "ENZO VIP, a waterfall massage and airport transfers, chosen guest by guest. The farewell dinner is already included." },
 ];
 
@@ -37,7 +42,7 @@ const WHY = [
 ];
 
 export default async function Home() {
-  const contact = await getSiteContact();
+  const [contact, facts] = await Promise.all([getSiteContact(), getFlagshipFacts()]);
   return (
     <div className="flex w-full bg-background flex-col overflow-hidden">
       {/* Hero */}
@@ -57,7 +62,7 @@ export default async function Home() {
             <Reveal delay={300}><Image src={wave} alt="" className="w-28 md:w-44 h-auto mt-4" /></Reveal>
             <Reveal delay={360}>
               <p className="mt-4 font-open-sans text-base md:text-lg max-w-2xl leading-relaxed text-white/90">
-                Festive travel across Accra, then the {TRIP.name} as our flagship January extension, {TRIP.dates}.
+                Festive travel across Accra, then the {facts.name} as our flagship January extension, {facts.dates}.
               </p>
             </Reveal>
             <Reveal delay={440}>
@@ -68,7 +73,7 @@ export default async function Home() {
           </div>
         </div>
         <div className="relative z-10 -mt-16 md:-mt-20 max-w-4xl mx-auto">
-          <Reveal variant="scale" delay={500}><FlagshipBar /></Reveal>
+          <Reveal variant="scale" delay={500}><FlagshipBar facts={facts} /></Reveal>
         </div>
       </section>
 
@@ -122,7 +127,7 @@ export default async function Home() {
           action={<Link href="/ghana-experience-2027/build" className="self-start sm:self-auto bg-primary text-white font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:-translate-y-0.5 hover:brightness-95 transition-all">Build your trip</Link>}
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {STEPS.map((s, i) => (
+          {steps(facts).map((s, i) => (
             <Reveal key={s.n} delay={i * 90}>
               <Link href="/ghana-experience-2027" className="card-lift relative block h-[440px] md:h-[480px] rounded-2xl overflow-hidden bg-[#060504] text-white">
                 <Image src={s.img} alt="" fill sizes="(max-width: 768px) 100vw, 33vw" className="img-zoom object-cover" />

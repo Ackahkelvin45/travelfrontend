@@ -4,7 +4,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useUpdatePreferencesMutation, type BookingDetail } from "@/lib/api/bookingsApi";
+import { useRouter } from "next/navigation";
+import {
+  useAvailableAddonsQuery, useInitializePaymentMutation, useUpdatePreferencesMutation, type BookingDetail,
+} from "@/lib/api/bookingsApi";
+import { routeAfterInitialize } from "@/lib/payments/paystack";
 import { fmtDate, fmtDateRange, fmtMoney } from "@/lib/format";
 
 const card = "rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 flex flex-col gap-4";
@@ -114,27 +118,88 @@ export function GuestsPanel({ booking }: { booking: BookingDetail }) {
   );
 }
 
-const UPGRADES = [
-  { name: "Extra night in Accra", note: "Arrive Tuesday 5 Jan or stay on." },
-  { name: "Trip photography", note: "Photos of key moments." },
-];
+// Not on sale until the client confirms them (Change Request v4 §8).
+const COMING_SOON = ["Extra nights in Accra", "Trip photography"];
 
-export function UpgradesPanel() {
+/** Add experiences or an airport transfer for named guests, paid when bought
+ * (Change Request v4 §6, §8). The server prices it; the preview only multiplies. */
+export function TripAddons({ booking }: { booking: BookingDetail }) {
+  const router = useRouter();
+  const { data } = useAvailableAddonsQuery(booking.reference);
+  const [initializePayment, { isLoading }] = useInitializePaymentMutation();
+  const [code, setCode] = useState<string | null>(null);
+  const [guests, setGuests] = useState<string[]>([]);
+  const [adult, setAdult] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!data) return null;
+  const c = data.currency;
+  const addon = data.addons.find((a) => a.code === code);
+  const names = Object.fromEntries(booking.travellers.map((t) => [t.id, t.full_name]));
+  const qty = addon ? (addon.unit === "per_vehicle" ? Math.ceil(guests.length / (addon.vehicle_capacity || 2)) : guests.length) : 0;
+  const preview = addon ? (parseFloat(addon.unit_price) * qty).toFixed(2) : "0";
+
+  const choose = (next: string) => { setCode(code === next ? null : next); setGuests([]); setAdult(false); setError(null); };
+  const toggle = (id: string) => setGuests((g) => (g.includes(id) ? g.filter((x) => x !== id) : [...g, id]));
+  const pay = async () => {
+    if (!addon || !guests.length) return;
+    setError(null);
+    try {
+      const payment = await initializePayment({
+        booking_id: booking.id, intent: "addon", addon_code: addon.code, traveller_ids: guests, adult, channel: "any",
+      }).unwrap();
+      await routeAfterInitialize(payment, (ref) => router.push(`/payment/callback?reference=${ref}`));
+    } catch (err) {
+      setError((err as { data?: { detail?: string } })?.data?.detail ?? "Payment didn't start. No money was taken.");
+    }
+  };
+
   return (
     <section className={card}>
       <div className="flex flex-wrap justify-between items-baseline gap-2">
-        <h2 className={heading}>Upgrade Your Trip</h2>
-        <span className="text-xs text-gray-500 dark:text-gray-400">Added to your balance. Prices shown once confirmed.</span>
+        <h2 className={heading}>Add to Your Trip</h2>
+        <span className="text-xs text-gray-500 dark:text-gray-400">
+          {data.can_add ? `Paid when you add it · until ${fmtDate(data.open_until)}` : data.reason}
+        </span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {UPGRADES.map((u) => (
-          <div key={u.name} className="rounded-xl border border-gray-100 dark:border-gray-800 p-4 flex flex-col gap-1.5">
-            <span className="font-raleway font-bold text-sm text-text-primary">{u.name}</span>
-            <span className="text-[13px] text-gray-600 dark:text-gray-400">{u.note}</span>
-            <span className="self-start mt-1 rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400">Coming soon</span>
-          </div>
-        ))}
-      </div>
+      {data.can_add && data.addons.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {data.addons.map((a) => (
+            <button key={a.code} type="button" aria-pressed={code === a.code} onClick={() => choose(a.code)}
+              className={`text-left rounded-xl border-2 p-4 flex flex-col gap-1 transition-colors ${code === a.code ? "border-primary bg-primary/5" : "border-gray-100 dark:border-gray-800"}`}>
+              <span className="font-raleway font-bold text-sm text-text-primary">{a.name}</span>
+              {a.description && <span className="text-[13px] text-gray-600 dark:text-gray-400">{a.description}</span>}
+              <span className="text-[13px] font-semibold text-text-primary">
+                {fmtMoney(a.unit_price, c)} {a.unit === "per_vehicle" ? `per vehicle (up to ${a.vehicle_capacity})` : "per guest"}{a.adults_only ? " · 18+" : ""}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+      {addon && (
+        <div className="flex flex-col gap-3">
+          <fieldset className="flex flex-col gap-2">
+            <legend className="text-[13px] font-semibold text-text-primary mb-1">Who is it for?</legend>
+            {(addon.eligible_travellers ?? []).map((id) => (
+              <label key={id} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" checked={guests.includes(id)} onChange={() => toggle(id)} className="accent-primary" />
+                {names[id] ?? "Guest"}
+              </label>
+            ))}
+          </fieldset>
+          {addon.adults_only && (
+            <label className="flex gap-2 items-start text-sm text-gray-700 dark:text-gray-300">
+              <input type="checkbox" checked={adult} onChange={(e) => setAdult(e.target.checked)} className="mt-1 accent-primary" />
+              I confirm these guests are 18 or over.
+            </label>
+          )}
+          {error && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{error}</p>}
+          <button type="button" onClick={pay} disabled={isLoading || !guests.length || (addon.adults_only && !adult)}
+            className="self-start bg-primary text-white font-montserrat font-semibold text-sm px-5 py-3 rounded-xl disabled:opacity-50">
+            {isLoading ? "Opening secure payment…" : guests.length ? `Pay ${fmtMoney(preview, c)} and add` : "Choose guests"}
+          </button>
+        </div>
+      )}
+      <p className="text-xs text-gray-500 dark:text-gray-400">Coming later, once confirmed: {COMING_SOON.join(" and ").toLowerCase()}.</p>
     </section>
   );
 }

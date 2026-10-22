@@ -73,9 +73,10 @@ export default function CheckoutPaymentPage() {
   const separately = state?.booking?.paySeparately ?? paySeparately;
   // Preview of the server's split (organiser's share + every room deposit); the
   // amount actually charged is the booking's deposit, priced server-side.
-  const dueNow = quote && separately
-    ? quote.travellers.reduce((sum, t, i) => sum + parseFloat(i === 0 ? t.due_now : t.room_deposit), 0).toFixed(2)
-    : quote?.amount_due_today;
+  const dueNowFor = (q: ComponentQuote) => separately
+    ? q.travellers.reduce((sum, t, i) => sum + parseFloat(i === 0 ? t.due_now : t.room_deposit), 0).toFixed(2)
+    : q.amount_due_today;
+  const dueNow = quote ? dueNowFor(quote) : undefined;
 
   if (state === undefined) return <Centered><Spinner /></Centered>;
   if (!state || !state.details) {
@@ -184,8 +185,8 @@ export default function CheckoutPaymentPage() {
                   className={`text-left p-4 rounded-xl border-2 flex flex-col gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${on ? "border-primary bg-primary/5" : "border-gray-200 dark:border-gray-700"}`}
                 >
                   <span className="font-raleway font-bold text-[15px] text-text-primary">{p.label}</span>
-                  <span className="font-montserrat font-bold text-xl text-text-primary">{fmtMoney(p.q!.amount_due_today, c)}</span>
-                  {separately && <span className="text-xs text-gray-500 dark:text-gray-400">for the whole group</span>}
+                  <span className="font-montserrat font-bold text-xl text-text-primary">{fmtMoney(dueNowFor(p.q!), c)}</span>
+                  {separately && <span className="text-xs text-gray-500 dark:text-gray-400">your share and the room deposits</span>}
                   <span className="text-xs text-gray-700 dark:text-gray-300">{p.note}</span>
                 </button>
               );

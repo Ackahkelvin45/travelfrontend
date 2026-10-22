@@ -87,6 +87,9 @@ export interface InitializePaymentRequest {
   traveller_id?: string
   /** intent=traveller: receipt email of the member paying. */
   payer_email?: string
+  /** intent=addon on a trip booking: the guests it's for, and their 18+ confirmation. */
+  traveller_ids?: string[]
+  adult?: boolean
   /** intent=addon: the experience to buy; it joins the booking once paid. */
   addon_code?: string
   /** any (default) = Paystack popup offering card + Mobile Money, the buyer
@@ -221,7 +224,12 @@ export interface AvailableAddons {
   reason: string | null
   open_until: string | null
   currency: string
-  addons: { code: string; name: string; description: string | null; unit: string; unit_price: string; quantity: number; line_total: string; refundable: boolean }[]
+  /** Trip bookings return per-guest options (eligible_travellers etc.) and no quantity/line_total. */
+  addons: {
+    code: string; name: string; description: string | null; unit: string; unit_price: string; refundable: boolean
+    quantity?: number; line_total?: string
+    adults_only?: boolean; vehicle_capacity?: number; eligible_travellers?: string[]
+  }[]
 }
 
 export interface CancellationQuote {

@@ -6,7 +6,7 @@
  * (progress, balance, deadline, top-up) is the centerpiece.
  */
 
-import { CoordinatorPanel, GuestsPanel, MessagePreferences, TripHero, UpgradesPanel } from "@/components/booking/TripPanels";
+import { CoordinatorPanel, GuestsPanel, MessagePreferences, TripAddons, TripHero } from "@/components/booking/TripPanels";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -348,7 +348,7 @@ function AddExperience({ booking }: { booking: BookingDetail }) {
                   {a.description && <span className="block text-xs text-gray-500 dark:text-gray-400">{a.description}</span>}
                   <span className="block text-xs text-gray-500 dark:text-gray-400">{a.quantity} × {fmtMoney(a.unit_price, data.currency)}</span>
                 </span>
-                <span className="text-sm font-bold font-open-sans text-text-primary shrink-0">{fmtMoney(a.line_total, data.currency)}</span>
+                <span className="text-sm font-bold font-open-sans text-text-primary shrink-0">{fmtMoney(a.line_total ?? "0", data.currency)}</span>
               </button>
             ))}
           </div>
@@ -360,7 +360,7 @@ function AddExperience({ booking }: { booking: BookingDetail }) {
                 className="bg-primary text-white px-6 py-3 rounded-full font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {isLoading && <Spinner className="w-4 h-4 text-white" />}
-                Pay {fmtMoney(addon.line_total, data.currency)} and add {addon.name}
+                Pay {fmtMoney(addon.line_total ?? "0", data.currency)} and add {addon.name}
               </button>
               <span className="text-xs text-gray-500 dark:text-gray-400 font-open-sans">Cancelling it later keeps 50% of its price (booking terms).</span>
             </div>
@@ -523,10 +523,10 @@ function BookingBlock({ booking }: { booking: BookingDetail }) {
         </div>
       )}
 
-      {/* Add an experience (owner rule: until 7 days before departure). Component
-          bookings add experiences per guest — that upgrade flow is still to come. */}
+      {/* Add an experience (owner rule: until 7 days before departure); trip
+          bookings add them per guest. */}
       {!isTrip && (booking.status === "pending" || booking.status === "confirmed") && <AddExperience booking={booking} />}
-      {isTrip && <UpgradesPanel />}
+      {isTrip && <TripAddons booking={booking} />}
 
       {/* Payment history */}
       {successfulPayments.length > 0 && (

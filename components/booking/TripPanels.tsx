@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import {
   useAvailableAddonsQuery, useInitializePaymentMutation, useUpdatePreferencesMutation, type BookingDetail,
 } from "@/lib/api/bookingsApi";
+import { useGetPackageDetailQuery } from "@/lib/api/packagesApi";
 import { routeAfterInitialize } from "@/lib/payments/paystack";
 import { fmtDate, fmtDateRange, fmtMoney } from "@/lib/format";
 
@@ -24,9 +25,19 @@ export function TripHero({ booking, tourEnd }: { booking: BookingDetail; tourEnd
   }, []);
   const ms = now === null ? 0 : Math.max(0, new Date(`${booking.travel_date}T08:00:00Z`).getTime() - now);
   const stays = [...new Set(booking.travellers.map((t) => t.unit).filter(Boolean))];
+  // The trip's cover photo behind the card; the gold gradient stays as the fallback.
+  const { data: pkg } = useGetPackageDetailQuery(booking.package_id, { skip: !booking.package_id });
+  const cover = pkg?.images.find((i) => i.is_cover) ?? pkg?.images[0];
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#2a1d08] via-[#4a3410] to-[#8A6420] text-white p-6 md:p-8 flex flex-wrap items-end justify-between gap-6">
-      <div className="flex flex-col gap-1.5">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#2a1d08] via-[#4a3410] to-[#8A6420] text-white p-6 md:p-8 min-h-[220px] flex flex-wrap items-end justify-between gap-6">
+      {cover && (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element -- admin-uploaded media served by the API */}
+          <img src={cover.image} alt="" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: "center 30%" }} />
+          <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/60 to-black/45" />
+        </>
+      )}
+      <div className="relative flex flex-col gap-1.5">
         <span className="text-xs font-semibold text-white/80">Booking {booking.reference} · <span className="capitalize">{booking.status}</span></span>
         <span className="font-raleway text-2xl md:text-3xl font-bold">{booking.package_title}</span>
         <span className="text-sm text-white/85">
@@ -34,7 +45,7 @@ export function TripHero({ booking, tourEnd }: { booking: BookingDetail; tourEnd
           {stays.length ? ` · ${stays.length} room${stays.length === 1 ? "" : "s"}` : ""}
         </span>
       </div>
-      <div className="flex gap-3" aria-label="Time until the trip">
+      <div className="relative flex gap-3" aria-label="Time until the trip">
         {[
           { v: now === null ? "—" : String(Math.floor(ms / 86_400_000)), l: "days" },
           { v: now === null ? "—" : String(Math.floor((ms % 86_400_000) / 3_600_000)), l: "hours" },

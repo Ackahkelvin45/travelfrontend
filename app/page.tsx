@@ -1,5 +1,4 @@
 import { getFlagship, getFlagshipFacts, getSiteContact } from "@/lib/content/server";
-import { fmtMoney } from "@/lib/format";
 import type { FlagshipFacts } from "@/lib/content/flagship";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,6 +13,7 @@ import capeCoast from "../assets/images/places/cape-coast-castle.jpg";
 import Reveal from "../components/ui/Reveal";
 import SeasonPackages from "../components/home/SeasonPackages";
 import SectionHeading from "../components/ghana/SectionHeading";
+import StayCard from "../components/ghana/StayCard";
 import LeadForm from "../components/ghana/LeadForm";
 import { Accent, Eyebrow } from "../components/ghana/Decor";
 
@@ -42,6 +42,8 @@ const WHY = [
   { title: "Clear Pricing", text: "See every ticket, room and experience, what is due now and the balance, before you pay.", d: "M12 3a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM8.5 14 7 22l5-3 5 3-1.5-8" },
 ];
 
+/** The placeholder mark for a stay without photos: a house for an Airbnb, a
+ *  building for the hotel, in the brand gold. */
 export default async function Home() {
   const [contact, facts, { matrix }] = await Promise.all([getSiteContact(), getFlagshipFacts(), getFlagship()]);
   // Live stays only: no prices are shown unless they come from the price list.
@@ -151,18 +153,9 @@ export default async function Home() {
           title="Airbnb First, Four Points if You Prefer a Hotel"
           action={<Link href="/stays" className="self-start sm:self-auto border border-text-primary text-text-primary px-6 py-2.5 rounded-xl text-sm font-semibold font-montserrat hover:bg-text-primary hover:text-background transition-colors">Compare stays</Link>}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {stays.map((s, i) => (
-            <Reveal key={s.code} delay={i * 70}>
-              <Link href="/stays" className="card-lift flex flex-col gap-2 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 bg-white dark:bg-gray-900 h-full">
-                <span className="font-montserrat text-xs font-bold uppercase tracking-wider text-[#8A6420] dark:text-[#C9A96E]">{s.kind === "airbnb" ? "Airbnb" : "Hotel"}</span>
-                <span className="font-raleway font-bold text-lg text-text-primary">{s.name}</span>
-                <span className="text-sm text-gray-700 dark:text-gray-300">{s.kind === "airbnb" ? `Up to ${s.capacity} guests · ` : "Per room · "}{s.nights} nights</span>
-                <span className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800 text-sm text-gray-700 dark:text-gray-300">
-                  <strong className="font-montserrat text-xl text-text-primary">{fmtMoney(s.price_per_night, matrix!.currency)}</strong> per night
-                </span>
-              </Link>
-            </Reveal>
+            <StayCard key={s.code} s={s} currency={matrix!.currency} href="/stays" delay={i * 80} />
           ))}
         </div>
       </section>

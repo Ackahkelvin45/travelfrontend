@@ -64,34 +64,6 @@ export const EXCLUDED = [
   "Drinks at Bella Afrik (self-pay)",
 ];
 
-export type Stay = {
-  key: string;
-  tier: "Airbnb" | "Hotel";
-  name: string;
-  guests: string;
-  price: number;
-  nights: number;
-  note: string;
-  status: "live" | "tbc";
-  bedding?: string;
-  breakfast?: string;
-  location?: string;
-  amenities?: string[];
-  images?: { url: string; alt: string }[];
-};
-
-export const STAYS: Stay[] = [
-  { key: "b1", tier: "Airbnb", name: "One Bedroom Airbnb", guests: "Up to 2 guests", price: 220, nights: 5, note: "", status: "live" },
-  { key: "b2", tier: "Airbnb", name: "Two Bedroom Airbnb", guests: "Up to 4 guests", price: 340, nights: 5, note: "", status: "live" },
-  { key: "fp", tier: "Hotel", name: "Four Points Standard Room", guests: "Per room", price: 330, nights: 4, note: "Breakfast to be confirmed", status: "live" },
-  { key: "fpc", tier: "Hotel", name: "Four Points Couple Room", guests: "2 guests sharing", price: 380, nights: 4, note: "Proposed rate, awaiting confirmation", status: "tbc" },
-];
-
-export const EXPERIENCES = [
-  { name: "ENZO VIP", when: "Fri 8 Jan · 18+", price: 220 },
-  { name: "Waterfall Massage", when: "Sat 9 Jan", price: 100 },
-];
-
 export type Faq = { topic: string; q: string; a: string };
 
 export const FAQS: Faq[] = [

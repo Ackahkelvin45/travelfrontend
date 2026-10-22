@@ -9,7 +9,7 @@ import ChatFab from "../components/ghana/ChatFab";
 
 export const metadata: Metadata = {
  title: "Azura Travels · December in Ghana & Ghana Experience 2027",
- description: "Experience December in Ghana: Detty December, festive travel in Accra and the Michael Blackson Ghana Experience, 6–11 January 2027.",
+ description: "Azura Travels: Ghana experiences for December in Ghana and the Michael Blackson Ghana Experience, 6–11 January 2027.",
  icons: {
  icon: "/icon.png",
 

@@ -62,8 +62,6 @@ export const EXCLUDED = [
   "Accra accommodation, unless added",
   "ENZO VIP, Waterfall Massage and airport transfers, unless added",
   "Drinks at Bella Afrik (self-pay)",
-  "Airbnb meals",
-  "Flights, visas, gratuities and taxes",
 ];
 
 export type Stay = {
@@ -85,7 +83,7 @@ export type Stay = {
 export const STAYS: Stay[] = [
   { key: "b1", tier: "Airbnb", name: "One Bedroom Airbnb", guests: "Up to 2 guests", price: 220, nights: 5, note: "", status: "live" },
   { key: "b2", tier: "Airbnb", name: "Two Bedroom Airbnb", guests: "Up to 4 guests", price: 340, nights: 5, note: "", status: "live" },
-  { key: "fp", tier: "Hotel", name: "Four Points Standard Room", guests: "1 guest, private room", price: 330, nights: 4, note: "Breakfast to be confirmed", status: "live" },
+  { key: "fp", tier: "Hotel", name: "Four Points Standard Room", guests: "Per room", price: 330, nights: 4, note: "Breakfast to be confirmed", status: "live" },
   { key: "fpc", tier: "Hotel", name: "Four Points Couple Room", guests: "2 guests sharing", price: 380, nights: 4, note: "Proposed rate, awaiting confirmation", status: "tbc" },
 ];
 
@@ -103,7 +101,7 @@ export const FAQS: Faq[] = [
   { topic: "Stays", q: "Do I have to book accommodation with you?", a: "No. You can arrange your own. If you add an Airbnb or a Four Points room, every guest in it needs their own Core ticket." },
   { topic: "Stays", q: "How is accommodation priced?", a: "Per unit, for a fixed package. Airbnb is five nights, 6 to 11 January, and stays yours on the Crown Forest night for your luggage. Four Points is four paid nights, 6 and 8 to 10 January. A one-bedroom Airbnb sleeps up to 2 and a two-bedroom up to 4, and the unit is charged once however many guests share it." },
   { topic: "Stays", q: "Is breakfast included?", a: "Breakfast at Crown Forest on 7 January is included in Core. Four Points breakfast is still being confirmed with the hotel." },
-  { topic: "Prices", q: "Are there any discounts?", a: "Not at the moment. The $899 Core ticket is never discounted, and there are no coupon codes." },
+  { topic: "Prices", q: "Are there any discounts?", a: "Not at the moment. The $899 Core ticket is never discounted." },
   { topic: "Prices", q: "Can my partner and I choose different experiences?", a: "Yes. Experiences are chosen per guest. ENZO VIP is for guests aged 18 and over." },
   { topic: "Prices", q: "Do you offer airport transfers?", a: "Yes, for guests staying in Azura accommodation: $40 for an arrival pickup or $70 for pickup and drop-off, per vehicle of up to two guests." },
   { topic: "Payments", q: "How do deposits and payments work?", a: "Core tickets, experiences and transfers are paid in full when you book. For accommodation you can pay at least 50% to secure the room and the rest in instalments. Everything must be paid before the first activity on 6 January, and we remind you 30, 14 and 7 days before." },
@@ -111,5 +109,5 @@ export const FAQS: Faq[] = [
   { topic: "Payments", q: "What happens if a balance isn't paid?", a: "Every guest's share must be paid before the first activity on 6 January. Guests with an unpaid balance at the start can't receive a badge or join activities, and unpaid bookings are forfeited under the booking terms. We never cancel early just because one instalment was missed." },
   { topic: "Payments", q: "What if my payment fails?", a: "Nothing is booked until payment is verified, and you won't be charged twice. You can retry straight away from the payment page or your booking link." },
   { topic: "Payments", q: "What is the cancellation policy?", a: "Refunds of eligible payments depend on notice: 90% at 60 days or more, 60% at 30 to 59 days, 40% at 14 to 29 days and none under 14 days. See our refund policy for the full terms." },
-  { topic: "Travel", q: "Do you need my passport?", a: "Only if a confirmed supplier or activity requires it. We'll ask through a secure upload, never by email or chat." },
+  { topic: "Travel", q: "Do you need my passport?", a: "Only when a confirmed supplier or legal requirement needs it." },
 ]

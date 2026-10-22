@@ -19,7 +19,7 @@ function fromMatrix(m: ComponentMatrix): LiveStay[] {
     key: t.code,
     tier: t.kind === "airbnb" ? "Airbnb" : "Hotel",
     name: t.name,
-    guests: t.capacity === 1 ? "1 guest, private room" : t.min_occupancy >= 2 ? `${t.capacity} guests sharing` : `Up to ${t.capacity} guests`,
+    guests: t.kind === "hotel" ? (t.min_occupancy >= 2 ? `${t.capacity} guests sharing` : "Per room") : `Up to ${t.capacity} guests`,
     price: parseFloat(t.price_per_night),
     note: t.note || (t.kind === "hotel" ? "Breakfast to be confirmed" : ""),
     status: t.on_sale ? "live" : "tbc",

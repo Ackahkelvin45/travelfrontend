@@ -13,8 +13,8 @@ import { TRIP } from "@/lib/content/site";
 import { getFlagshipFacts } from "@/lib/content/server";
 
 export const metadata: Metadata = {
-  title: "Experience December in Ghana · Detty December | Azura Travels",
-  description: "Detty December, festive nights in Accra and the Michael Blackson Ghana Experience in January. Every Azura offering for the season in one place.",
+  title: "Experience December in Ghana | Azura Travels",
+  description: "Every Azura offering for December in Ghana, and the Michael Blackson Ghana Experience, 6–11 January 2027, in one place.",
 };
 
 export default async function DecemberInGhanaPage() {
@@ -26,7 +26,7 @@ export default async function DecemberInGhanaPage() {
         alt="Accra skyline at night"
         eyebrow="December 2026 – January 2027"
         title={<>Experience December <Accent>in Ghana</Accent></>}
-        subtitle="Detty December, festive nights in Accra and the Michael Blackson Ghana Experience into the new year. Everything on sale this season, in one place."
+        subtitle="Every Azura offering for December in Ghana, and the Michael Blackson Ghana Experience in January, in one place."
       />
 
       <section className="px-4 md:px-10 lg:px-20 pt-6 pb-12">

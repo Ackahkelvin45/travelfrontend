@@ -180,7 +180,7 @@ export default function ChatFab() {
               </a>
             )}
             <p className="text-[11px] text-center text-gray-600 dark:text-gray-400">
-              We reply within one business hour during {contact.staffedHours}, otherwise within 24 hours. <Link href="/faqs" className="text-primary font-semibold">All FAQs</Link>
+              Our team replies during {contact.staffedHours}. <Link href="/faqs" className="text-primary font-semibold">All FAQs</Link>
             </p>
           </div>
         </div>

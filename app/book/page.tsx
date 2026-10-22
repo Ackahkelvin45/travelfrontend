@@ -436,8 +436,7 @@ function StepDetails({
                     className="text-primary font-semibold hover:underline"
                   >
                     {doc.title}
-                  </button>{" "}
-                  <span className="text-xs text-gray-400">(v{doc.version})</span>
+                  </button>
                 </span>
               </label>
             ))}
@@ -462,7 +461,7 @@ function StepDetails({
           >
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-lg font-bold font-raleway text-text-primary">
-                {openPolicy.title} <span className="text-xs text-gray-400 font-open-sans">v{openPolicy.version}</span>
+                {openPolicy.title}
               </h3>
               <button onClick={() => setOpenPolicy(null)} aria-label="Close" className="text-gray-400 hover:text-text-primary p-1 -m-1">
                 <XIcon size={16} />

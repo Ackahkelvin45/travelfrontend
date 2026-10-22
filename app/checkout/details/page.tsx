@@ -186,7 +186,7 @@ export default function CheckoutDetailsPage() {
                 <span className="text-text-primary">
                   <strong>Required.</strong> I accept the{" "}
                   {required.map((d, i) => (
-                    <span key={d.type}>{policyLink(d)} (v{d.version}){i < required.length - 2 ? ", " : i === required.length - 2 ? " and " : "."}</span>
+                    <span key={d.type}>{policyLink(d)}{i < required.length - 2 ? ", " : i === required.length - 2 ? " and " : "."}</span>
                   ))}
                 </span>
               </label>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useGetPackageDetailQuery } from "@/lib/api/packagesApi";
 import { useGetMeQuery } from "@/lib/api/authApi";
@@ -541,8 +541,9 @@ function BookingContent() {
   // Signed-in users get their profile prefilled so they don't retype details
   // they've already given us. Pre-filled fields stay editable.
   const { data: me } = useGetMeQuery(undefined);
-  useEffect(() => {
-    if (!me) return;
+  const [prefilledFrom, setPrefilledFrom] = useState<typeof me>(undefined);
+  if (me && me !== prefilledFrom) {
+    setPrefilledFrom(me);
     setForm((f) => ({
       ...f,
       firstName: f.firstName || me.first_name || "",
@@ -551,7 +552,7 @@ function BookingContent() {
       phone: f.phone || me.phone_number || "",
       country: f.country || me.country || "",
     }));
-  }, [me]);
+  }
   const [payError, setPayError] = useState<string | null>(null);
 
  const [createBooking, { isLoading: isCreating }] = useCreateBookingMutation();
@@ -563,7 +564,7 @@ function BookingContent() {
  <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-5xl mx-auto flex items-center justify-center min-h-[40vh]">
  <p className="text-gray-700 dark:text-gray-300 font-open-sans text-sm">
  No package selected.{" "}
- <button onClick={() => router.push("/destinations")} className="text-primary underline">
+ <button onClick={() => router.push("/experiences")} className="text-primary underline">
  Browse tours
  </button>
  </p>

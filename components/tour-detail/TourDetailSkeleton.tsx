@@ -1,15 +1,12 @@
 'use client'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/lib/store/store'
 
 export default function TourDetailSkeleton() {
- const isDark = useSelector((state: RootState) => state.theme.mode === 'dark')
  return (
  <SkeletonTheme
-   baseColor={isDark ? '#1f2937' : '#e5e7eb'}
-   highlightColor={isDark ? '#374151' : '#f3f4f6'}
+   baseColor="var(--skeleton-base)"
+   highlightColor="var(--skeleton-highlight)"
  >
  <main className="w-full px-4 md:px-10 mt-20 py-6 overflow-hidden">
  {/* Header */}

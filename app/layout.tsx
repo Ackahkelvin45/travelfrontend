@@ -5,12 +5,13 @@ import Footer from "../components/landing/Footer";
 import StoreProvider from "../components/providers/StoreProvider";
 import PendingBookingBanner from "../components/booking/PendingBookingBanner";
 import ThemeInitializer from "../components/providers/ThemeInitializer";
+import ChatFab from "../components/ghana/ChatFab";
 
 export const metadata: Metadata = {
- title: "Azura Travels - Curated Luxury Travel Experiences",
- description: "Discover unparalleled luxury travel experiences with Azura Travels.",
+ title: "Azura Travels · December in Ghana & Ghana Experience 2027",
+ description: "Azura Travels: Ghana experiences for December in Ghana and the Michael Blackson Ghana Experience, 6–11 January 2027.",
  icons: {
- icon: "icon.png",
+ icon: "/icon.png",
 
  },
 };
@@ -51,6 +52,7 @@ export default function RootLayout({
  {children}
  <PendingBookingBanner />
  <Footer />
+ <ChatFab />
  </StoreProvider>
  </body>
  </html>

@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { useLoginMutation, useRegisterMutation } from "@/lib/api/authApi";
 import { setCredentials, setUser } from "@/lib/features/auth/authSlice";
 import Spinner from "@/components/ui/Spinner";
+import AuthShell from "@/components/auth/AuthShell";
 import VerifyEmailBanner from "@/components/auth/VerifyEmailBanner";
 import PasswordChecklist, {
   checkPasswordRules,
@@ -105,16 +106,16 @@ function RegisterContent() {
       <input
         type={type} required value={form[key]} placeholder={placeholder}
         onChange={(e) => update(key, e.target.value)}
-        className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm font-open-sans text-text-primary outline-none focus:border-primary transition-colors"
+        className="w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl px-4 py-3.5 text-sm font-open-sans text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
       />
     </div>
   );
 
   return (
-    <main className="w-full px-4 mt-24 py-16 flex items-center justify-center min-h-[60vh]">
-      <div className="w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-8">
-        <h1 className="text-2xl font-bold font-raleway text-text-primary mb-2">Create your account</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 font-open-sans mb-6">
+    <AuthShell eyebrow="Akwaaba" heading={<>Your Ghana trip, <em className="font-cormorant italic text-[#E9D3A3]">in one place.</em></>}>
+      <div className="content-in">
+        <h1 className="text-3xl font-bold font-raleway text-text-primary mb-2">Create your account</h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400 font-open-sans mb-8">
           Track your booking, payments and trip updates in one place.
         </p>
 
@@ -155,7 +156,7 @@ function RegisterContent() {
 
           <button
             type="submit" disabled={isLoading || !allRulesPassed || !passwordsMatch}
-            className="w-full bg-primary text-white py-3.5 rounded-full font-semibold font-open-sans text-sm hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-primary text-white py-3.5 rounded-xl font-semibold font-montserrat text-sm hover:-translate-y-0.5 hover:brightness-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
           >
             {isLoading && <Spinner className="w-4 h-4 text-white" />}
             Create account
@@ -169,7 +170,7 @@ function RegisterContent() {
           </Link>
         </p>
       </div>
-    </main>
+    </AuthShell>
   );
 }
 

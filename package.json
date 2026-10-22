@@ -12,7 +12,7 @@
     "@paystack/inline-js": "^2.23.0",
     "@reduxjs/toolkit": "^2.11.2",
     "motion": "^13.2.0",
-    "next": "16.2.4",
+    "next": "16.3.8",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-loading-skeleton": "^3.5.0",
@@ -27,7 +27,7 @@
     "@types/react-dom": "^19",
     "autoprefixer": "^10.5.0",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "16.3.8",
     "postcss": "^8.5.14",
     "tailwindcss": "^4.3.0",
     "typescript": "^5"

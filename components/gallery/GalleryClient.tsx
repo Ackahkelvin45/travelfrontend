@@ -39,22 +39,24 @@ export default function GalleryClient() {
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Filter bar */}
       <div className="sticky top-20 z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-black/5 dark:border-white/10">
-        <div className="flex items-center gap-8 px-5 py-3.5 max-w-[1600px] mx-auto">
+        <div className="flex flex-wrap items-center justify-center gap-2 px-5 py-3 max-w-[1600px] mx-auto">
           {FILTERS.map((f) => (
             <button
               key={f.value}
+              type="button"
+              aria-pressed={type === f.value}
               onClick={() => changeType(f.value)}
-              className={`text-[12px] font-open-sans uppercase  font-medium transition-all ${
+              className={`font-montserrat text-sm font-semibold px-5 py-2 rounded-full border transition-colors ${
                 type === f.value
-                  ? "text-black dark:text-white border-b border-black dark:border-white pb-0.5"
-                  : "text-black/30 dark:text-white/40 hover:text-black/60 dark:hover:text-white/60"
+                  ? "bg-[#060504] text-white border-[#060504] dark:bg-white dark:text-black dark:border-white"
+                  : "border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-primary"
               }`}
             >
               {f.label}
             </button>
           ))}
           {data && (
-            <span className="ml-auto text-text-primary text-sm  font-open-sans uppercase tracking-widest tabular-nums">
+            <span className="sm:ml-auto text-gray-600 dark:text-gray-400 text-sm font-open-sans tabular-nums">
               {data.count} items
             </span>
           )}
@@ -139,7 +141,7 @@ function GalleryCell({ img }: { img: GalleryImage }) {
   const href =
     img.type === "package"
       ? `/tour/${img.source_id}`
-      : `/destinations/${img.source_id}`;
+      : "/experiences";
 
   return (
     <Link href={href} className="relative block overflow-hidden group bg-neutral-100 dark:bg-neutral-800">

@@ -436,8 +436,7 @@ function StepDetails({
                     className="text-primary font-semibold hover:underline"
                   >
                     {doc.title}
-                  </button>{" "}
-                  <span className="text-xs text-gray-400">(v{doc.version})</span>
+                  </button>
                 </span>
               </label>
             ))}
@@ -462,7 +461,7 @@ function StepDetails({
           >
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-lg font-bold font-raleway text-text-primary">
-                {openPolicy.title} <span className="text-xs text-gray-400 font-open-sans">v{openPolicy.version}</span>
+                {openPolicy.title}
               </h3>
               <button onClick={() => setOpenPolicy(null)} aria-label="Close" className="text-gray-400 hover:text-text-primary p-1 -m-1">
                 <XIcon size={16} />
@@ -717,7 +716,7 @@ function BookContent() {
       <main className="w-full px-4 md:px-10 mt-24 py-10 max-w-5xl mx-auto flex items-center justify-center min-h-[40vh]">
         <p className="text-gray-700 dark:text-gray-300 font-open-sans text-sm">
           No tour selected.{" "}
-          <button onClick={() => router.push("/destinations")} className="text-primary underline">Browse tours</button>
+          <button onClick={() => router.push("/experiences")} className="text-primary underline">Browse tours</button>
         </p>
       </main>
     );

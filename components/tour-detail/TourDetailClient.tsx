@@ -18,6 +18,7 @@ import CommercialSections from "@/components/tour-detail/CommercialSections";
 import PolicySections from "@/components/tour-detail/PolicySections";
 import MobileBookingBar from "@/components/tour-detail/MobileBookingBar";
 import TourDetailSkeleton from "@/components/tour-detail/TourDetailSkeleton";
+import ExperienceDetail from "@/components/tour-detail/ExperienceDetail";
 import { AccordionItem } from "@/components/ui/Accordion";
 import Reveal from "@/components/ui/Reveal";
 import { MegaphoneIcon } from "@/components/ui/icons";
@@ -46,6 +47,7 @@ export default function TourDetailClient({ id }: Props) {
   const { data: reviewsData } = useGetPackageReviewsQuery(id, { skip: !id });
   const { data: matrix } = useGetPackagePricingQuery(id, { skip: !id });
   const { data: tripUpdates = [] } = useGetTripUpdatesQuery(id, { skip: !id });
+  const isComponent = pkg?.pricing_model === "component";
 
   if (isLoading) return <TourDetailSkeleton />;
 
@@ -58,6 +60,9 @@ export default function TourDetailClient({ id }: Props) {
       </main>
     );
   }
+
+  // Component-priced trips use the Change Request v2 layout (canvas: Experience).
+  if (isComponent) return <ExperienceDetail pkg={pkg} />;
 
   const imageUrls = pkg.images.map((img) => img.image);
   const datesLabel =
@@ -103,10 +108,7 @@ export default function TourDetailClient({ id }: Props) {
           reviewCount={pkg.review_count}
           breadcrumb={[
             { label: "Home", href: "/" },
-            { label: "Tours", href: "/destinations" },
-            ...(pkg.destination
-              ? [{ label: pkg.destination, href: `/destinations?destination=${pkg.destination}` }]
-              : []),
+            { label: "All experiences", href: "/experiences" },
           ]}
         />
 

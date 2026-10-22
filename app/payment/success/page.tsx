@@ -1,292 +1,245 @@
 "use client";
 
-import { Suspense } from "react";
+/** Booking confirmed (canvas: Confirmed). Receipt from the server's line
+ * items, what happens next, and upgrades that are not on sale yet. */
+
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useGetBookingByReferenceQuery } from "@/lib/api/bookingsApi";
 import { BASE_URL } from "@/lib/api/baseApi";
-import Link from "next/link";
-import { CheckIcon, MailIcon, PrinterIcon } from "@/components/ui/icons";
+import { PrinterIcon } from "@/components/ui/icons";
+import { fmtDate, fmtMoney } from "@/lib/format";
+import { clearCheckout } from "@/lib/trip";
+import { saveBookingAccess } from "@/lib/bookingAccess";
+import { clearPendingBooking } from "@/lib/pendingBooking";
+import { useStartDonationMutation } from "@/lib/api/donationsApi";
+import { loadPendingDonation, payDonation, savePendingDonation, type PendingDonation } from "@/lib/donation";
 
-function fmt(amount: string, currency: string) {
- return `${currency} ${parseFloat(amount).toLocaleString("en-US", {
- minimumFractionDigits: 2,
- maximumFractionDigits: 2,
- })}`;
+/** Pay links for a group whose members pay their own share. */
+function GroupShares({ booking }: { booking: { currency: string; travellers: { id: string; full_name: string; is_lead: boolean; share: string; outstanding: string }[] } }) {
+  const [copied, setCopied] = useState<string | null>(null);
+  const copy = async (id: string) => {
+    try { await navigator.clipboard.writeText(`${window.location.origin}/pay/${id}`); setCopied(id); } catch { /* clipboard blocked */ }
+  };
+  return (
+    <section className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 flex flex-col gap-3 print:hidden">
+      <h2 className="font-raleway font-bold text-[17px] text-text-primary">Each guest&apos;s share</h2>
+      <p className="text-[13px] text-gray-700 dark:text-gray-300">Send each guest their pay link. Every share must be paid before the trip starts on 6 January.</p>
+      <ul className="flex flex-col gap-2">
+        {booking.travellers.map((t) => {
+          const due = parseFloat(t.outstanding);
+          return (
+            <li key={t.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-gray-50 dark:bg-gray-800/60 px-4 py-2.5 text-sm">
+              <span className="text-text-primary">{t.full_name}{t.is_lead ? " (organiser)" : ""}</span>
+              <span className="flex items-center gap-3">
+                <span className={due > 0 ? "text-gray-700 dark:text-gray-300" : "text-green-700 dark:text-green-400"}>
+                  {due > 0 ? `${fmtMoney(t.outstanding, booking.currency)} to pay` : "Paid"}
+                </span>
+                {due > 0 && (
+                  <button type="button" onClick={() => copy(t.id)} className="rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-[#8A6420] dark:text-primary">
+                    {copied === t.id ? "Link copied" : "Copy pay link"}
+                  </button>
+                )}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
 }
 
-function formatDate(iso: string) {
- return new Date(iso).toLocaleDateString("en-US", {
- weekday: "long",
- year: "numeric",
- month: "long",
- day: "numeric",
- });
+/** The Academy gift chosen at checkout, charged now that the booking is paid. */
+function PendingDonationCard({ donation, currency, onDismiss }: { donation: PendingDonation; currency: string; onDismiss: () => void }) {
+  const router = useRouter();
+  const [start, { isLoading }] = useStartDonationMutation();
+  const [error, setError] = useState<string | null>(null);
+  const label = "percent" in donation.choice ? `${donation.choice.percent}% of your booking` : fmtMoney(donation.choice.amount, currency);
+  const go = async () => {
+    setError(null);
+    try {
+      const res = await start({ name: donation.name, email: donation.email, booking_id: donation.bookingId, ...donation.choice }).unwrap();
+      savePendingDonation(null);
+      await payDonation(res, (ref) => router.push(`/donate/thanks?reference=${ref}`));
+    } catch (e) {
+      setError((e as { data?: { detail?: string } })?.data?.detail ?? "The donation didn't start. Please try again.");
+    }
+  };
+  return (
+    <section className="rounded-2xl border border-primary/40 bg-white dark:bg-gray-900 p-6 flex flex-wrap items-center justify-between gap-4 print:hidden">
+      <div className="flex flex-col gap-1 min-w-0">
+        <h2 className="font-raleway font-bold text-[17px] text-text-primary">Complete your Academy donation</h2>
+        <p className="text-[13px] text-gray-700 dark:text-gray-300">{label}, paid separately to the Michael Blackson Academy&apos;s own account.</p>
+        {error && <p role="alert" className="text-[13px] text-red-700 dark:text-red-400">{error}</p>}
+      </div>
+      <div className="flex gap-3">
+        <button type="button" onClick={() => { savePendingDonation(null); onDismiss(); }} className="text-sm font-semibold text-gray-600 dark:text-gray-400">Not now</button>
+        <button type="button" onClick={go} disabled={isLoading} className="bg-primary text-white font-montserrat font-semibold text-sm px-5 py-2.5 rounded-xl disabled:opacity-50">
+          {isLoading ? "Opening…" : "Donate"}
+        </button>
+      </div>
+    </section>
+  );
 }
+
+const Spin = () => (
+  <svg className="animate-spin w-10 h-10 text-primary" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+  </svg>
+);
 
 function SuccessContent() {
- const searchParams = useSearchParams();
- const router = useRouter();
- const reference = searchParams.get("reference") ?? "";
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const reference = searchParams.get("reference") ?? "";
+  // Emailed/WhatsApp links carry the view token; keep it before the lookup runs.
+  saveBookingAccess(reference, searchParams.get("t"));
+  const { data: booking, isLoading, isError } = useGetBookingByReferenceQuery(reference, { skip: !reference });
+  const [copied, setCopied] = useState(false);
+  const [donation, setDonation] = useState<PendingDonation | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read sessionStorage after hydration
+    setDonation(loadPendingDonation());
+  }, []);
 
- const { data: booking, isLoading, isError } = useGetBookingByReferenceQuery(
- reference,
- { skip: !reference }
- );
+  // Paid: the checkout is finished, so a new trip starts clean.
+  useEffect(() => {
+    if (booking && parseFloat(booking.amount_paid) > 0) { clearCheckout(); clearPendingBooking(); }
+  }, [booking]);
 
- if (!reference) {
- return (
- <div className="text-center flex flex-col items-center gap-4">
- <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm">
- No booking reference found.
- </p>
- <button
- onClick={() => router.push("/destinations")}
- className="text-primary font-semibold font-open-sans text-sm underline"
- >
- Browse tours
- </button>
- </div>
- );
- }
+  if (!reference) {
+    return (
+      <div className="text-center flex flex-col items-center gap-4">
+        <p className="text-gray-700 dark:text-gray-300 text-sm">No booking reference found.</p>
+        <button onClick={() => router.push("/experiences")} className="text-[#8A6420] dark:text-primary font-semibold text-sm underline">Browse experiences</button>
+      </div>
+    );
+  }
+  if (isLoading) return <div className="flex flex-col items-center gap-4"><Spin /><p className="font-raleway font-semibold text-text-primary">Loading your booking…</p></div>;
+  if (isError || !booking) {
+    return (
+      <div className="text-center flex flex-col items-center gap-4">
+        <p className="text-gray-700 dark:text-gray-300 text-sm">Could not load your booking details.</p>
+        <button onClick={() => router.push("/")} className="text-[#8A6420] dark:text-primary font-semibold text-sm underline">Return home</button>
+      </div>
+    );
+  }
 
- if (isLoading) {
- return (
- <div className="flex flex-col items-center gap-4">
- <svg className="animate-spin w-10 h-10 text-primary" viewBox="0 0 24 24" fill="none">
- <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
- <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
- </svg>
- <p className="text-text-primary font-semibold font-raleway text-base">
- Loading your booking…
- </p>
- </div>
- );
- }
+  const c = booking.currency;
+  const balance = parseFloat(booking.balance);
+  const paidPct = Math.min(100, Math.round((parseFloat(booking.amount_paid) / parseFloat(booking.total_amount)) * 100));
+  const items = booking.line_items;
+  const isTrip = !!booking.mode;
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(booking.reference); setCopied(true); } catch { /* clipboard blocked */ }
+  };
+  const card = "rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 flex flex-col gap-3";
 
- if (isError || !booking) {
- return (
- <div className="text-center flex flex-col items-center gap-4">
- <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm">
- Could not load your booking details.
- </p>
- <button
- onClick={() => router.push("/")}
- className="text-primary font-semibold font-open-sans text-sm underline"
- >
- Return home
- </button>
- </div>
- );
- }
+  return (
+    <div className="w-full max-w-[1000px] mx-auto flex flex-col gap-6">
+      <div className="flex flex-col items-center text-center gap-3.5">
+        <div className="relative w-[88px] h-[88px]" aria-hidden>
+          <span className="absolute inset-0 rounded-full border-2 border-primary motion-safe:animate-ping opacity-40" />
+          <svg width="88" height="88" viewBox="0 0 88 88" className="relative"><circle cx="44" cy="44" r="42" fill="#BD8F3A" /><path d="M28 45l11 11 21-23" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </div>
+        <h1 className="font-raleway text-3xl md:text-[38px] font-bold text-text-primary">
+          You&apos;re going to Ghana{booking.first_name ? <>, <em className="font-cormorant italic font-semibold">{booking.first_name}!</em></> : "!"}
+        </h1>
+        <p className="text-[15px] text-gray-700 dark:text-gray-300">We&apos;ve emailed your confirmation and receipt{booking.email ? ` to ${booking.email}` : ""}.</p>
+        <div className="flex items-center gap-2.5 rounded-xl border border-dashed border-primary bg-white dark:bg-gray-900 px-4 py-2.5">
+          <span className="text-xs text-gray-500 dark:text-gray-400">Booking reference</span>
+          <strong className="font-montserrat text-lg tracking-wider text-text-primary">{booking.reference}</strong>
+          <button type="button" onClick={copy} className="rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-[#8A6420] dark:text-primary print:hidden">{copied ? "Copied" : "Copy"}</button>
+        </div>
+      </div>
 
- return (
- <div className="w-full max-w-xl mx-auto content-in">
- {/* Animated check */}
- <div className="flex flex-col items-center mb-10">
- <div className="relative w-24 h-24 mb-6" aria-hidden>
- <span className="absolute inset-0 rounded-full bg-green-200 animate-ping opacity-40" />
- <div className="relative w-24 h-24 rounded-full bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 flex items-center justify-center">
- <CheckIcon size={44} />
- </div>
- </div>
+      {donation && donation.bookingId === booking.id && parseFloat(booking.amount_paid) > 0 && (
+        <PendingDonationCard donation={donation} currency={c} onDismiss={() => setDonation(null)} />
+      )}
 
- <h1 className="text-3xl font-bold font-raleway text-text-primary mb-2 text-center">
- {parseFloat(booking.balance) > 0 ? "Deposit received — you're booked!" : "Booking confirmed"}
- </h1>
- <p className="text-gray-500 dark:text-gray-400 font-open-sans text-sm text-center max-w-sm leading-relaxed">
- Your booking is confirmed. A confirmation email with your booking details has been sent to{" "}
- <span className="font-semibold text-text-primary">{booking.email}</span>.
- </p>
- </div>
+      <div className="flex flex-wrap gap-5 items-start">
+        <section className={`${card} flex-[1.2_1_420px] min-w-0`}>
+          <div className="flex justify-between items-center">
+            <h2 className="font-raleway font-bold text-[17px] text-text-primary">Receipt</h2>
+            <button type="button" onClick={() => window.print()} className="flex items-center gap-1.5 text-[13px] font-semibold text-[#8A6420] dark:text-primary print:hidden"><PrinterIcon size={14} /> Print or save PDF</button>
+          </div>
+          <p className="text-[13px] text-gray-700 dark:text-gray-300">
+            {booking.package_title} · {fmtDate(booking.travel_date)} · {booking.num_guests} traveller{booking.num_guests === 1 ? "" : "s"}
+          </p>
+          <dl className="flex flex-col gap-2 py-3 border-y border-gray-100 dark:border-gray-800 text-[13px] text-gray-700 dark:text-gray-300">
+            {items.lines.map((l) => (
+              <div key={l.label + l.detail} className="flex justify-between gap-4">
+                <dt>{l.label}<span className="block text-xs text-gray-500 dark:text-gray-400">{l.detail}</span></dt>
+                <dd className="shrink-0">{fmtMoney(l.amount, c)}</dd>
+              </div>
+            ))}
+            {parseFloat(items.discount) > 0 && (
+              <div className="flex justify-between gap-4 text-green-700 dark:text-green-400">
+                <dt>{items.discount_note || "Savings"}</dt><dd className="shrink-0">−{fmtMoney(items.discount, c)}</dd>
+              </div>
+            )}
+          </dl>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-gray-50 dark:bg-gray-800/60 p-3"><div className="text-xs text-gray-500 dark:text-gray-400">Total</div><div className="font-montserrat font-bold text-lg text-text-primary">{fmtMoney(booking.total_amount, c)}</div></div>
+            <div className="rounded-xl bg-green-50 dark:bg-green-950/30 p-3"><div className="text-xs text-green-800 dark:text-green-400">Paid</div><div className="font-montserrat font-bold text-lg text-green-900 dark:text-green-300">{fmtMoney(booking.amount_paid, c)}</div></div>
+            <div className="rounded-xl bg-primary/10 p-3"><div className="text-xs text-[#6B4E1A] dark:text-primary">Balance</div><div className="font-montserrat font-bold text-lg text-text-primary">{fmtMoney(booking.balance, c)}</div></div>
+            <div className="rounded-xl bg-gray-50 dark:bg-gray-800/60 p-3"><div className="text-xs text-gray-500 dark:text-gray-400">Balance due</div><div className="font-montserrat font-bold text-lg text-text-primary">{balance > 0 ? fmtDate(booking.payment_deadline) : "Paid in full"}</div></div>
+          </div>
+          <div className="h-2 rounded-full bg-primary/20 overflow-hidden" role="progressbar" aria-valuenow={paidPct} aria-valuemin={0} aria-valuemax={100} aria-label="Paid so far">
+            <div className="h-full bg-primary" style={{ width: `${paidPct}%` }} />
+          </div>
+          <div className="flex items-center gap-4 pt-2 break-inside-avoid">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${BASE_URL}payments/bookings/${booking.reference}/qr.png`} alt={`QR code for booking ${booking.reference}`} width={88} height={88} className="shrink-0 rounded-xl border border-gray-200 dark:border-gray-700 p-1.5 bg-white" />
+            <p className="text-xs leading-relaxed text-gray-500 dark:text-gray-400">Scan to verify booking {booking.reference} and see its live payment status.</p>
+          </div>
+        </section>
 
- {/* Email notice banner */}
- <div className="flex items-start gap-3 bg-primary/5 border border-primary/20 rounded-2xl px-5 py-4 mb-6">
- <MailIcon size={18} className="shrink-0 mt-0.5 text-primary" />
- <p className="text-sm font-open-sans text-gray-700 dark:text-gray-300 ">
- A receipt and trip details have been sent to{" "}
- <span className="font-semibold text-text-primary">{booking.email}</span>.
- Check your spam folder if you don&apos;t see it within a few minutes.
- </p>
- </div>
+        <section className={`${card} flex-[1_1_340px] min-w-0 gap-4`}>
+          <h2 className="font-raleway font-bold text-[17px] text-text-primary">What happens next</h2>
+          {[
+            ...(isTrip ? [{
+              title: "Complete your travel information",
+              body: "Flights, transfers, emergency contact, dietary and accessibility needs.",
+              cta: { href: `/booking/${booking.reference}/travel`, label: "Start the form" },
+            }] : []),
+            {
+              title: "Your coordinator calls within 24 hours",
+              body: `${booking.coordinator_name ?? "Your coordinator"} will confirm names, rooms and payment dates.`,
+            },
+            balance > 0
+              ? { title: `Pay your balance by ${fmtDate(booking.payment_deadline)}`, body: "We'll send reminders before it's due. Pay any time from My Booking.", cta: { href: `/booking/${booking.reference}/pay`, label: "Make a payment" } }
+              : { title: "You're paid in full", body: "Nothing more to pay. Your receipt is in your inbox." },
+          ].map((step, i) => (
+            <div key={step.title} className="flex gap-3">
+              <span className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center font-montserrat font-bold text-xs ${i === 0 ? "bg-primary text-white" : "bg-primary/10 text-[#8A6420] dark:text-primary"}`}>{i + 1}</span>
+              <div className="flex flex-col gap-1">
+                <strong className="text-sm text-text-primary">{step.title}</strong>
+                <span className="text-[13px] text-gray-700 dark:text-gray-300">{step.body}</span>
+                {"cta" in step && step.cta && (
+                  <Link href={step.cta.href} className="self-start mt-1 bg-primary text-white font-montserrat font-semibold text-[13px] px-4 py-2.5 rounded-xl print:hidden">{step.cta.label}</Link>
+                )}
+              </div>
+            </div>
+          ))}
+          <Link href="/dashboard" className="text-sm font-semibold text-[#8A6420] dark:text-primary print:hidden">Go to My Booking</Link>
+        </section>
+      </div>
 
- {/* Booking summary card */}
- <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden mb-6">
- {/* Card header */}
- <div className="bg-primary/5 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
- <p className="text-sm font-semibold font-open-sans text-gray-500 dark:text-gray-400 ">
- Booking Reference
- </p>
- <p className="text-base font-bold font-raleway text-primary tracking-wide">
- {booking.reference}
- </p>
- </div>
+      {booking.pay_separately && booking.travellers && <GroupShares booking={booking} />}
 
- {/* Card body */}
- <div className="px-6 py-6 flex flex-col gap-5">
- <Row label="Package" value={booking.package_title} bold />
- <Row label="Travel Date" value={formatDate(booking.travel_date)} />
- <Row
- label="Guests"
- value={`${booking.num_guests} ${booking.num_guests === 1 ? "guest" : "guests"}`}
- />
- <Row label="Name" value={`${booking.first_name} ${booking.last_name}`} />
- <Row label="Email" value={booking.email} />
-
- <div className="border-t border-gray-100 dark:border-gray-800 pt-5 flex flex-col gap-2.5">
- {booking.line_items.lines.map((l) => (
- <div key={l.label + l.detail} className="flex justify-between items-start gap-4">
- <span className="text-sm font-open-sans text-gray-700 dark:text-gray-300">
- {l.label}
- <span className="block text-xs text-gray-500 dark:text-gray-400">{l.detail}</span>
- </span>
- <span className="text-sm font-open-sans text-text-primary shrink-0">{fmt(l.amount, booking.currency)}</span>
- </div>
- ))}
- {parseFloat(booking.line_items.discount) > 0 && (
- <div className="flex justify-between items-center text-green-700 dark:text-green-400">
- <span className="text-sm font-open-sans">{booking.line_items.discount_note || "Bundle discount"}</span>
- <span className="text-sm font-open-sans">− {fmt(booking.line_items.discount, booking.currency)}</span>
- </div>
- )}
- <div className="flex justify-between items-center">
- <span className="text-sm font-open-sans text-gray-700 dark:text-gray-300">Total booking amount</span>
- <span className="text-sm font-semibold font-open-sans text-text-primary">
- {fmt(booking.total_amount, booking.currency)}
- </span>
- </div>
- <div className="flex justify-between items-center">
- <span className="text-base font-bold font-raleway text-text-primary">Paid to date</span>
- <span className="text-xl font-bold font-raleway text-primary">
- {fmt(booking.amount_paid, booking.currency)}
- </span>
- </div>
- {parseFloat(booking.balance) > 0 && (
- <div className="flex justify-between items-center">
- <span className="text-sm font-open-sans text-gray-700 dark:text-gray-300">Remaining balance</span>
- <span className="text-sm font-bold font-open-sans text-amber-700 dark:text-amber-500">
- {fmt(booking.balance, booking.currency)}
- </span>
- </div>
- )}
- </div>
- </div>
-
- {/* QR encodes the booking's public verification URL; server-rendered PNG */}
- <div className="border-t border-gray-100 dark:border-gray-800 px-6 py-5 flex items-center gap-4 break-inside-avoid">
- {/* eslint-disable-next-line @next/next/no-img-element */}
- <img
- src={`${BASE_URL}payments/bookings/${booking.reference}/qr.png`}
- alt={`QR code for booking ${booking.reference}`}
- width={110}
- height={110}
- className="shrink-0 border border-gray-200 dark:border-gray-700 rounded-xl p-1.5 bg-white"
- />
- <p className="text-xs font-open-sans text-gray-500 dark:text-gray-400 leading-relaxed">
- Scan to verify booking{" "}
- <span className="font-semibold text-text-primary">{booking.reference}</span>{" "}
- and see its live payment status.
- </p>
- </div>
- </div>
-
- {/* Status badges */}
- <div className="flex gap-3 mb-8">
- <Badge label="Booking" value={booking.status} colorMap={{ confirmed: "green", pending: "yellow", cancelled: "red", completed: "blue" }} />
- <Badge label="Payment" value={booking.payment_status ?? "pending"} colorMap={{ success: "green", pending: "yellow", failed: "red", abandoned: "gray" }} />
- </div>
-
- {/* Actions */}
- <div className="flex flex-col sm:flex-row gap-3 print:hidden">
- {parseFloat(booking.balance) > 0 ? (
- <Link
- href={`/booking/${booking.reference}/pay`}
- className="flex-1 bg-primary text-white py-3.5 rounded-full font-bold font-open-sans text-sm hover:bg-primary/90 transition-colors text-center"
- >
- Make another payment
- </Link>
- ) : (
- <Link
- href="/dashboard"
- className="flex-1 bg-primary text-white py-3.5 rounded-full font-bold font-open-sans text-sm hover:bg-primary/90 transition-colors text-center"
- >
- View my booking
- </Link>
- )}
- <button
- onClick={() => window.print()}
- className="flex-1 border border-gray-200 dark:border-gray-700 text-text-primary py-3.5 rounded-full font-semibold font-open-sans text-sm hover:border-gray-300 transition-colors flex items-center justify-center gap-2"
- >
- <PrinterIcon size={15} />
- Print receipt
- </button>
- <Link
- href="/destinations"
- className="flex-1 border border-gray-200 dark:border-gray-700 text-text-primary py-3.5 rounded-full font-semibold font-open-sans text-sm hover:border-gray-300 transition-colors text-center"
- >
- Back to tours
- </Link>
- </div>
- </div>
- );
-}
-
-function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
- return (
- <div className="flex items-start justify-between gap-4">
- <span className="text-sm font-open-sans text-gray-500 dark:text-gray-400 shrink-0">{label}</span>
- <span className={`text-sm font-open-sans text-right ${bold ? "font-bold text-text-primary" : "text-text-primary"}`}>
- {value}
- </span>
- </div>
- );
-}
-
-type Color = "green" | "yellow" | "red" | "blue" | "gray";
-
-const COLOR_CLASSES: Record<Color, string> = {
- green: "bg-green-100 text-green-700 ",
- yellow: "bg-yellow-100 text-yellow-700 ",
- red: "bg-red-100 text-red-700 ",
- blue: "bg-blue-100 text-blue-700 ",
- gray: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 ",
-};
-
-function Badge({
- label,
- value,
- colorMap,
-}: {
- label: string;
- value: string;
- colorMap: Record<string, Color>;
-}) {
- const color = colorMap[value] ?? "gray";
- return (
- <div className="flex-1 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
- <p className="text-xs font-open-sans text-gray-500 dark:text-gray-400 mb-1.5">{label}</p>
- <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold font-open-sans capitalize ${COLOR_CLASSES[color]}`}>
- {value}
- </span>
- </div>
- );
+    </div>
+  );
 }
 
 export default function PaymentSuccessPage() {
- return (
- <main className="w-full px-4 md:px-10 mt-24 py-14 flex items-start justify-center min-h-[80vh]">
- <Suspense
- fallback={
- <div className="flex flex-col items-center gap-4">
- <svg className="animate-spin w-10 h-10 text-primary" viewBox="0 0 24 24" fill="none">
- <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
- <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
- </svg>
- <p className="text-text-primary font-semibold font-raleway text-base">Loading…</p>
- </div>
- }
- >
- <SuccessContent />
- </Suspense>
- </main>
- );
+  return (
+    <main className="w-full px-4 md:px-10 mt-24 py-12 flex items-start justify-center min-h-[80vh] bg-gray-50 dark:bg-gray-950">
+      <Suspense fallback={<div className="flex flex-col items-center gap-4"><Spin /></div>}>
+        <SuccessContent />
+      </Suspense>
+    </main>
+  );
 }

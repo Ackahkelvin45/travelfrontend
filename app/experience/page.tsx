@@ -306,7 +306,6 @@ function ExperienceContent() {
                       >
                         {doc.title}
                       </button>
-                      <span className="text-xs text-gray-400"> v{doc.version}</span>
                       {doc.type === "terms" && (
                         <span>, including the installment deadlines and the cancellation and refund policy. I confirm the traveller information is accurate and that I am authorised to book for the travellers listed.</span>
                       )}

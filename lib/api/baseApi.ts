@@ -40,7 +40,9 @@ const baseQueryWithReauth: BaseQueryFn<
 
   if (result.error?.status !== 401) return result
 
-  const refresh = (api.getState() as RootState).auth.refreshToken
+  // localStorage first: another tab may already have rotated the token.
+  const stored = () => { try { return localStorage.getItem('refreshToken') } catch { return null } }
+  const refresh = stored() || (api.getState() as RootState).auth.refreshToken
   if (!refresh) {
     api.dispatch(logout())
     return result
@@ -54,13 +56,20 @@ const baseQueryWithReauth: BaseQueryFn<
         api,
         extraOptions,
       )
-      const access = (resp.data as { access?: string } | undefined)?.access ?? null
-      if (access) {
-        api.dispatch(updateToken({ token: access }))
-      } else {
-        api.dispatch(logout())
+      const data = resp.data as { access?: string; refresh?: string } | undefined
+      if (data?.access) {
+        api.dispatch(updateToken({ token: data.access, refreshToken: data.refresh }))
+        return data.access
       }
-      return access
+      // Refused because another tab rotated it in the meantime: adopt that tab's tokens.
+      const latest = stored()
+      const latestAccess = localStorage.getItem('token')
+      if (latest && latest !== refresh && latestAccess) {
+        api.dispatch(updateToken({ token: latestAccess, refreshToken: latest }))
+        return latestAccess
+      }
+      api.dispatch(logout())
+      return null
     })()
   }
 

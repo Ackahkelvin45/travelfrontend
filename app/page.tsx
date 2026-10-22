@@ -8,6 +8,8 @@ import crownForest from "../assets/images/hero.png";
 import accraNight from "../assets/images/services/osu.png";
 import guests from "../assets/images/trending/1.png";
 import boats from "../assets/images/trending/2.png";
+import botiFalls from "../assets/images/places/boti-falls.jpg";
+import capeCoast from "../assets/images/places/cape-coast-castle.jpg";
 import Reveal from "../components/ui/Reveal";
 import FlagshipBar from "../components/home/FlagshipBar";
 import SeasonPackages from "../components/home/SeasonPackages";
@@ -20,8 +22,8 @@ const PLACES = [
   { img: accraNight, alt: "Accra skyline at night", when: "December", name: "Accra After Dark", note: "Detty December nights, concerts and homecomings", span: "md:col-span-7 md:row-span-2", big: true },
   { img: crownForest, alt: "Crown Forest lodge at sunset", when: "Thu 7 Jan", name: "Crown Forest", note: "One night included, with activities and breakfast", span: "md:col-span-5" },
   { img: boats, alt: "Guests on pedal boats", when: "Fri 8 Jan", name: "Forest Activities", note: "Crown Forest activities and breakfast, then back to Accra", span: "md:col-span-5" },
-  { img: null, alt: "", when: "Thu 7 Jan", name: "Cape Coast", note: "Castle, Academy and Lemon Beach · photo to supply", span: "md:col-span-6" },
-  { img: null, alt: "", when: "Sat 9 Jan", name: "Boti Falls", note: "Group excursion, optional waterfall massage · photo to supply", span: "md:col-span-6", green: true },
+  { img: capeCoast, alt: "Cape Coast Castle's white walls and courtyard", when: "Thu 7 Jan", name: "Cape Coast", note: "Castle, Academy and Lemon Beach", span: "md:col-span-6" },
+  { img: botiFalls, alt: "Boti Falls pouring over a forested cliff", when: "Sat 9 Jan", name: "Boti Falls", note: "Group excursion, optional waterfall massage", span: "md:col-span-6", green: true },
 ];
 
 const NIGHTS = ["zero", "one", "two", "three", "four", "five", "six", "seven"];

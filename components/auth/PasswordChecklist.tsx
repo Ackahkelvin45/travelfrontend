@@ -120,7 +120,7 @@ export default function PasswordChecklist({
       )}
       {allPassed && matchesConfirm && (
         <p className="text-xs font-open-sans text-green-600 dark:text-green-400 mt-1">
-          Strong password — you're good to go.
+          Strong password — you&apos;re good to go.
         </p>
       )}
     </div>

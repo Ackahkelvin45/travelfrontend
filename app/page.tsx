@@ -15,7 +15,7 @@ import FlagshipBar from "../components/home/FlagshipBar";
 import SeasonPackages from "../components/home/SeasonPackages";
 import SectionHeading from "../components/ghana/SectionHeading";
 import LeadForm from "../components/ghana/LeadForm";
-import { Accent, Eyebrow, HeroCurve } from "../components/ghana/Decor";
+import { Accent, Eyebrow } from "../components/ghana/Decor";
 import { STAYS } from "@/lib/content/site";
 
 // Highlights of the 6–11 January programme (Change Request v4 §3).
@@ -50,10 +50,9 @@ export default async function Home() {
     <div className="flex w-full bg-background flex-col overflow-hidden">
       {/* Hero */}
       <section className="w-full px-4 md:px-10 pt-24 md:pt-28 relative">
-        <div className="relative overflow-hidden rounded-t-xl min-h-[600px] md:min-h-[640px]">
+        <div className="relative overflow-hidden rounded-2xl min-h-[600px] md:min-h-[640px]">
           <Image src={ghana} alt="Black Star Gate, Independence Square, Accra" fill priority sizes="100vw" className="object-cover hero-zoom" style={{ objectPosition: "center 30%" }} />
           <div className="absolute inset-0 bg-black/45" />
-          <HeroCurve />
           <div className="relative z-2 min-h-[600px] md:min-h-[640px] flex flex-col items-center justify-center text-center text-white px-4 pt-10 pb-40">
             <Reveal delay={100}><Eyebrow light>Akwaaba · Welcome to Ghana</Eyebrow></Reveal>
             <Reveal delay={220}>

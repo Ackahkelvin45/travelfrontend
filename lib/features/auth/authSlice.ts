@@ -7,7 +7,7 @@ export interface User {
   last_name: string
   phone_number?: string | null
   country?: string | null
-  /** Azura team member — unlocks the /staff portal (server enforces per-action permissions). */
+  /** Azura team member — shows the link to the Django admin (server enforces permissions). */
   is_staff?: boolean
 }
 

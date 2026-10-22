@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+// Staff work in the Django admin, next to the API.
+const ADMIN_URL = (process.env.NEXT_PUBLIC_API_URL || "https://azuratravelsbackend.cc/api/").replace(/api\/?$/, "admin/");
+
 const nextConfig: NextConfig = {
  devIndicators: false,
  images: { unoptimized: true },
@@ -11,6 +14,8 @@ const nextConfig: NextConfig = {
    { source: "/explore", destination: "/experiences", permanent: false },
    { source: "/destinations", destination: "/experiences", permanent: false },
    { source: "/destinations/:id", destination: "/experiences", permanent: false },
+   // The old /staff portal was retired for the admin (Phase 6).
+   { source: "/staff/:path*", destination: ADMIN_URL, permanent: false },
   ];
  },
 };

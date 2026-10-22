@@ -6,6 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/lib/store/store";
 import { logout, setUser } from "@/lib/features/auth/authSlice";
 import { useGetMeQuery } from "@/lib/api/authApi";
+import { BASE_URL } from "@/lib/api/baseApi";
+
+/** Staff work in the Django admin, next to the API. */
+const ADMIN_URL = BASE_URL.replace(/api\/?$/, "admin/");
 
 export default function AccountMenu() {
   const dispatch = useDispatch();
@@ -67,12 +71,12 @@ export default function AccountMenu() {
             My bookings
           </Link>
           {user?.is_staff && (
-            <Link
-              href="/staff" onClick={() => setOpen(false)}
+            <a
+              href={ADMIN_URL} onClick={() => setOpen(false)}
               className="block px-4 py-2.5 text-sm font-open-sans font-semibold text-primary hover:bg-gray-50 dark:hover:bg-gray-800"
             >
-              Staff portal
-            </Link>
+              Staff admin
+            </a>
           )}
           <button
             onClick={() => { dispatch(logout()); setOpen(false); }}

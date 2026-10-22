@@ -14,7 +14,7 @@ import { getFlagshipFacts } from "@/lib/content/server";
 
 export const metadata: Metadata = {
   title: "Experience December in Ghana · Detty December | Azura Travels",
-  description: "Detty December, festive nights in Accra and the January flagship trip. Every Azura offering for the season in one place.",
+  description: "Detty December, festive nights in Accra and the Michael Blackson Ghana Experience in January. Every Azura offering for the season in one place.",
 };
 
 export default async function DecemberInGhanaPage() {
@@ -26,7 +26,7 @@ export default async function DecemberInGhanaPage() {
         alt="Accra skyline at night"
         eyebrow="December 2026 – January 2027"
         title={<>Experience December <Accent>in Ghana</Accent></>}
-        subtitle="Detty December, festive nights in Accra and a flagship trip into the new year. Everything on sale this season, in one place."
+        subtitle="Detty December, festive nights in Accra and the Michael Blackson Ghana Experience into the new year. Everything on sale this season, in one place."
       />
 
       <section className="px-4 md:px-10 lg:px-20 pt-6 pb-12">
@@ -38,7 +38,7 @@ export default async function DecemberInGhanaPage() {
         <Reveal className="card-lift flex flex-col lg:flex-row rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
           <div className="relative lg:w-1/2 min-h-[300px] overflow-hidden">
             <Image src={guests} alt="Guests on the Ghana Experience" fill sizes="(max-width: 1024px) 100vw, 50vw" className="img-zoom object-cover" />
-            <span className="absolute top-4 left-4 bg-primary text-white font-montserrat text-xs font-bold px-3 py-1.5 rounded-full">Flagship · January extension</span>
+            <span className="absolute top-4 left-4 bg-primary text-white font-montserrat text-xs font-bold px-3 py-1.5 rounded-full">January extension</span>
           </div>
           <div className="lg:w-1/2 p-8 md:p-10 flex flex-col gap-4">
             <Eyebrow>{facts.dates}</Eyebrow>

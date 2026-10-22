@@ -54,7 +54,6 @@ export default function ExperienceDetail({ pkg }: { pkg: PackageDetail }) {
           <div>
             {pkg.slug === FLAGSHIP_SLUG && (
               <div className="flex gap-2 mb-2.5">
-                <span className="bg-primary text-white font-montserrat text-[11px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-md">Flagship</span>
                 <span className="bg-primary/10 text-[#6B4E1A] dark:text-primary text-xs font-semibold px-2.5 py-1.5 rounded-md">January extension</span>
               </div>
             )}

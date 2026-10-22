@@ -29,7 +29,7 @@ export default function AuthShell({ eyebrow, heading, children }: { eyebrow: str
             <div className="mt-2 flex items-center gap-4 max-w-md rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-4">
               <Image src={crownForest} alt="" className="w-16 h-16 rounded-xl object-cover" />
               <div className="flex flex-col">
-                <span className="font-montserrat text-[11px] font-bold uppercase tracking-widest text-[#E9D3A3]">Flagship · January 2027</span>
+                <span className="font-montserrat text-[11px] font-bold uppercase tracking-widest text-[#E9D3A3]">January 2027</span>
                 <span className="font-raleway font-bold">{facts.name}</span>
                 <span className="text-sm text-white/80">{facts.shortDates}{facts.corePrice ? ` · from ${facts.corePrice}` : ""}</span>
               </div>

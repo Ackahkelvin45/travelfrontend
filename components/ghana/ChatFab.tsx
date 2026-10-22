@@ -96,7 +96,7 @@ export default function ChatFab() {
           {!teamView && (<>
           <div className="p-4 flex flex-col gap-3 bg-gray-50 dark:bg-gray-950 max-h-[50vh] overflow-y-auto">
             <p className="self-start max-w-[85%] bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl rounded-bl-sm px-3 py-2 text-sm text-text-primary">
-              Akwaaba! Ask me about dates, prices and stays for December in Ghana and the January flagship.
+              Akwaaba! Ask me about dates, prices and stays for December in Ghana and the Michael Blackson Ghana Experience in January.
             </p>
             {turns.map((t, i) => (
               <p

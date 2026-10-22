@@ -64,7 +64,7 @@ export default async function Home() {
             <Reveal delay={300}><Image src={wave} alt="" className="w-28 md:w-44 h-auto mt-4" /></Reveal>
             <Reveal delay={360}>
               <p className="mt-4 font-open-sans text-base md:text-lg max-w-2xl leading-relaxed text-white/90">
-                Festive travel across Accra, then the {facts.name} as our flagship January extension, {facts.dates}.
+                Festive travel across Accra, then the {facts.name} as our January extension, {facts.dates}.
               </p>
             </Reveal>
             <Reveal delay={440}>
@@ -90,7 +90,7 @@ export default async function Home() {
           </Reveal>
           <Reveal delay={100} className="flex-1">
             <p className="font-open-sans text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-              Akwaaba. December is when Ghana comes alive: homecomings, concerts, beach days and late nights in Accra. Our flagship trip then takes you to Cape Coast, Crown Forest and Boti Falls.
+              Akwaaba. December is when Ghana comes alive: homecomings, concerts, beach days and late nights in Accra. The Michael Blackson Ghana Experience then takes you to Cape Coast, Crown Forest and Boti Falls.
             </p>
           </Reveal>
         </div>

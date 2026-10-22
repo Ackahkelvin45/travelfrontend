@@ -18,7 +18,7 @@ export default function ExperiencesPage() {
         heightClass="min-h-[320px] md:min-h-[360px]"
         eyebrow="All experiences"
         title={<>Everything We Offer <Accent>in Ghana</Accent></>}
-        subtitle="Trips, stays and experiences for December in Ghana and the January flagship."
+        subtitle="Trips, stays and experiences for December in Ghana and the Michael Blackson Ghana Experience in January."
       />
       <section className="px-4 md:px-10 lg:px-20 pt-4 pb-16">
         <ExperiencesListing />

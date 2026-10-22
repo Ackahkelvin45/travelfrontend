@@ -195,6 +195,12 @@ export interface ComponentMatrix {
   on_sale: boolean
   note: string
   units_available: number
+  /** Stays page details (display only). */
+  bedding: string
+  breakfast: string
+  location: string
+  amenities: string[]
+  images: { url: string; alt: string }[]
  }[]
  experiences: {
   code: string; name: string; description: string | null; price: string; refundable: boolean

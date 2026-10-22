@@ -1,5 +1,5 @@
 /** Public contact details: the admin's Operational Settings when filled in,
- * otherwise the bracketed placeholders in site.ts (never invented values). */
+ * otherwise empty (pages hide the line) — never placeholders or invented values. */
 
 import { CONTACT } from "./site";
 
@@ -16,7 +16,7 @@ export interface SiteSettings {
   donations_open?: boolean;
 }
 
-export type Contact = typeof CONTACT & { whatsappHref: string };
+export type Contact = typeof CONTACT & { whatsappHref: string; hoursSet: boolean };
 
 export function mergeContact(s?: Partial<SiteSettings> | null): Contact {
   const legal = [s?.legal_name, s?.legal_address].filter(Boolean).join(", ");
@@ -29,6 +29,7 @@ export function mergeContact(s?: Partial<SiteSettings> | null): Contact {
     emergency: s?.emergency_phone || CONTACT.emergency,
     legal: legal || CONTACT.legal,
     staffedHours: s?.staffed_hours || CONTACT.staffedHours,
+    hoursSet: !!s?.staffed_hours,
     whatsappHref: whatsappDigits ? `https://wa.me/${whatsappDigits}` : "/about#contact",
   };
 }

@@ -8,15 +8,17 @@
 
 export const FLAGSHIP_SLUG = "michael-blackson-ghana-experience";
 
+/** Fallbacks while Settings are blank: empty, so pages hide the line rather than
+ * show a placeholder (Change Request v4 §1). Staffed hours reads as a phrase. */
 export const CONTACT = {
-  email: "[BUSINESS EMAIL]",
-  phone: "[PHONE NUMBER]",
-  whatsapp: "[WHATSAPP NUMBER]",
+  email: "",
+  phone: "",
+  whatsapp: "",
   /** Digits only, international format, for wa.me links. Empty until supplied. */
   whatsappDigits: "",
-  emergency: "[EMERGENCY CONTACT]",
-  legal: "[LEGAL BUSINESS NAME AND ADDRESS]",
-  staffedHours: "[STAFFED HOURS]",
+  emergency: "",
+  legal: "",
+  staffedHours: "our staffed hours",
 };
 
 export const whatsappHref = CONTACT.whatsappDigits ? `https://wa.me/${CONTACT.whatsappDigits}` : "/about#contact";
@@ -74,6 +76,11 @@ export type Stay = {
   nights: number;
   note: string;
   status: "live" | "tbc";
+  bedding?: string;
+  breakfast?: string;
+  location?: string;
+  amenities?: string[];
+  images?: { url: string; alt: string }[];
 };
 
 export const STAYS: Stay[] = [

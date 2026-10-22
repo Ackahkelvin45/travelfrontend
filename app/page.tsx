@@ -193,7 +193,7 @@ export default async function Home() {
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               <Link href="/faqs" className="bg-primary text-white font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:-translate-y-0.5 hover:brightness-95 transition-all">Read the FAQs</Link>
-              <a href={contact.whatsappHref} className="bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:brightness-95 transition">WhatsApp {contact.whatsapp}</a>
+              {contact.whatsappDigits && <a href={contact.whatsappHref} className="bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm px-6 py-3 rounded-xl hover:brightness-95 transition">WhatsApp {contact.whatsapp}</a>}
             </div>
           </div>
           <div className="flex-1 bg-[#FAF5EB] dark:bg-gray-900 p-8 md:p-12">

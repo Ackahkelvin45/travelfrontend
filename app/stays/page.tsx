@@ -25,6 +25,7 @@ function fromMatrix(m: ComponentMatrix): LiveStay[] {
     status: t.on_sale ? "live" : "tbc",
     soldOut: t.on_sale && t.units_available === 0,
     nights: t.nights,
+    bedding: t.bedding, breakfast: t.breakfast, location: t.location, amenities: t.amenities, images: t.images,
   }));
 }
 
@@ -45,10 +46,19 @@ function StayCard({ s, i, bookHref }: { s: LiveStay; i: number; bookHref: string
   return (
     <Reveal delay={(i % 2) * 90} className="h-full">
       <div className={`card-lift h-full flex flex-col rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-md ${tbc ? "opacity-90" : ""}`}>
-        <div className="h-56 bg-[#FAF5EB] dark:bg-gray-800 flex flex-col items-center justify-center gap-2 text-[#8A6420]">
-          <BlackStar size={36} />
-          <span className="text-xs font-semibold">Approved photos to supply</span>
-        </div>
+        {s.images?.length ? (
+          <div className="h-56 flex overflow-x-auto snap-x snap-mandatory" tabIndex={0} aria-label={`${s.name} photos, scroll for more`}>
+            {s.images.map((img) => (
+              // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded media served by the API
+              <img key={img.url} src={img.url} alt={img.alt} loading="lazy" className="h-56 w-full shrink-0 snap-center object-cover" />
+            ))}
+          </div>
+        ) : (
+          <div className="h-56 bg-[#FAF5EB] dark:bg-gray-800 flex flex-col items-center justify-center gap-2 text-[#8A6420]">
+            <BlackStar size={36} />
+            <span className="text-xs font-semibold">Photos coming soon</span>
+          </div>
+        )}
         <div className="p-6 flex flex-col gap-3 flex-1">
           <div className="flex items-center justify-between gap-3">
             <span className="font-montserrat text-xs font-bold uppercase tracking-wider text-[#8A6420] dark:text-[#C9A96E]">{s.tier}</span>
@@ -60,7 +70,16 @@ function StayCard({ s, i, bookHref }: { s: LiveStay; i: number; bookHref: string
             <span className="bg-[#FAF5EB] text-[#6B4E1A] text-xs px-3 py-1.5 rounded-full">{s.guests}</span>
             <span className="bg-[#FAF5EB] text-[#6B4E1A] text-xs px-3 py-1.5 rounded-full">{s.note}</span>
           </div>
-          <p className="text-sm text-gray-700 dark:text-gray-300">Location, amenities and bedding: [TO BE SUPPLIED]</p>
+          {s.bedding || s.breakfast || s.location || s.amenities?.length ? (
+            <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-sm text-gray-700 dark:text-gray-300">
+              {s.bedding && <><dt className="font-semibold text-text-primary">Bedding</dt><dd>{s.bedding}</dd></>}
+              {s.breakfast && <><dt className="font-semibold text-text-primary">Breakfast</dt><dd>{s.breakfast}</dd></>}
+              {s.location && <><dt className="font-semibold text-text-primary">Location</dt><dd>{s.location}</dd></>}
+              {!!s.amenities?.length && <><dt className="font-semibold text-text-primary">Amenities</dt><dd>{s.amenities.join(" · ")}</dd></>}
+            </dl>
+          ) : (
+            <p className="text-sm text-gray-700 dark:text-gray-300">Room details and photos are being confirmed with the property.</p>
+          )}
           <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3">
             <span className="text-sm text-gray-700 dark:text-gray-300">
               <strong className="font-montserrat text-xl text-text-primary">USD {s.price}</strong> / night · USD {(s.price * nights).toLocaleString("en-US")} for {nights} nights

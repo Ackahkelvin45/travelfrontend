@@ -74,10 +74,10 @@ export default function Footer() {
         <div className="px-4 md:px-10 lg:px-20 py-8 flex flex-col md:flex-row items-center md:items-end justify-between gap-6">
           <Image src={logofull} alt="Azura Travels" className="w-48 h-auto dark:hidden" />
           <Image src={logofulldark} alt="Azura Travels" className="w-48 h-auto hidden dark:block" />
-          <a href={contact.whatsappHref} className="inline-flex items-center gap-2 bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm px-4 py-2.5 rounded-xl hover:brightness-95 transition">
+          {contact.whatsappDigits && <a href={contact.whatsappHref} className="inline-flex items-center gap-2 bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm px-4 py-2.5 rounded-xl hover:brightness-95 transition">
             <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.6 7.3L3 20l1.3-5.1A8.4 8.4 0 1 1 21 11.5z" /></svg>
             WhatsApp {contact.whatsapp}
-          </a>
+          </a>}
         </div>
 
         <hr className="border-gray-200 dark:border-gray-700 mx-4 md:mx-10 lg:mx-20" />
@@ -85,11 +85,12 @@ export default function Footer() {
         <div className="px-4 md:px-10 lg:px-20 py-10 md:py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.6fr] gap-10 lg:gap-12">
           <div className="flex flex-col gap-3 text-sm text-text-primary leading-relaxed">
             <h3 className="text-lg font-bold font-raleway">Contact</h3>
-            <p>{contact.legal}</p>
-            <p>{contact.phone}</p>
-            <p>{contact.email}</p>
-            <p className="text-gray-700 dark:text-gray-300">Trip emergency line: {contact.emergency}</p>
-            <p className="text-gray-700 dark:text-gray-300">Staffed hours: {contact.staffedHours}</p>
+            {contact.legal && <p>{contact.legal}</p>}
+            {contact.phone && <p>{contact.phone}</p>}
+            {contact.email && <p><a href={`mailto:${contact.email}`}>{contact.email}</a></p>}
+            {contact.emergency && <p className="text-gray-700 dark:text-gray-300">Trip emergency line: {contact.emergency}</p>}
+            {contact.hoursSet && <p className="text-gray-700 dark:text-gray-300">Staffed hours: {contact.staffedHours}</p>}
+            <Link href="/about#contact" className="font-semibold text-[#8A6420] dark:text-primary">Contact us</Link>
           </div>
 
           <div className="flex flex-col gap-3">

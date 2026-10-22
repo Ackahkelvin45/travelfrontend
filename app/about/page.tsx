@@ -30,11 +30,11 @@ const POLICIES = [
 export default async function AboutPage() {
   const contact = await getSiteContact();
   const CONTACTS = [
-  { label: "Email", value: contact.email, note: "Bookings, quotes and documents.", href: null },
+  { label: "Email", value: contact.email, note: "Bookings, quotes and documents.", href: contact.email ? `mailto:${contact.email}` : null },
   { label: "WhatsApp", value: contact.whatsapp, note: "Message a person during staffed hours.", href: contact.whatsappHref },
   { label: "Phone", value: contact.phone, note: "Include your country code when calling.", href: null },
   { label: "Trip emergency line", value: contact.emergency, note: "For guests on the trip, 6 to 11 January.", href: null },
-];
+].filter((c) => c.value); // blank in Settings = not shown
   return (
     <main className="w-full bg-background">
       <PageHero
@@ -69,6 +69,9 @@ export default async function AboutPage() {
 
       <section id="contact" className="px-4 md:px-10 lg:px-20 py-12 scroll-mt-28">
         <SectionHeading eyebrow="Contact" title="Talk to Us" />
+        {CONTACTS.length === 0 && (
+          <p className="mb-5 text-gray-700 dark:text-gray-300">Our contact details are being confirmed. Tap the chat button and our team will reply.</p>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {CONTACTS.map((c, i) => (
             <Reveal key={c.label} delay={i * 70} className="card-lift border border-gray-100 dark:border-gray-800 rounded-2xl p-6 bg-white dark:bg-gray-900 flex flex-col gap-2">
@@ -79,9 +82,9 @@ export default async function AboutPage() {
           ))}
         </div>
         <Reveal className="mt-5 bg-[#FAF5EB] dark:bg-gray-900 rounded-2xl px-6 py-5 flex flex-wrap gap-x-10 gap-y-3 text-sm text-gray-700 dark:text-gray-300">
-          <span><strong className="text-text-primary">Staffed hours:</strong> {contact.staffedHours}</span>
+          {contact.hoursSet && <span><strong className="text-text-primary">Staffed hours:</strong> {contact.staffedHours}</span>}
           <span><strong className="text-text-primary">Reply time:</strong> within 1 business hour when staffed, within 24 hours otherwise</span>
-          <span><strong className="text-text-primary">Operator:</strong> {contact.legal}</span>
+          {contact.legal && <span><strong className="text-text-primary">Operator:</strong> {contact.legal}</span>}
         </Reveal>
       </section>
 

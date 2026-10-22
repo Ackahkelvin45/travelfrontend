@@ -26,11 +26,11 @@ export default async function FaqsPage() {
           </Reveal>
           <Reveal delay={200}>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              Can&apos;t find your answer? Tap the chat button, or message the team on WhatsApp during {contact.staffedHours}.
+              Can&apos;t find your answer? Tap the chat button, or message the team{contact.whatsappDigits ? " on WhatsApp" : ""} during {contact.staffedHours}.
             </p>
           </Reveal>
           <Reveal delay={300} className="flex flex-col gap-2.5 pt-2">
-            <a href={contact.whatsappHref} className="text-center bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm px-5 py-3 rounded-xl hover:brightness-95 transition">WhatsApp {contact.whatsapp}</a>
+            {contact.whatsappDigits && <a href={contact.whatsappHref} className="text-center bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm px-5 py-3 rounded-xl hover:brightness-95 transition">WhatsApp {contact.whatsapp}</a>}
             <Link href="/about#contact" className="text-center border border-text-primary text-text-primary font-montserrat font-semibold text-sm px-5 py-3 rounded-xl hover:bg-text-primary hover:text-background transition-colors">Contact us</Link>
           </Reveal>
         </aside>

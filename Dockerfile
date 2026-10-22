@@ -20,6 +20,17 @@ COPY . .
 # Disable Next.js telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# NEXT_PUBLIC_* are baked into the bundle at build time (.env files are not
+# copied in), so each environment passes its own. No API URL = no build: a
+# missing value would otherwise fall back to the live backend.
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_PAYSTACK_USE_POPUP=true
+RUN test -n "$NEXT_PUBLIC_API_URL" -a -n "$NEXT_PUBLIC_SITE_URL" || (echo "Set NEXT_PUBLIC_API_URL and NEXT_PUBLIC_SITE_URL build args" && exit 1)
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
+    NEXT_PUBLIC_PAYSTACK_USE_POPUP=$NEXT_PUBLIC_PAYSTACK_USE_POPUP
+
 RUN npm run build
 
 # Production image, copy all the files and run next

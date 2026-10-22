@@ -205,7 +205,7 @@ export default function CommercialSections({
                     onClick={() => setOpenPolicy(doc)}
                     className="border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 text-sm font-semibold font-open-sans text-text-primary hover:border-primary hover:text-primary transition-colors"
                   >
-                    {doc.title} <span className="text-xs text-gray-400">v{doc.version}</span>
+                    {doc.title}
                   </button>
                 ))}
               </div>

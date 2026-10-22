@@ -24,6 +24,9 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Checkout has its own focused header (canvas: CheckoutDetails / CheckoutPayment).
+  if (pathname.startsWith("/checkout")) return null;
+
   return (
     <nav
       aria-label="Main"
@@ -54,7 +57,7 @@ export default function Navbar() {
         ))}
         <li><AccountMenu /></li>
         <li>
-          <Link href="/ghana-experience-2027" className="bg-primary text-white font-montserrat font-semibold text-sm px-5 py-3 rounded-xl hover:-translate-y-0.5 hover:brightness-95 transition-all whitespace-nowrap">
+          <Link href="/ghana-experience-2027/build" className="bg-primary text-white font-montserrat font-semibold text-sm px-5 py-3 rounded-xl hover:-translate-y-0.5 hover:brightness-95 transition-all whitespace-nowrap">
             Book Now
           </Link>
         </li>
@@ -74,7 +77,6 @@ export default function Navbar() {
         )}
       </button>
 
-      <div aria-hidden="true" className="kente absolute inset-x-0 bottom-0 h-1" />
 
       {menuOpen && (
         <div className="content-in absolute top-20 left-0 w-full bg-white dark:bg-gray-900 shadow-md border-b border-gray-100 dark:border-gray-800 flex flex-col px-4 pb-5 lg:hidden">
@@ -91,7 +93,7 @@ export default function Navbar() {
           <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="text-base font-semibold text-text-primary py-3.5 border-b border-gray-100 dark:border-gray-800">
             My Bookings
           </Link>
-          <Link href="/ghana-experience-2027" onClick={() => setMenuOpen(false)} className="mt-4 text-center bg-primary text-white font-montserrat font-semibold py-3.5 rounded-xl">
+          <Link href="/ghana-experience-2027/build" onClick={() => setMenuOpen(false)} className="mt-4 text-center bg-primary text-white font-montserrat font-semibold py-3.5 rounded-xl">
             Book Now
           </Link>
         </div>

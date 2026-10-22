@@ -1,14 +1,16 @@
 "use client";
 
+import { useSiteContact } from "@/lib/content/useSiteContact";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import footerBg from "../../assets/images/bgfooter.png";
 import footerBgDark from "../../assets/images/bgfooterdark.png";
 import logofull from "../../assets/logo/logofull.png";
 import logofulldark from "../../assets/logo/logofulldark.png";
 import { useSubscribeNewsletterMutation } from "@/lib/api/newsletterApi";
-import { CONTACT, whatsappHref } from "@/lib/content/site";
+
 
 const TRAVEL = [
   { href: "/december-in-ghana", label: "December in Ghana" },
@@ -20,8 +22,7 @@ const TRAVEL = [
 const SUPPORT = [
   { href: "/faqs", label: "FAQs" },
   { href: "/about", label: "About Us" },
-  { href: "/blog", label: "Travel Guides" },
-  { href: "/gallery", label: "Gallery" },
+  { href: "/donate", label: "Support the Academy" },
 ];
 // All four customer policies stay linked from every page (policy requirement).
 const POLICIES = [
@@ -32,6 +33,8 @@ const POLICIES = [
 ];
 
 export default function Footer() {
+  const contact = useSiteContact();
+  const pathname = usePathname();
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [subscribe, { isLoading }] = useSubscribeNewsletterMutation();
@@ -56,9 +59,11 @@ export default function Footer() {
     setTimeout(() => setMessage(null), 5000);
   };
 
+  // Checkout has its own focused header (canvas: CheckoutDetails / CheckoutPayment).
+  if (pathname.startsWith("/checkout")) return null;
+
   return (
     <footer className="relative w-full font-open-sans mt-16 md:mt-24 overflow-hidden">
-      <div aria-hidden="true" className="kente h-2.5 relative z-10" />
       <div className="absolute inset-0 bg-cover bg-center bg-no-repeat dark:hidden" style={{ backgroundImage: `url(${footerBg.src})` }} />
       <div className="absolute inset-0 bg-cover bg-center bg-no-repeat hidden dark:block" style={{ backgroundImage: `url(${footerBgDark.src})` }} />
 
@@ -66,10 +71,10 @@ export default function Footer() {
         <div className="px-4 md:px-10 lg:px-20 py-8 flex flex-col md:flex-row items-center md:items-end justify-between gap-6">
           <Image src={logofull} alt="Azura Travels" className="w-48 h-auto dark:hidden" />
           <Image src={logofulldark} alt="Azura Travels" className="w-48 h-auto hidden dark:block" />
-          <a href={whatsappHref} className="inline-flex items-center gap-2 bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm px-4 py-2.5 rounded-xl hover:brightness-95 transition">
+          {contact.whatsappDigits && <a href={contact.whatsappHref} className="inline-flex items-center gap-2 bg-[#25D366] text-[#06290F] font-montserrat font-semibold text-sm px-4 py-2.5 rounded-xl hover:brightness-95 transition">
             <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.6 7.3L3 20l1.3-5.1A8.4 8.4 0 1 1 21 11.5z" /></svg>
-            WhatsApp {CONTACT.whatsapp}
-          </a>
+            WhatsApp {contact.whatsapp}
+          </a>}
         </div>
 
         <hr className="border-gray-200 dark:border-gray-700 mx-4 md:mx-10 lg:mx-20" />
@@ -77,11 +82,12 @@ export default function Footer() {
         <div className="px-4 md:px-10 lg:px-20 py-10 md:py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.6fr] gap-10 lg:gap-12">
           <div className="flex flex-col gap-3 text-sm text-text-primary leading-relaxed">
             <h3 className="text-lg font-bold font-raleway">Contact</h3>
-            <p>{CONTACT.legal}</p>
-            <p>{CONTACT.phone}</p>
-            <p>{CONTACT.email}</p>
-            <p className="text-gray-700 dark:text-gray-300">Trip emergency line: {CONTACT.emergency}</p>
-            <p className="text-gray-700 dark:text-gray-300">Staffed hours: {CONTACT.staffedHours}</p>
+            {contact.legal && <p>{contact.legal}</p>}
+            {contact.phone && <p>{contact.phone}</p>}
+            {contact.email && <p><a href={`mailto:${contact.email}`}>{contact.email}</a></p>}
+            {contact.emergency && <p className="text-gray-700 dark:text-gray-300">Trip emergency line: {contact.emergency}</p>}
+            {contact.hoursSet && <p className="text-gray-700 dark:text-gray-300">Staffed hours: {contact.staffedHours}</p>}
+            <Link href="/about#contact" className="font-semibold text-[#8A6420] dark:text-primary">Contact us</Link>
           </div>
 
           <div className="flex flex-col gap-3">

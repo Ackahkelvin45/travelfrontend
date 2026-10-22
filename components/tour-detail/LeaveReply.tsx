@@ -63,7 +63,11 @@ export default function LeaveReply({ packageId, bookingReference: initialBooking
 
  {error && (
  <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 font-open-sans">
- Something went wrong. Please try again.
+ {"status" in error && error.status === 429
+ ? "Too many reviews from this connection. Please try again later."
+ : "status" in error && error.status === 400
+ ? "Please check your review: plain text only, up to 5,000 characters."
+ : "Something went wrong. Please try again."}
  </div>
  )}
 

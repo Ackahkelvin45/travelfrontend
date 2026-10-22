@@ -1,12 +1,10 @@
 import Link from "next/link";
 import type { Package } from "@/lib/api/packagesApi";
 import { fmtDateRange, fmtMoney } from "@/lib/format";
-import { FLAGSHIP_SLUG } from "@/lib/content/site";
 import { BlackStar } from "./Decor";
 
-/** Grid card for an API package. The flagship gets a gold badge. */
+/** Grid card for an API package. */
 export default function PackageCard({ pkg }: { pkg: Package }) {
-  const isFlagship = pkg.slug === FLAGSHIP_SLUG;
   const price = pkg.from_price ?? pkg.price_shared;
   const dates = pkg.available_from && pkg.available_to ? fmtDateRange(pkg.available_from, pkg.available_to) : null;
   return (
@@ -24,9 +22,6 @@ export default function PackageCard({ pkg }: { pkg: Package }) {
             <BlackStar size={36} />
             <span className="text-xs font-semibold">Photo coming soon</span>
           </div>
-        )}
-        {isFlagship && (
-          <span className="absolute top-3 left-3 bg-primary text-white font-montserrat text-[11px] font-bold px-2.5 py-1 rounded-full">Flagship</span>
         )}
       </div>
       <div className="p-4 flex flex-col gap-2 flex-1">

@@ -5,11 +5,16 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/lib/store/store";
 import { logout, setUser } from "@/lib/features/auth/authSlice";
-import { useGetMeQuery } from "@/lib/api/authApi";
+import { useGetMeQuery, useRevokeTokenMutation } from "@/lib/api/authApi";
+import { BASE_URL } from "@/lib/api/baseApi";
+
+/** Staff work in the Django admin, next to the API. */
+const ADMIN_URL = BASE_URL.replace(/api\/?$/, "admin/");
 
 export default function AccountMenu() {
   const dispatch = useDispatch();
-  const { token, user, hydrated } = useSelector((state: RootState) => state.auth);
+  const { token, refreshToken, user, hydrated } = useSelector((state: RootState) => state.auth);
+  const [revokeToken] = useRevokeTokenMutation();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -67,15 +72,19 @@ export default function AccountMenu() {
             My bookings
           </Link>
           {user?.is_staff && (
-            <Link
-              href="/staff" onClick={() => setOpen(false)}
+            <a
+              href={ADMIN_URL} onClick={() => setOpen(false)}
               className="block px-4 py-2.5 text-sm font-open-sans font-semibold text-primary hover:bg-gray-50 dark:hover:bg-gray-800"
             >
-              Staff portal
-            </Link>
+              Staff admin
+            </a>
           )}
           <button
-            onClick={() => { dispatch(logout()); setOpen(false); }}
+            onClick={() => {
+              // Revoke server-side too; signing out locally never waits on it.
+              if (refreshToken) revokeToken({ refresh: refreshToken }).catch(() => {});
+              dispatch(logout()); setOpen(false);
+            }}
             className="block w-full text-left px-4 py-2.5 text-sm font-open-sans text-red-600 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             Sign out

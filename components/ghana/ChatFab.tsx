@@ -28,7 +28,8 @@ export default function ChatFab() {
   const [msg, setMsg] = useState({ name: "", email: "", message: "", consent: false });
   const [createLead] = useCreateLeadMutation();
 
-  useEffect(() => endRef.current?.scrollIntoView({ block: "nearest" }), [turns, thinking]);
+  // Braces: newer browsers return a Promise from scrollIntoView, and an effect may only return a cleanup.
+  useEffect(() => { endRef.current?.scrollIntoView({ block: "nearest" }); }, [turns, thinking]);
 
   // Staff tools and booking/checkout flows have their own fixed bottom bars.
   if (/^\/(staff|tour|book|booking|checkout|experience|payment|claim)(\/|$)/.test(pathname)) return null;

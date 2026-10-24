@@ -4,7 +4,8 @@
 import { openPaystackPopup, PAYSTACK_USE_POPUP } from "@/lib/payments/paystack";
 import type { DonationStart } from "@/lib/api/donationsApi";
 
-export type DonationChoice = { percent: 5 | 10 } | { amount: string } | null;
+/** percent: a whole number from 2 to 15. */
+export type DonationChoice = { percent: number } | { amount: string } | null;
 
 export interface PendingDonation {
   bookingId: string;

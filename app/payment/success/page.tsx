@@ -147,7 +147,9 @@ function SuccessContent() {
         <h1 className="font-raleway text-3xl md:text-[38px] font-bold text-text-primary">
           You&apos;re going to Ghana{booking.first_name ? <>, <em className="font-cormorant italic font-semibold">{booking.first_name}!</em></> : "!"}
         </h1>
-        <p className="text-[15px] text-gray-700 dark:text-gray-300">We&apos;ve emailed your confirmation and receipt{booking.email ? ` to ${booking.email}` : ""}.</p>
+        <p className="text-[15px] text-gray-700 dark:text-gray-300">
+          Your payment is confirmed. Please check your email{booking.email ? <> at <strong className="text-text-primary">{booking.email}</strong></> : ""} for your booking details and receipt.
+        </p>
         <div className="flex items-center gap-2.5 rounded-xl border border-dashed border-primary bg-white dark:bg-gray-900 px-4 py-2.5">
           <span className="text-xs text-gray-500 dark:text-gray-400">Booking reference</span>
           <strong className="font-montserrat text-lg tracking-wider text-text-primary">{booking.reference}</strong>

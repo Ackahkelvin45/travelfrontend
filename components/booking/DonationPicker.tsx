@@ -1,7 +1,7 @@
 "use client";
 
 /** Optional Academy donation at checkout (Change Request v4 §7): unselected by
- * default, 5% / 10% of the booking or a custom USD amount, shown apart from
+ * default, 2% to 15% of the booking or a custom USD amount, shown apart from
  * the booking total and charged separately to the Academy's own account. */
 
 import { useState } from "react";
@@ -18,7 +18,7 @@ export default function DonationPicker({ total, currency, value, onChange, disab
 }) {
   const [custom, setCustom] = useState(value && "amount" in value ? value.amount : "");
   const pct = (p: number) => (parseFloat(total) * p / 100).toFixed(2); // preview; the server prices the gift
-  const isPct = (p: 5 | 10) => !!value && "percent" in value && value.percent === p;
+  const percent = value && "percent" in value ? value.percent : null;
 
   return (
     <section className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 md:p-6 flex flex-col gap-3">
@@ -30,14 +30,21 @@ export default function DonationPicker({ total, currency, value, onChange, disab
       </div>
       <div role="radiogroup" aria-label="Academy donation" className="flex flex-wrap gap-2">
         <button type="button" role="radio" aria-checked={!value} disabled={disabled} onClick={() => onChange(null)} className={pill(!value)}>No, thanks</button>
-        {([5, 10] as const).map((p) => (
-          <button key={p} type="button" role="radio" aria-checked={isPct(p)} disabled={disabled} onClick={() => onChange({ percent: p })} className={pill(isPct(p))}>
-            {p}% · {fmtMoney(pct(p), currency)}
-          </button>
-        ))}
+        <button type="button" role="radio" aria-checked={percent !== null} disabled={disabled}
+          onClick={() => onChange({ percent: percent ?? 2 })} className={pill(percent !== null)}>A percentage</button>
         <button type="button" role="radio" aria-checked={!!value && "amount" in value} disabled={disabled}
           onClick={() => onChange({ amount: custom || "25" })} className={pill(!!value && "amount" in value)}>Other amount</button>
       </div>
+      {percent !== null && (
+        <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex flex-col gap-1.5 max-w-sm">
+          <span>{percent}% of your booking · <span className="font-montserrat text-sm text-text-primary">{fmtMoney(pct(percent), currency)}</span></span>
+          <input
+            type="range" min={2} max={15} step={1} value={percent} disabled={disabled}
+            onChange={(e) => onChange({ percent: Number(e.target.value) })} className="accent-primary"
+          />
+          <span className="flex justify-between font-normal text-gray-500 dark:text-gray-400"><span>2%</span><span>15%</span></span>
+        </label>
+      )}
       {value && "amount" in value && (
         <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 flex flex-col gap-1 max-w-[200px]">
           Amount in USD

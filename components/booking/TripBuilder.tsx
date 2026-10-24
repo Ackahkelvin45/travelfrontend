@@ -39,8 +39,10 @@ export function useTripBuilder(packageId: string, packageTitle: string, enabled:
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore from sessionStorage
     if (saved?.packageId === packageId) setChoices(saved.choices);
   }, [packageId]);
-  const [quote, setQuote] = useState<ComponentQuote | null>(null);
-  const [quoteError, setQuoteError] = useState<string | null>(null);
+  // The quote is kept with the selection it priced, so a total is never shown
+  // (or booked) for a selection that has since changed.
+  const [priced, setPriced] = useState<{ key: string; quote: ComponentQuote } | null>(null);
+  const [failed, setFailed] = useState<{ key: string | null; detail: string } | null>(null);
   const [holding, setHolding] = useState(false);
   const [requestQuote] = useComponentQuoteMutation();
   const [createHold] = useCreateHoldMutation();
@@ -53,7 +55,9 @@ export function useTripBuilder(packageId: string, packageTitle: string, enabled:
   let warning: string | null = null;
   if (stay) {
     const [lo, hi] = unitRange(stay, n);
-    if (lo > hi) warning = `${stay.name} needs ${stay.min_occupancy} guests per room. Add a guest or choose another stay.`;
+    if (lo > hi) warning = stay.kind === "airbnb"
+      ? `${stay.name} sleeps up to ${stay.capacity}, and each booking takes one Airbnb. Choose accommodation that fits all ${n} guests, or make separate bookings.`
+      : `${stay.name} needs ${stay.min_occupancy} guests per room. Add a guest or choose another stay.`;
     else if (units > stay.units_available) warning = `Only ${stay.units_available} × ${stay.name} left.`;
   }
 
@@ -65,16 +69,18 @@ export function useTripBuilder(packageId: string, packageTitle: string, enabled:
     const id = ++seq.current;
     const t = setTimeout(() => {
       requestQuote(JSON.parse(key)).unwrap()
-        .then((q) => { if (id === seq.current) { setQuote(q); setQuoteError(null); } })
-        .catch((e) => { if (id === seq.current) setQuoteError(errorDetail(e, "We couldn't price this trip. Please try again.")); });
+        .then((q) => { if (id === seq.current) { setPriced({ key, quote: q }); setFailed(null); } })
+        .catch((e) => { if (id === seq.current) setFailed({ key, detail: errorDetail(e, "We couldn't price this trip. Please try again.") }); });
     }, 250);
     return () => clearTimeout(t);
   }, [key, requestQuote]);
+  const quote = priced && priced.key === key ? priced.quote : null;
+  const quoteError = failed && (failed.key === null || failed.key === key) ? failed.detail : null;
 
   const update = (patch: Partial<TripChoices>) => setChoices((c) => ({ ...c, ...patch }));
 
   const continueToDetails = async () => {
-    if (!selection || warning || quoteError) return;
+    if (!selection || warning || quoteError || !quote) return;
     setHolding(true);
     const previous = loadCheckout();
     try {
@@ -85,14 +91,14 @@ export function useTripBuilder(packageId: string, packageTitle: string, enabled:
       saveCheckout({ packageId, packageTitle, choices, hold });
       router.push("/checkout/details");
     } catch (e) {
-      setQuoteError(errorDetail(e, "Those rooms were just taken. Please choose again."));
+      setFailed({ key: null, detail: errorDetail(e, "Those rooms were just taken. Please choose again.") });
       setHolding(false);
     }
   };
 
   return {
     packageId, matrix, choices, update, n, stay, units, selection, warning,
-    quote: warning ? null : quote, quoteError, holding, continueToDetails,
+    quote, quoteError, holding, continueToDetails,
   };
 }
 
@@ -131,7 +137,6 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
   const group = [...matrix.group_discounts].sort((a, b) => a.min_travellers - b.min_travellers)[0];
   const perGuest = matrix.experiences.filter((e) => e.unit !== "per_vehicle");
   const transfers = matrix.experiences.filter((e) => e.unit === "per_vehicle");
-  const transferTotal = transfers.reduce((sum, e) => sum + Math.min(n, choices.counts[e.code] ?? 0), 0);
   const needsAdult = perGuest.some((e) => e.adults_only && (choices.counts[e.code] ?? 0) > 0);
   const [lo, hi] = stay ? unitRange(stay, n) : [0, 0];
   const wordFor = (s: ComponentMatrix["stay_types"][number]) => (s.kind === "airbnb" ? "Unit" : "Room");
@@ -263,25 +268,22 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
           <div>
             <h3 className="font-raleway font-bold text-text-primary">4. Airport transfers</h3>
             <p className="text-xs text-gray-600 dark:text-gray-400">
-              {stay ? `Priced per vehicle of up to ${transfers[0].vehicle_capacity} guests. One transfer per guest.` : "For guests staying in Azura accommodation. Choose an Accra stay to add one."}
+              {stay ? `For everyone on this booking, priced per vehicle of up to ${transfers[0].vehicle_capacity} guests.` : "For guests staying in Azura accommodation. Choose an Accra stay to add one."}
             </p>
           </div>
-          {stay && transfers.map((e) => {
-            const count = Math.min(n, choices.counts[e.code] ?? 0);
-            const set = (v: number) => update({ counts: { ...choices.counts, [e.code]: Math.max(0, v) } });
-            return (
-              <div key={e.code} className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex flex-col">
-                  <span className="font-semibold text-sm text-text-primary">{e.name}</span>
-                  <span className="text-xs text-gray-600 dark:text-gray-400">{fmtMoney(e.price, c)} per vehicle</span>
-                </div>
-                <Stepper
-                  label={`guests for ${e.name}`} value={`${count} of ${n}`} decDisabled={count <= 0} incDisabled={transferTotal >= n}
-                  onDec={() => set(count - 1)} onInc={() => set(count + 1)}
-                />
-              </div>
-            );
-          })}
+          {stay && (
+            <div role="radiogroup" aria-label="Airport transfer" className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {[{ code: "", name: "No transfer", price: null as string | null }, ...transfers].map((e) => (
+                <button
+                  key={e.code} type="button" role="radio" aria-checked={(choices.transfer ?? "") === e.code}
+                  onClick={() => update({ transfer: e.code })} className={option((choices.transfer ?? "") === e.code)}
+                >
+                  <span className="font-raleway font-bold text-text-primary">{e.name}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">{e.price ? `${fmtMoney(e.price, c)} per vehicle` : "I'll make my own way"}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>
@@ -323,9 +325,8 @@ export function TripSummary({ trip }: { trip: TripBuilderState }) {
       </div>
 
       {quote ? <QuoteSummary quote={quote} /> : (
-        <p className="text-sm text-gray-600 dark:text-gray-400" aria-live="polite">{trip.warning ?? trip.quoteError ?? "Pricing your trip…"}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400" aria-live="polite">{trip.warning ?? trip.quoteError ?? "Updating your total…"}</p>
       )}
-      {quote && trip.quoteError && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{trip.quoteError}</p>}
 
       {matrix.installments.enabled && (
         <p className="rounded-xl bg-primary/5 px-4 py-3 text-[13px] text-gray-700 dark:text-gray-300">

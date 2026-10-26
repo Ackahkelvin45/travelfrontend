@@ -26,8 +26,8 @@ export const whatsappHref = CONTACT.whatsappDigits ? `https://wa.me/${CONTACT.wh
 export interface NavLink { href: string; label: string; children?: { href: string; label: string; note?: string }[] }
 
 // Ghana Experience categories (client feedback, Oct 2026). The Michael
-// Blackson Ghana Experience stays first; the last three are enquiry-only
-// "coming soon" pages until Azura sends their content.
+// Blackson Ghana Experience stays first. Table Reservations, Group Share and
+// Creator Packages belong to EnqoreAccess, not this site.
 export const NAV_LINKS: NavLink[] = [
   { href: "/", label: "Home" },
   {
@@ -36,9 +36,6 @@ export const NAV_LINKS: NavLink[] = [
       { href: "/stays", label: "Airbnbs", note: "Stay in Accra, with or without the event" },
       { href: "/december-in-ghana", label: "December Tour Packages" },
       { href: "/experiences", label: "Experiences" },
-      { href: "/table-reservations", label: "Event Table Reservations", note: "Coming soon" },
-      { href: "/group-share", label: "Group Share", note: "Coming soon" },
-      { href: "/creator-packages", label: "Creator Packages", note: "Coming soon" },
     ],
   },
   { href: "/faqs", label: "FAQs" },

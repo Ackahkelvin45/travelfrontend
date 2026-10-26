@@ -77,7 +77,7 @@ export function CoordinatorPanel({ booking, whatsapp }: { booking: BookingDetail
   const rooms = [...new Set(booking.travellers.map((t) => t.unit).filter(Boolean))];
   const travelDone = booking.travellers.length > 0 && booking.travellers.every((t) => t.travel_info_submitted);
   const checks = [
-    { done: booking.travellers.length > 0, label: "Names and Core tickets confirmed" },
+    { done: booking.travellers.length > 0, label: booking.mode === "stay" ? "Guest names confirmed" : "Names and Core tickets confirmed" },
     { done: rooms.length > 0, label: rooms.length ? `Room allocated: ${rooms.join(", ")}` : "No Accra stay booked" },
     { done: travelDone, label: `Travel information: ${travelDone ? "complete" : "in progress"}` },
   ];

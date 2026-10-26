@@ -36,8 +36,11 @@ export function useTripBuilder(packageId: string, packageTitle: string, enabled:
   // Coming back from checkout restores the trip (after hydration, so SSR matches).
   useEffect(() => {
     const saved = loadCheckout();
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore from sessionStorage
-    if (saved?.packageId === packageId) setChoices(saved.choices);
+    // The Stays page links here with ?mode=stay (an Airbnb without the event).
+    const stayOnly = new URLSearchParams(window.location.search).get("mode") === "stay";
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore from sessionStorage / the link
+    if (saved?.packageId === packageId && (!stayOnly || saved.choices.mode === "stay")) setChoices(saved.choices);
+    else if (stayOnly) setChoices({ ...DEFAULT_CHOICES, mode: "stay", groupSize: 2 });
   }, [packageId]);
   // The quote is kept with the selection it priced, so a total is never shown
   // (or booked) for a selection that has since changed.
@@ -128,6 +131,7 @@ const MODES: { id: TravelMode; label: string; hint: string }[] = [
   { id: "single", label: "Single", hint: "1 traveller" },
   { id: "couple", label: "Couple", hint: "2 travellers" },
   { id: "group", label: "Group", hint: "3 or more" },
+  { id: "stay", label: "Stay only", hint: "Airbnb, no event" },
 ];
 
 export function TripBuilder({ trip }: { trip: TripBuilderState }) {
@@ -140,19 +144,29 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
   const needsAdult = perGuest.some((e) => e.adults_only && (choices.counts[e.code] ?? 0) > 0);
   const [lo, hi] = stay ? unitRange(stay, n) : [0, 0];
   const wordFor = (s: ComponentMatrix["stay_types"][number]) => (s.kind === "airbnb" ? "Unit" : "Room");
+  const stayOnly = choices.mode === "stay";
+  const airbnbs = matrix.stay_types.filter((s) => s.kind === "airbnb");
+  const maxStayGuests = Math.max(1, ...airbnbs.filter((s) => s.on_sale).map((s) => s.capacity));
+  const chooseMode = (mode: TravelMode) => update(mode === "stay"
+    // No Core, so no event experiences; only an Airbnb can be booked alone.
+    ? { mode, units: 0, counts: {}, groupSize: Math.min(n, maxStayGuests), stay: stay?.kind === "airbnb" ? choices.stay : "" }
+    : { mode, units: 0 });
 
   return (
     <section id="book" className="scroll-mt-28 flex flex-col gap-6">
       <div>
-        <h1 className="font-raleway text-[28px] md:text-[32px] font-bold leading-tight text-text-primary">Build Your Trip</h1>
-        <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">Your total updates as you go, with each guest&apos;s share. Core tickets are never discounted.</p>
+        <h1 className="font-raleway text-[28px] md:text-[32px] font-bold leading-tight text-text-primary">{stayOnly ? "Book Your Stay" : "Build Your Trip"}</h1>
+        <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+          {stayOnly ? "An Airbnb in Accra for 6–11 January, without the event. Your total updates as you go."
+            : "Your total updates as you go, with each guest's share. Core tickets are never discounted."}
+        </p>
       </div>
 
       <div className={card}>
         <h3 className="font-raleway font-bold text-text-primary">1. Who&apos;s travelling</h3>
-        <div role="group" aria-label="Travel mode" className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        <div role="group" aria-label="Travel mode" className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           {MODES.map((m) => (
-            <button key={m.id} type="button" aria-pressed={choices.mode === m.id} onClick={() => update({ mode: m.id, units: 0 })} className={option(choices.mode === m.id)}>
+            <button key={m.id} type="button" aria-pressed={choices.mode === m.id} onClick={() => chooseMode(m.id)} className={option(choices.mode === m.id)}>
               <span className="font-raleway font-bold text-text-primary">{m.label}</span>
               <span className="text-xs text-gray-600 dark:text-gray-400">{m.hint}</span>
             </button>
@@ -160,13 +174,15 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-col">
-            <span className="font-semibold text-sm text-text-primary">Core travellers</span>
+            <span className="font-semibold text-sm text-text-primary">{stayOnly ? "Guests" : "Core travellers"}</span>
             <span className="text-xs text-gray-600 dark:text-gray-400">
-              {matrix.core_price_per_person ? fmtMoney(matrix.core_price_per_person, c) : "—"} each · one ticket per guest
+              {stayOnly ? "Staying in the Airbnb · no event ticket"
+                : `${matrix.core_price_per_person ? fmtMoney(matrix.core_price_per_person, c) : "—"} each · one ticket per guest`}
             </span>
           </div>
           <Stepper
-            label="travellers" value={n} disabled={choices.mode !== "group"} decDisabled={n <= 3} incDisabled={n >= 20}
+            label="travellers" value={n} disabled={choices.mode !== "group" && !stayOnly}
+            decDisabled={n <= (stayOnly ? 1 : 3)} incDisabled={n >= (stayOnly ? maxStayGuests : 20)}
             onDec={() => update({ groupSize: n - 1, units: 0 })} onInc={() => update({ groupSize: n + 1, units: 0 })}
           />
         </div>
@@ -181,11 +197,13 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <button type="button" aria-pressed={!choices.stay} onClick={() => update({ stay: "", units: 0 })} className={option(!choices.stay)}>
-            <span className="font-raleway font-bold text-text-primary">No Accra stay</span>
-            <span className="text-xs text-gray-600 dark:text-gray-400">I&apos;ll arrange my own</span>
-          </button>
-          {matrix.stay_types.map((s) => {
+          {!stayOnly && (
+            <button type="button" aria-pressed={!choices.stay} onClick={() => update({ stay: "", units: 0 })} className={option(!choices.stay)}>
+              <span className="font-raleway font-bold text-text-primary">No Accra stay</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400">I&apos;ll arrange my own</span>
+            </button>
+          )}
+          {(stayOnly ? airbnbs : matrix.stay_types).map((s) => {
             const soldOut = s.on_sale && s.units_available === 0;
             const off = !s.on_sale || soldOut;
             return (
@@ -227,7 +245,7 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
             const r = trip.selection!.rooms.findIndex((room) => room.occupants.includes(i));
             return (
               <li key={i} className="flex flex-wrap justify-between gap-2 text-sm rounded-xl bg-gray-50 dark:bg-gray-800/60 px-4 py-2.5">
-                <span className="text-text-primary">Guest {i + 1}{i === 0 ? " (lead)" : ""} · Core ticket</span>
+                <span className="text-text-primary">Guest {i + 1}{i === 0 ? " (lead)" : ""}{stayOnly ? "" : " · Core ticket"}</span>
                 <span className="text-gray-600 dark:text-gray-400">{stay && r >= 0 ? `${wordFor(stay)} ${r + 1}` : "Own stay"}</span>
               </li>
             );
@@ -235,7 +253,7 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
         </ul>
       </div>
 
-      <div className={card}>
+      {!stayOnly && <div className={card}>
         <div>
           <h3 className="font-raleway font-bold text-text-primary">3. Experiences · per guest</h3>
           <p className="text-xs text-gray-600 dark:text-gray-400">The welcome and farewell dinners are included in Core.</p>
@@ -262,12 +280,12 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
             I confirm the guests taking 18+ experiences are 18 or over.
           </label>
         )}
-      </div>
+      </div>}
 
       {transfers.length > 0 && (
         <div className={card}>
           <div>
-            <h3 className="font-raleway font-bold text-text-primary">4. Airport transfers</h3>
+            <h3 className="font-raleway font-bold text-text-primary">{stayOnly ? 3 : 4}. Airport transfers</h3>
             <p className="text-xs text-gray-600 dark:text-gray-400">
               {!stay ? "For guests staying in Azura accommodation. Choose an Accra stay to add one."
                 : transfers[0].vehicle_capacity === 1 ? "For everyone on this booking, priced per guest."
@@ -321,11 +339,11 @@ export function TripSummary({ trip }: { trip: TripBuilderState }) {
 
   return (
     <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-md p-6 flex flex-col gap-4">
-      <div className="flex items-baseline gap-2">
+      {trip.choices.mode !== "stay" && <div className="flex items-baseline gap-2">
         <span className="text-xs text-gray-600 dark:text-gray-400">From</span>
         <span className="font-montserrat text-2xl font-bold text-text-primary">{matrix.core_price_per_person ? fmtMoney(matrix.core_price_per_person, c) : "—"}</span>
         <span className="text-xs text-gray-600 dark:text-gray-400">per traveller</span>
-      </div>
+      </div>}
 
       {quote ? <QuoteSummary quote={quote} /> : (
         <p className="text-sm text-gray-600 dark:text-gray-400" aria-live="polite">{trip.warning ?? trip.quoteError ?? "Updating your total…"}</p>
@@ -333,7 +351,7 @@ export function TripSummary({ trip }: { trip: TripBuilderState }) {
 
       {matrix.installments.enabled && (
         <p className="rounded-xl bg-primary/5 px-4 py-3 text-[13px] text-gray-700 dark:text-gray-300">
-          Core tickets and experiences are paid in full. Rooms can be secured with {parseFloat(matrix.installments.accommodation_deposit_percent)}% now and the rest in instalments before 6 January.
+          {trip.choices.mode === "stay" ? "" : "Core tickets and experiences are paid in full. "}Rooms can be secured with {parseFloat(matrix.installments.accommodation_deposit_percent)}% now and the rest in instalments before 6 January.
         </p>
       )}
 

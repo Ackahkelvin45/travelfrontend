@@ -23,11 +23,21 @@ export const CONTACT = {
 
 export const whatsappHref = CONTACT.whatsappDigits ? `https://wa.me/${CONTACT.whatsappDigits}` : "/about#contact";
 
-export const NAV_LINKS = [
+export interface NavLink { href: string; label: string; children?: { href: string; label: string; note?: string }[] }
+
+// Ghana Experience categories (client feedback, Oct 2026). The Michael
+// Blackson Ghana Experience stays first; Creator Packages and Table Share
+// join once they have pages.
+export const NAV_LINKS: NavLink[] = [
   { href: "/", label: "Home" },
-  { href: "/december-in-ghana", label: "December in Ghana" },
-  { href: "/ghana-experience-2027", label: "Ghana Experience 2027" },
-  { href: "/stays", label: "Stays" },
+  {
+    href: "/ghana-experience-2027", label: "Ghana Experience", children: [
+      { href: "/ghana-experience-2027", label: "Michael Blackson Ghana Experience", note: "6–11 January 2027 · featured" },
+      { href: "/stays", label: "Airbnbs", note: "Stay in Accra, with or without the event" },
+      { href: "/december-in-ghana", label: "December Tour Packages" },
+      { href: "/experiences", label: "Experiences" },
+    ],
+  },
   { href: "/faqs", label: "FAQs" },
   { href: "/about", label: "About Us" },
 ];

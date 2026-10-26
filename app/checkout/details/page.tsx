@@ -157,10 +157,10 @@ export default function CheckoutDetailsPage() {
 
           <fieldset className={fieldset}>
             <legend className={legend}>Travellers &amp; rooms</legend>
-            <p className="text-[13px] text-gray-700 dark:text-gray-300">Full name for every guest, as it appears on their ID. Each guest holds one Core ticket.</p>
+            <p className="text-[13px] text-gray-700 dark:text-gray-300">Full name for every guest, as it appears on their ID.{state.choices.mode === "stay" ? "" : " Each guest holds one Core ticket."}</p>
             {guestNames.map((g, i) => (
               <div key={i} className="flex flex-wrap gap-2.5 items-end">
-                <label className={`${label} flex-[1_1_260px]`}>Guest {i + 1}{i === 0 ? " (lead)" : ""} · Core ticket
+                <label className={`${label} flex-[1_1_260px]`}>Guest {i + 1}{i === 0 ? " (lead)" : ""}{state.choices.mode === "stay" ? "" : " · Core ticket"}
                   <input
                     className={field} value={g} placeholder="Full name"
                     onChange={(e) => setNames((prev) => { const next = [...prev]; next[i] = e.target.value; return next; })}
@@ -218,7 +218,7 @@ export default function CheckoutDetailsPage() {
         <aside className="flex-[1_1_340px] min-w-0 lg:sticky lg:top-[100px] rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-md p-6 flex flex-col gap-3">
           <div className="flex flex-col gap-0.5">
             <span className="font-raleway font-bold text-[15px] text-text-primary">{state.packageTitle}</span>
-            <span className="text-xs text-gray-700 dark:text-gray-300">{matrix ? fmtDateRange(matrix.tour_start, matrix.tour_end) : ""} · <span className="capitalize">{state.choices.mode}</span></span>
+            <span className="text-xs text-gray-700 dark:text-gray-300">{matrix ? fmtDateRange(matrix.tour_start, matrix.tour_end) : ""} · <span className="capitalize">{state.choices.mode === "stay" ? "Stay only" : state.choices.mode}</span></span>
           </div>
           {quote ? <QuoteSummary quote={quote} /> : <Spinner />}
           <p className="text-[11px] text-center text-gray-500 dark:text-gray-400">No promo codes. Core tickets are never discounted.</p>

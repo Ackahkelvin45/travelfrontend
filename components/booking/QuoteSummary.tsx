@@ -5,9 +5,9 @@ import { fmtMoney } from "@/lib/format";
  * Amounts are the server's; grouping only adds server line values together. */
 export function quoteLines(q: ComponentQuote) {
   const add = (a: string, b: string) => (parseFloat(a) + parseFloat(b)).toFixed(2);
-  const lines: { label: string; amount: string; saving?: boolean }[] = [
-    { label: `Core experience × ${q.num_guests}`, amount: q.core_total },
-  ];
+  const lines: { label: string; amount: string; saving?: boolean }[] = parseFloat(q.core_total) > 0
+    ? [{ label: `Core experience × ${q.num_guests}`, amount: q.core_total }]
+    : [];  // stay only: no Core ticket
 
   const stays = new Map<string, { label: string; count: number; amount: string; nights: number }>();
   for (const r of q.rooms) {

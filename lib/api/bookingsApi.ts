@@ -254,7 +254,8 @@ export interface CancellationQuote {
 
 // ── Component pricing (Change Request v4) ────────────────────────────────────
 
-export type TravelMode = 'single' | 'couple' | 'group'
+/** stay = an Airbnb without the event (no Core ticket). */
+export type TravelMode = 'single' | 'couple' | 'group' | 'stay'
 
 /** Travellers by list index; rooms list occupants by that index. */
 export interface TripSelection {

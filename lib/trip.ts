@@ -24,6 +24,7 @@ export interface TripChoices {
 export const DEFAULT_CHOICES: TripChoices = { mode: "couple", groupSize: 3, stay: "", units: 0, counts: {}, names: [], adultsConfirmed: false };
 
 export function guestCount(c: TripChoices): number {
+  if (c.mode === "stay") return Math.max(1, c.groupSize);
   return c.mode === "single" ? 1 : c.mode === "couple" ? 2 : Math.max(3, c.groupSize);
 }
 
@@ -61,7 +62,7 @@ export function toSelection(packageId: string, c: TripChoices, matrix: Component
     rooms,
     travellers: Array.from({ length: n }, (_, i) => {
       const experiences = matrix.experiences
-        .filter((e) => e.unit !== "per_vehicle" && i < Math.min(n, c.counts[e.code] ?? 0)).map((e) => e.code)
+        .filter((e) => c.mode !== "stay" && e.unit !== "per_vehicle" && i < Math.min(n, c.counts[e.code] ?? 0)).map((e) => e.code)
         .concat(transfer ? [transfer] : []);
       return {
         name: c.names[i] ?? "", experiences,

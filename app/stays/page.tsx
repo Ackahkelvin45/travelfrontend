@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import accraNight from "../../assets/images/services/osu.png";
 import crownForest from "../../assets/images/hero.png";
 import PageHero from "@/components/ghana/PageHero";
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 const NOTES = [
   { title: "Arriving early or staying on?", text: "Extra nights aren't part of this package. Ask our team about arriving early or staying on." },
   { title: "Four Points and the Crown Forest night", text: "Four Points is booked for 6 January and 8 to 10 January. Re-check-in and baggage handling around the Crown Forest night are still being confirmed with the hotel." },
-  { title: "Every guest holds Core", text: "Each person in a room needs a Core ticket. Rooms are not sold on their own." },
+  { title: "Just the Airbnb?", text: "Coming to Accra but not the event? Book an Airbnb on its own for the same dates. Four Points rooms come with the Ghana Experience." },
 ];
 
 export default async function StaysPage() {
@@ -44,6 +45,15 @@ export default async function StaysPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {stays.length ? cards("airbnb") : unavailable}
         </div>
+        {stays.length > 0 && (
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-primary/5 px-6 py-5">
+            <div className="flex flex-col gap-1">
+              <span className="font-raleway font-bold text-text-primary">Not coming to the event?</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">Book an Airbnb on its own for 6 to 11 January, at the same nightly rate.</span>
+            </div>
+            <Link href={`${bookHref}?mode=stay`} className="rounded-xl bg-primary px-5 py-3 font-montserrat text-sm font-semibold text-white transition hover:brightness-95">Book a stay only</Link>
+          </div>
+        )}
       </section>
 
       <section className="px-4 md:px-10 lg:px-20 py-10">

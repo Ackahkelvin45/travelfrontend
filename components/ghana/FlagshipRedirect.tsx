@@ -13,7 +13,7 @@ export default function FlagshipRedirect({ step = "" }: { step?: "" | "build" })
   const { flagship, isLoading, isError } = usePackagesWithFlagship();
 
   useEffect(() => {
-    if (flagship) router.replace(`/tour/${flagship.id}${step ? `/${step}` : ""}`);
+    if (flagship) router.replace(`/tour/${flagship.id}${step ? `/${step}` : ""}${window.location.search}`);  // keeps ?mode=stay
   }, [flagship, router, step]);
 
   const missing = !isLoading && (isError || !flagship);

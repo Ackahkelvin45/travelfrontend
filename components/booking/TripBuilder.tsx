@@ -57,7 +57,10 @@ export function useTripBuilder(packageId: string, packageTitle: string, enabled:
   const n = guestCount(choices);
   const stay = matrix?.stay_types.find((s) => s.code === choices.stay);
   const units = unitsFor(choices, stay, n);
-  const selection = useMemo(() => (matrix ? toSelection(packageId, choices, matrix) : null), [packageId, choices, matrix]);
+  const selection = useMemo(
+    () => (matrix ? { ...toSelection(packageId, choices, matrix), ...(linkedTo ? { linked_to: linkedTo } : {}) } : null),
+    [packageId, choices, matrix, linkedTo],
+  );
 
   let warning: string | null = null;
   if (stay) {

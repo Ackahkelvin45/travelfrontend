@@ -53,7 +53,12 @@ export default function CheckoutPaymentPage() {
   const [donation, setDonation] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const baseSelection = useMemo(() => (state && matrix ? toSelection(state.packageId, state.choices, matrix) : null), [state, matrix]);
+  const baseSelection = useMemo(
+    () => (state && matrix
+      ? { ...toSelection(state.packageId, state.choices, matrix), ...(state.linkedTo ? { linked_to: state.linkedTo } : {}) }
+      : null),
+    [state, matrix],
+  );
 
   // Price both plans; the deposit option exists only if the server prices it.
   useEffect(() => {
@@ -115,7 +120,6 @@ export default function CheckoutPaymentPage() {
           accepted_policies: d.acceptedPolicies, marketing_consent: d.marketingConsent,
           pay_separately: separately, whatsapp_updates: !!d.whatsappUpdates,
           expected_total: quote.total,
-          ...(current.linkedTo ? { linked_to: current.linkedTo } : {}),
         }).unwrap();
         let booking;
         try {

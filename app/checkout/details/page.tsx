@@ -63,7 +63,12 @@ export default function CheckoutDetailsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once per loaded state
   }, [state]);
 
-  const selection = useMemo(() => (state && matrix ? toSelection(state.packageId, state.choices, matrix) : null), [state, matrix]);
+  const selection = useMemo(
+    () => (state && matrix
+      ? { ...toSelection(state.packageId, state.choices, matrix), ...(state.linkedTo ? { linked_to: state.linkedTo } : {}) }
+      : null),
+    [state, matrix],
+  );
   useEffect(() => {
     if (selection) requestQuote({ ...selection, hold_token: state?.hold?.token }).unwrap().then(setQuote).catch(() => setQuote(null));
   }, [selection, requestQuote, state?.hold?.token]);

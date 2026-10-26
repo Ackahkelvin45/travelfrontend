@@ -86,7 +86,7 @@ export const FAQS: Faq[] = [
   { topic: "Stays", q: "Do I have to book accommodation with you?", a: "No. You can arrange your own. If you add an Airbnb or a Four Points room, every guest in it needs their own Core ticket." },
   { topic: "Stays", q: "How is accommodation priced?", a: "Per unit, for a fixed package. Airbnb is five nights, 6 to 11 January, and stays yours on the Crown Forest night for your luggage. Four Points is four paid nights, 6 and 8 to 10 January. A one-bedroom Airbnb sleeps up to 2 and a two-bedroom up to 4, and the unit is charged once however many guests share it." },
   { topic: "Stays", q: "Is breakfast included?", a: "Breakfast at Crown Forest on 7 January is included in Core. Four Points breakfast is still being confirmed with the hotel." },
-  { topic: "Prices", q: "Are there any discounts?", a: "Not at the moment. The $899 Core ticket is never discounted." },
+  { topic: "Prices", q: "Are there any discounts?", a: "Not at the moment. Any group discount we introduce will be shown in the price before you pay." },
   { topic: "Prices", q: "Can my partner and I choose different experiences?", a: "Yes. Experiences are chosen per guest. ENZO VIP is for guests aged 18 and over." },
   { topic: "Prices", q: "Do you offer airport transfers?", a: "Yes, for guests staying in Azura accommodation: $30 per guest for an arrival pickup or $50 per guest for pickup and drop-off." },
   { topic: "Payments", q: "How do deposits and payments work?", a: "Core tickets, experiences and transfers are paid in full when you book. For accommodation you can pay at least 50% to secure the room and the rest in instalments. Everything must be paid before the first activity on 6 January, and we remind you 30, 14 and 7 days before." },

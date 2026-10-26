@@ -271,6 +271,9 @@ export interface TripSelection {
   payment_plan?: PaymentPlan
   /** This checkout's hold: its own held rooms don't count as sold out. */
   hold_token?: string
+  /** A big group's extra Airbnb: the first booking's reference. The group
+   * discount then counts everyone in the group (same lead email at checkout). */
+  linked_to?: string
 }
 
 export interface ComponentQuote {

@@ -8,7 +8,8 @@ import Link from "next/link";
 import crownForest from "../../assets/images/hero.png";
 import { useRouter } from "next/navigation";
 import {
-  useAvailableAddonsQuery, useInitializePaymentMutation, useUpdatePreferencesMutation, type BookingDetail,
+  useAvailableAddonsQuery, useInitializePaymentMutation, useInviteTravellerMutation, useUpdatePreferencesMutation,
+  type BookingDetail,
 } from "@/lib/api/bookingsApi";
 import { useGetPackageDetailQuery } from "@/lib/api/packagesApi";
 import { routeAfterInitialize } from "@/lib/payments/paystack";
@@ -135,9 +136,13 @@ export function GuestsPanel({ booking }: { booking: BookingDetail }) {
               )}
             </div>
             <span className="self-center text-xs font-semibold text-[#6B4E1A] dark:text-primary">{t.unit ?? "Own stay"}</span>
+            {!t.is_lead && (booking.status === "pending" || booking.status === "confirmed") && (
+              <GuestInvite reference={booking.reference} guest={t} />
+            )}
           </li>
         ))}
       </ul>
+      <LinkedBookings booking={booking} />
       <span className="text-xs text-gray-500 dark:text-gray-400">Airbnb: 6–11 Jan, kept for you on the Crown Forest night. Four Points: 6 Jan and 8–10 Jan. Crown Forest on 7 Jan is included.</span>
     </section>
   );
@@ -277,5 +282,79 @@ export function MessagePreferences({ booking }: { booking: BookingDetail }) {
       })}
       {error && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{error}</p>}
     </section>
+  );
+}
+
+type Guest = BookingDetail["travellers"][number];
+
+const INVITE_LABEL = { not_invited: "Not invited", pending: "Invite pending", completed: "Details completed" } as const;
+
+/** Client feedback (Oct 2026): the lead invites each guest by email to complete
+ * their own details; the same Core ticket is updated, never duplicated. */
+function GuestInvite({ reference, guest }: { reference: string; guest: Guest }) {
+  const [invite, { isLoading }] = useInviteTravellerMutation();
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState(guest.email);
+  const [note, setNote] = useState<{ ok: boolean; text: string } | null>(null);
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setNote(null);
+    try {
+      const r = await invite({ reference, travellerId: guest.id, email }).unwrap();
+      setNote(r.sent ? { ok: true, text: `Invite sent to ${r.email}.` } : { ok: false, text: "Saved, but the email didn't send. Try again shortly." });
+      setOpen(false);
+    } catch (err) {
+      setNote({ ok: false, text: (err as { data?: { detail?: string } })?.data?.detail ?? "Couldn't send the invite." });
+    }
+  };
+  const status = guest.invite_status;
+  return (
+    <div className="basis-full flex flex-col gap-2 border-t border-gray-200/70 dark:border-gray-700 pt-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-[13px]">
+        <span className={status === "completed" ? "text-green-700 dark:text-green-400 font-semibold" : "text-gray-600 dark:text-gray-400"}>
+          {INVITE_LABEL[status]}{guest.email ? ` · ${guest.email}` : ""}{guest.has_account ? " · has an account" : ""}
+        </span>
+        {!open && (
+          <button type="button" onClick={() => setOpen(true)} className="font-semibold text-[#8A6420] dark:text-primary underline underline-offset-2">
+            {status === "not_invited" ? "Invite by email" : "Resend or change email"}
+          </button>
+        )}
+      </div>
+      {open && (
+        <form onSubmit={send} className="flex flex-wrap gap-2">
+          <label className="sr-only" htmlFor={`invite-${guest.id}`}>Email for {guest.full_name}</label>
+          <input
+            id={`invite-${guest.id}`} type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+            placeholder="guest@email.com"
+            className="flex-1 min-w-[180px] border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-text-primary bg-white dark:bg-gray-900 outline-none focus:border-primary"
+          />
+          <button type="submit" disabled={isLoading} className="bg-primary text-white text-sm font-semibold px-4 py-2 rounded-lg disabled:opacity-60">
+            {isLoading ? "Sending…" : "Send invite"}
+          </button>
+          <button type="button" onClick={() => setOpen(false)} className="text-sm text-gray-600 dark:text-gray-400 px-2">Cancel</button>
+        </form>
+      )}
+      {note && <p role="status" className={`text-[13px] ${note.ok ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>{note.text}</p>}
+    </div>
+  );
+}
+
+/** A big group books one Airbnb per booking, linked under the same lead. */
+function LinkedBookings({ booking }: { booking: BookingDetail }) {
+  const open = booking.status === "pending" || booking.status === "confirmed";
+  const hasAirbnb = booking.travellers.some((t) => t.unit && /airbnb/i.test(t.unit));
+  if (!booking.linked_bookings?.length && !(open && hasAirbnb)) return null;
+  const href = `/tour/${booking.package_id}/build?${booking.mode === "stay" ? "mode=stay&" : ""}link=${booking.reference}`;
+  return (
+    <div className="flex flex-col gap-1.5 text-[13px] text-gray-700 dark:text-gray-300">
+      {booking.linked_bookings.length > 0 && (
+        <span>Linked bookings in your group: {booking.linked_bookings.map((b) => `${b.reference} (${b.num_guests} guest${b.num_guests === 1 ? "" : "s"})`).join(", ")}</span>
+      )}
+      {open && hasAirbnb && (
+        <Link href={href} className="self-start font-semibold text-[#8A6420] dark:text-primary underline underline-offset-2">
+          More guests? Book another Airbnb linked to this booking
+        </Link>
+      )}
+    </div>
   );
 }

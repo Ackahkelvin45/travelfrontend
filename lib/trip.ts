@@ -83,6 +83,8 @@ export interface CheckoutState {
     fullName: string; email: string; phone: string; country: string;
     acceptedPolicies: string[]; marketingConsent: boolean; whatsappUpdates?: boolean;
   };
+  /** A big group's extra Airbnb: the first booking's reference (same lead email). */
+  linkedTo?: string;
   /** Set once the booking exists, so a payment retry never creates a second one. */
   booking?: { id: string; reference: string; plan: PaymentPlan; paySeparately?: boolean };
 }

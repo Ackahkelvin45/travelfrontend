@@ -33,12 +33,16 @@ export function useTripBuilder(packageId: string, packageTitle: string, enabled:
   const router = useRouter();
   const { data: matrix } = useGetComponentMatrixQuery(packageId, { skip: !enabled });
   const [choices, setChoices] = useState<TripChoices>(DEFAULT_CHOICES);
+  const [linkedTo, setLinkedTo] = useState<string | undefined>(undefined);
   // Coming back from checkout restores the trip (after hydration, so SSR matches).
   useEffect(() => {
     const saved = loadCheckout();
     // The Stays page links here with ?mode=stay (an Airbnb without the event).
-    const stayOnly = new URLSearchParams(window.location.search).get("mode") === "stay";
+    const params = new URLSearchParams(window.location.search);
+    const stayOnly = params.get("mode") === "stay";
+    // My Booking links here with ?link=<reference> to add another Airbnb for a big group.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore from sessionStorage / the link
+    setLinkedTo(params.get("link") ?? (saved?.packageId === packageId ? saved.linkedTo : undefined));
     if (saved?.packageId === packageId && (!stayOnly || saved.choices.mode === "stay")) setChoices(saved.choices);
     else if (stayOnly) setChoices({ ...DEFAULT_CHOICES, mode: "stay", groupSize: 2 });
   }, [packageId]);
@@ -91,7 +95,7 @@ export function useTripBuilder(packageId: string, packageTitle: string, enabled:
       const hold = codes.length
         ? await createHold({ package_id: packageId, stay_types: codes, replace_token: previous?.hold?.token }).unwrap()
         : null;
-      saveCheckout({ packageId, packageTitle, choices, hold });
+      saveCheckout({ packageId, packageTitle, choices, hold, linkedTo });
       router.push("/checkout/details");
     } catch (e) {
       setFailed({ key: null, detail: errorDetail(e, "Those rooms were just taken. Please choose again.") });
@@ -101,7 +105,7 @@ export function useTripBuilder(packageId: string, packageTitle: string, enabled:
 
   return {
     packageId, matrix, choices, update, n, stay, units, selection, warning,
-    quote, quoteError, holding, continueToDetails,
+    quote, quoteError, holding, continueToDetails, linkedTo,
   };
 }
 

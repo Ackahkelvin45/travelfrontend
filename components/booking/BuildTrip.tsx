@@ -45,6 +45,11 @@ export default function BuildTrip({ id }: { id: string }) {
         <p className="text-sm text-gray-700 dark:text-gray-300">
           {pkg.title} · {fmtDateRange(pkg.available_from, pkg.available_to)}
         </p>
+        {trip.linkedTo && (
+          <p role="status" className="mt-3 rounded-xl bg-[#FAF5EB] dark:bg-gray-800 px-4 py-3 text-sm text-[#6B4E1A] dark:text-primary">
+            This booking will be linked to <strong>{trip.linkedTo}</strong> for your group. Use the same lead email at checkout.
+          </p>
+        )}
       </div>
 
       <div className="max-w-[1280px] mx-auto px-4 md:px-10 pt-4 pb-20 flex flex-wrap gap-10 items-start">

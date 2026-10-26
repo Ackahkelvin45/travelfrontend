@@ -177,7 +177,11 @@ export interface BookingDetail {
   travellers: {
     id: string; full_name: string; is_lead: boolean; unit: string | null; experiences: string[]
     travel_info_submitted: boolean; share: string; paid: string; outstanding: string
+    /** Guest invites: where the invite went and whether the guest completed it. */
+    email: string; invite_status: InviteStatus; has_account: boolean
   }[]
+  /** Other bookings in this group (one Airbnb each, same lead). */
+  linked_bookings: { reference: string; status: BookingStatus; num_guests: number }[]
   marketing_consent: boolean
   photo_consent: boolean
   first_name: string
@@ -348,6 +352,8 @@ export interface ComponentCheckoutRequest extends TripSelection {
   /** Opt in to booking confirmations and receipts on WhatsApp (needs a phone with country code). */
   whatsapp_updates?: boolean
   expected_total?: string
+  /** A big group's extra Airbnb: the first booking's reference (same lead email). */
+  linked_to?: string
 }
 
 export interface ComponentCheckoutResponse extends CheckoutResponse {
@@ -369,6 +375,47 @@ export interface TravelInfo {
   dietary: string
   accessibility: string
   travel_info_submitted_at: string | null
+}
+
+export type InviteStatus = 'not_invited' | 'pending' | 'completed'
+
+/** What an invited guest sees and completes from their invite link. */
+export interface GuestInvite {
+  reference: string
+  package_title: string
+  travel_date: string
+  lead_name: string
+  status: BookingStatus
+  ticket: string
+  unit: string | null
+  experiences: string[]
+  linked_account: boolean
+  guest: TravelInfo & { email: string; phone: string; details_completed_at: string | null }
+}
+
+/** A trip the user joined as an invited guest: only their own part. */
+export interface GuestTrip {
+  traveller_id: string
+  full_name: string
+  ticket: string
+  reference: string
+  package_id: string
+  package_title: string
+  travel_date: string
+  status: BookingStatus
+  mode: TravelMode | ''
+  lead_name: string
+  coordinator_name: string | null
+  unit: string | null
+  experiences: string[]
+  currency: string
+  pay_separately: boolean
+  share: string
+  paid: string
+  outstanding: string
+  travel_info_submitted: boolean
+  invite_token: string | null
+  payments: { reference: string | null; amount: string; currency: string; status: PaymentStatus; paid_at: string | null }[]
 }
 
 export interface LeadRequest {
@@ -473,6 +520,31 @@ export const bookingsApi = baseApi.injectEndpoints({
       query: ({ reference, travellers }) => ({ url: `/bookings/${reference}/travel/`, method: 'PUT', body: { travellers } }),
       invalidatesTags: (_r, _e, { reference }) => [{ type: 'Booking', id: `travel-${reference}` }],
     }),
+    inviteTraveller: builder.mutation<
+      { id: string; email: string; invite_status: InviteStatus; invited_at: string; sent: boolean },
+      { reference: string; travellerId: string; email: string }
+    >({
+      query: ({ reference, travellerId, email }) => ({
+        url: `/bookings/${reference}/travellers/${travellerId}/invite/`, method: 'POST', body: { email },
+      }),
+      invalidatesTags: [{ type: 'Booking', id: 'LIST' }],
+    }),
+    guestInvite: builder.query<GuestInvite, string>({
+      query: (token) => `/bookings/invite/${encodeURIComponent(token)}/`,
+      providesTags: (_r, _e, token) => [{ type: 'Booking', id: `invite-${token}` }],
+    }),
+    saveGuestInvite: builder.mutation<GuestInvite, { token: string } & Partial<GuestInvite['guest']>>({
+      query: ({ token, ...body }) => ({ url: `/bookings/invite/${encodeURIComponent(token)}/`, method: 'PUT', body }),
+      invalidatesTags: (_r, _e, { token }) => [{ type: 'Booking', id: `invite-${token}` }, { type: 'Booking', id: 'TRIPS' }],
+    }),
+    claimGuestInvite: builder.mutation<{ reference: string; detail: string }, string>({
+      query: (token) => ({ url: `/bookings/invite/${encodeURIComponent(token)}/claim/`, method: 'POST' }),
+      invalidatesTags: (_r, _e, token) => [{ type: 'Booking', id: `invite-${token}` }, { type: 'Booking', id: 'TRIPS' }],
+    }),
+    getMyTrips: builder.query<GuestTrip[], void>({
+      query: () => '/bookings/trips/',
+      providesTags: [{ type: 'Booking', id: 'TRIPS' }],
+    }),
     updatePreferences: builder.mutation<
       { marketing_consent: boolean; photo_consent: boolean; whatsapp_updates: boolean },
       { reference: string; marketing_consent?: boolean; photo_consent?: boolean; whatsapp_updates?: boolean }
@@ -527,4 +599,9 @@ export const {
   useCreateLeadMutation,
   useAskAssistantMutation,
   useUpdatePreferencesMutation,
+  useInviteTravellerMutation,
+  useGuestInviteQuery,
+  useSaveGuestInviteMutation,
+  useClaimGuestInviteMutation,
+  useGetMyTripsQuery,
 } = bookingsApi

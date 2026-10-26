@@ -115,6 +115,7 @@ export default function CheckoutPaymentPage() {
           accepted_policies: d.acceptedPolicies, marketing_consent: d.marketingConsent,
           pay_separately: separately, whatsapp_updates: !!d.whatsappUpdates,
           expected_total: quote.total,
+          ...(current.linkedTo ? { linked_to: current.linkedTo } : {}),
         }).unwrap();
         let booking;
         try {

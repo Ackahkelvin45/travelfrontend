@@ -41,7 +41,7 @@ function shortRange(fromIso: string, toIso: string) {
 }
 
 function cheapest(matrix: ComponentMatrix, kind: "airbnb" | "hotel") {
-  const stays = matrix.stay_types.filter((s) => s.kind === kind && s.on_sale);
+  const stays = matrix.stay_types.filter((s) => s.kind === kind && s.on_sale && !s.stay_only);
   if (!stays.length) return null;
   const s = stays.reduce((lo, x) => (parseFloat(x.unit_total) < parseFloat(lo.unit_total) ? x : lo));
   return { price: fmtMoney(s.unit_total, matrix.currency), nights: s.nights };

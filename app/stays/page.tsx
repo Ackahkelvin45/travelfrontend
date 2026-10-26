@@ -9,6 +9,8 @@ import Reveal from "@/components/ui/Reveal";
 import StayCard from "@/components/ghana/StayCard";
 import { Accent, Eyebrow } from "@/components/ghana/Decor";
 import { getFlagship } from "@/lib/content/server";
+import { fmtDateRange } from "@/lib/format";
+import { tripDates } from "@/lib/trip";
 
 export const metadata: Metadata = {
   title: "Stays in Accra · Airbnb & Four Points | Azura Travels",
@@ -18,13 +20,14 @@ export const metadata: Metadata = {
 const NOTES = [
   { title: "Arriving early or staying on?", text: "Extra nights aren't part of this package. Ask our team about arriving early or staying on." },
   { title: "Four Points and the Crown Forest night", text: "Four Points is booked for 6 January and 8 to 10 January. Re-check-in and baggage handling around the Crown Forest night are still being confirmed with the hotel." },
-  { title: "Just the Airbnb?", text: "Coming to Accra but not the event? Book an Airbnb on its own for the same dates. Four Points rooms come with the Ghana Experience." },
+  { title: "Just the Airbnb?", text: "Coming to Accra but not the event? Book an Airbnb on its own for 20 to 31 January. Four Points rooms come with the Ghana Experience." },
 ];
 
 export default async function StaysPage() {
   const { detail, matrix } = await getFlagship();
   // Live price list only: if it can't be loaded, no prices are shown.
-  const stays = matrix?.stay_types ?? [];
+  const stays = (matrix?.stay_types ?? []).filter((s) => !s.stay_only);
+  const stayOnly = (matrix?.stay_types ?? []).filter((s) => s.stay_only && s.on_sale);
   const bookHref = detail ? `/tour/${detail.id}/build` : "/ghana-experience-2027/build";
   const cards = (kind: "airbnb" | "hotel") => stays.filter((x) => x.kind === kind).map((s, i) => (
     <StayCard key={s.code} s={s} currency={matrix!.currency} href={bookHref} detailed delay={(i % 2) * 90} />
@@ -45,11 +48,11 @@ export default async function StaysPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {stays.length ? cards("airbnb") : unavailable}
         </div>
-        {stays.length > 0 && (
+        {stayOnly.length > 0 && (
           <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-primary/5 px-6 py-5">
             <div className="flex flex-col gap-1">
               <span className="font-raleway font-bold text-text-primary">Not coming to the event?</span>
-              <span className="text-sm text-gray-700 dark:text-gray-300">Book an Airbnb on its own for 6 to 11 January, at the same nightly rate.</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">Book an Airbnb on its own for {fmtDateRange(...tripDates(matrix!, stayOnly[0]))}, {stayOnly[0].nights} nights at the same nightly rate.</span>
             </div>
             <Link href={`${bookHref}?mode=stay`} className="rounded-xl bg-primary px-5 py-3 font-montserrat text-sm font-semibold text-white transition hover:brightness-95">Book a stay only</Link>
           </div>

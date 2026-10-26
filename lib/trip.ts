@@ -23,6 +23,14 @@ export interface TripChoices {
 
 export const DEFAULT_CHOICES: TripChoices = { mode: "couple", groupSize: 3, stay: "", units: 0, counts: {}, names: [], adultsConfirmed: false };
 
+/** [first night, checkout] of a stay-only Airbnb; the tour's dates otherwise. */
+export function tripDates(matrix: ComponentMatrix, stay?: Stay): [string | null, string | null] {
+  if (!stay?.check_in) return [matrix.tour_start, matrix.tour_end];
+  const out = new Date(`${stay.check_in}T00:00:00Z`);
+  out.setUTCDate(out.getUTCDate() + stay.nights);
+  return [stay.check_in, out.toISOString().slice(0, 10)];
+}
+
 export function guestCount(c: TripChoices): number {
   if (c.mode === "stay") return Math.max(1, c.groupSize);
   return c.mode === "single" ? 1 : c.mode === "couple" ? 2 : Math.max(3, c.groupSize);

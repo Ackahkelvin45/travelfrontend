@@ -19,10 +19,10 @@ import {
   type TravelMode,
 } from "@/lib/api/bookingsApi";
 import {
-  DEFAULT_CHOICES, guestCount, loadCheckout, saveCheckout, toSelection, unitRange, unitsFor,
+  DEFAULT_CHOICES, guestCount, loadCheckout, saveCheckout, toSelection, tripDates, unitRange, unitsFor,
   type TripChoices,
 } from "@/lib/trip";
-import { fmtMoney } from "@/lib/format";
+import { fmtDateRange, fmtMoney } from "@/lib/format";
 import QuoteSummary from "./QuoteSummary";
 
 function errorDetail(err: unknown, fallback: string) {
@@ -152,20 +152,22 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
   const [lo, hi] = stay ? unitRange(stay, n) : [0, 0];
   const wordFor = (s: ComponentMatrix["stay_types"][number]) => (s.kind === "airbnb" ? "Unit" : "Room");
   const stayOnly = choices.mode === "stay";
-  const airbnbs = matrix.stay_types.filter((s) => s.kind === "airbnb");
+  // Stay-only Airbnbs have their own units and dates; event stays come with Core.
+  const airbnbs = matrix.stay_types.filter((s) => s.stay_only);
+  const stayDates = airbnbs[0] ? fmtDateRange(...tripDates(matrix, airbnbs[0])) : "";
   const maxStayGuests = Math.max(1, ...airbnbs.filter((s) => s.on_sale).map((s) => s.capacity));
   const chooseMode = (mode: TravelMode) => update(mode === "stay"
-    // No Core, so no event experiences; only an Airbnb can be booked alone.
-    ? { mode, units: 0, counts: {}, groupSize: Math.min(n, maxStayGuests), stay: stay?.kind === "airbnb" ? choices.stay : "" }
-    : { mode, units: 0 });
+    // No Core, so no event experiences.
+    ? { mode, units: 0, counts: {}, groupSize: Math.min(n, maxStayGuests), stay: stay?.stay_only ? choices.stay : "" }
+    : { mode, units: 0, stay: stay?.stay_only ? "" : choices.stay });
 
   return (
     <section id="book" className="scroll-mt-28 flex flex-col gap-6">
       <div>
         <h1 className="font-raleway text-[28px] md:text-[32px] font-bold leading-tight text-text-primary">{stayOnly ? "Book Your Stay" : "Build Your Trip"}</h1>
         <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-          {stayOnly ? "An Airbnb in Accra for 6–11 January, without the event. Your total updates as you go."
-            : "Your total updates as you go, with each guest's share. Core tickets are never discounted."}
+          {stayOnly ? `An Airbnb in Accra for ${stayDates}, without the event. Your total updates as you go.`
+            : "Your total updates as you go, with each guest's share."}
         </p>
       </div>
 
@@ -199,8 +201,9 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
         <div>
           <h3 className="font-raleway font-bold text-text-primary">2. Accra stay</h3>
           <p className="text-xs text-gray-600 dark:text-gray-400">
-            Airbnb: 5 nights, 6–11 Jan, kept for you on the Crown Forest night · Four Points: 4 nights, 6 and 8–10 Jan
-            {group ? ` · Groups of ${group.min_travellers}+ save ${parseFloat(group.percent)}% on accommodation` : ""}
+            {stayOnly ? `Airbnb: ${airbnbs[0]?.nights ?? ""} nights, ${stayDates}`
+              : "Airbnb: 5 nights, 6–11 Jan, kept for you on the Crown Forest night · Four Points: 4 nights, 6 and 8–10 Jan"}
+            {group ? ` · Groups of ${group.min_travellers}+ save ${parseFloat(group.percent)}% on the total` : ""}
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -210,7 +213,7 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
               <span className="text-xs text-gray-600 dark:text-gray-400">I&apos;ll arrange my own</span>
             </button>
           )}
-          {(stayOnly ? airbnbs : matrix.stay_types).map((s) => {
+          {matrix.stay_types.filter((s) => s.stay_only === stayOnly).map((s) => {
             const soldOut = s.on_sale && s.units_available === 0;
             const off = !s.on_sale || soldOut;
             return (

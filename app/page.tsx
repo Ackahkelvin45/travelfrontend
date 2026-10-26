@@ -47,7 +47,7 @@ const WHY = [
 export default async function Home() {
   const [contact, facts, { matrix }] = await Promise.all([getSiteContact(), getFlagshipFacts(), getFlagship()]);
   // Live stays only: no prices are shown unless they come from the price list.
-  const stays = (matrix?.stay_types ?? []).filter((s) => s.on_sale).slice(0, 3);
+  const stays = (matrix?.stay_types ?? []).filter((s) => s.on_sale && !s.stay_only).slice(0, 3);
   return (
     <div className="flex w-full bg-background flex-col overflow-hidden">
       {/* Hero */}

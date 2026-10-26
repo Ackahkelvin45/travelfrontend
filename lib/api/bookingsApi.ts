@@ -97,6 +97,8 @@ export interface InitializePaymentRequest {
   adult?: boolean
   /** intent=addon: the experience to buy; it joins the booking once paid. */
   addon_code?: string
+  /** Optional Academy donation (% of the trip total) added to the first payment. */
+  donation_percent?: number
   /** any (default) = Paystack popup offering card + Mobile Money, the buyer
    * picks method/network/number inside Paystack · card = card-only popup ·
    * momo = approve-prompt pushed to the phone (MTN/AirtelTigo) or
@@ -167,6 +169,8 @@ export interface BookingDetail {
   /** Component bookings only ("single" | "couple" | "group"); empty for older flows. */
   mode: TravelMode | ''
   coordinator_name: string | null
+  /** Academy donation received with this booking (not part of total_amount). */
+  donation?: { amount: string; percent: number | null; currency: string; reference: string } | null
   lead_contacted_at: string | null
   pay_separately: boolean
   whatsapp_updates: boolean
@@ -299,7 +303,8 @@ export interface ComponentQuote {
     deposit: string
     unit?: string
   }[]
-  transfers: { code: string; name: string; guests: number[]; vehicles: number; price: string; charge: string; refundable: boolean }[]
+  /** vehicle_capacity 1 = priced per guest. */
+  transfers: { code: string; name: string; guests: number[]; vehicles: number; vehicle_capacity: number; price: string; charge: string; refundable: boolean }[]
   core_total: string
   rooms_total: string
   experiences_total: string
@@ -315,7 +320,11 @@ export interface ComponentQuote {
   amount_due_today: string
   balance_after_today: string
   final_payment_deadline: string | null
+  /** Server-priced Academy donation choices; empty while donations are closed. */
+  donation_options: DonationOption[]
 }
+
+export interface DonationOption { percent: number; amount: string; total: string; due_today: string }
 
 export interface RoomHold {
   token: string

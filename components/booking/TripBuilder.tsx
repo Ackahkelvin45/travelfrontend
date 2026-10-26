@@ -196,7 +196,8 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
               >
                 <span className="font-raleway font-bold text-text-primary">{s.name}</span>
                 <span className="text-xs text-gray-600 dark:text-gray-400">
-                  {!s.on_sale ? s.note || "Not yet on sale" : soldOut ? "Sold out" : s.capacity === 1 ? "One guest per room" : `Up to ${s.capacity} guests`}
+                  {!s.on_sale ? s.note || "Not yet on sale" : soldOut ? "Sold out"
+                    : `${s.capacity === 1 ? "One guest per room" : `Up to ${s.capacity} guests`} · ${s.units_available} of ${s.units_total} left`}
                 </span>
                 <span className="text-sm font-semibold text-text-primary">{fmtMoney(s.unit_total, c)} · {s.nights} nights</span>
                 <span className="text-xs text-gray-600 dark:text-gray-400">{fmtMoney(s.price_per_night, c)} / night per {wordFor(s).toLowerCase()}</span>
@@ -268,7 +269,9 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
           <div>
             <h3 className="font-raleway font-bold text-text-primary">4. Airport transfers</h3>
             <p className="text-xs text-gray-600 dark:text-gray-400">
-              {stay ? `For everyone on this booking, priced per vehicle of up to ${transfers[0].vehicle_capacity} guests.` : "For guests staying in Azura accommodation. Choose an Accra stay to add one."}
+              {!stay ? "For guests staying in Azura accommodation. Choose an Accra stay to add one."
+                : transfers[0].vehicle_capacity === 1 ? "For everyone on this booking, priced per guest."
+                : `For everyone on this booking, priced per vehicle of up to ${transfers[0].vehicle_capacity} guests.`}
             </p>
           </div>
           {stay && (
@@ -279,7 +282,7 @@ export function TripBuilder({ trip }: { trip: TripBuilderState }) {
                   onClick={() => update({ transfer: e.code })} className={option((choices.transfer ?? "") === e.code)}
                 >
                   <span className="font-raleway font-bold text-text-primary">{e.name}</span>
-                  <span className="text-xs text-gray-600 dark:text-gray-400">{e.price ? `${fmtMoney(e.price, c)} per vehicle` : "I'll make my own way"}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">{"vehicle_capacity" in e ? `${fmtMoney(e.price, c)} per ${e.vehicle_capacity === 1 ? "guest" : "vehicle"}` : "I'll make my own way"}</span>
                 </button>
               ))}
             </div>

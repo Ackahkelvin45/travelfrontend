@@ -192,7 +192,7 @@ export function TripAddons({ booking }: { booking: BookingDetail }) {
               <span className="mt-auto font-montserrat font-bold text-text-primary">
                 {fmtMoney(a.unit_price, c)}
                 <span className="block font-open-sans text-xs font-normal text-gray-600 dark:text-gray-400">
-                  {a.unit === "per_vehicle" ? `per vehicle, up to ${a.vehicle_capacity}` : "per guest"}{a.adults_only ? " · 18+" : ""}
+                  {a.unit === "per_vehicle" && a.vehicle_capacity !== 1 ? `per vehicle, up to ${a.vehicle_capacity}` : "per guest"}{a.adults_only ? " · 18+" : ""}
                 </span>
               </span>
               <button type="button" aria-pressed={code === a.code} onClick={() => choose(a.code)}

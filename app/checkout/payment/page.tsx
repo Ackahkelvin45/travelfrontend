@@ -4,7 +4,8 @@
  * with a part payment, both priced by the server; a group can choose to pay
  * per person. "Pay" creates the booking from the room hold (once — a retry
  * reuses it), then hands over to Paystack exactly like every other flow. An
- * optional Academy donation is charged separately after the booking is paid. */
+ * optional Academy donation (a server-priced % of the trip) rides on that
+ * first payment as its own line, split to the Academy at settlement. */
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -20,14 +21,15 @@ import {
   type ComponentQuote,
   type PaymentPlan,
 } from "@/lib/api/bookingsApi";
-import { useGetComponentMatrixQuery, useGetSiteSettingsQuery } from "@/lib/api/packagesApi";
-import { savePendingDonation, type DonationChoice } from "@/lib/donation";
+import { useGetComponentMatrixQuery } from "@/lib/api/packagesApi";
 import { fmtDate, fmtMoney } from "@/lib/format";
 import { routeAfterInitialize } from "@/lib/payments/paystack";
 import { savePendingBooking } from "@/lib/pendingBooking";
 import { guestCount, loadCheckout, saveCheckout, splitName, toSelection, type CheckoutState } from "@/lib/trip";
 
 type Phase = "idle" | "creating" | "redirecting";
+
+const hoursFromNow = (h: number) => new Date(Date.now() + h * 3600 * 1000).toISOString();
 
 export default function CheckoutPaymentPage() {
   const router = useRouter();
@@ -48,8 +50,7 @@ export default function CheckoutPaymentPage() {
   const [plan, setPlan] = useState<PaymentPlan | null>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [paySeparately, setPaySeparately] = useState(false);
-  const [donation, setDonation] = useState<DonationChoice>(null);
-  const { data: site } = useGetSiteSettingsQuery();
+  const [donation, setDonation] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const baseSelection = useMemo(() => (state && matrix ? toSelection(state.packageId, state.choices, matrix) : null), [state, matrix]);
@@ -77,6 +78,10 @@ export default function CheckoutPaymentPage() {
     ? q.travellers.reduce((sum, t, i) => sum + parseFloat(i === 0 ? t.due_now : t.room_deposit), 0).toFixed(2)
     : q.amount_due_today;
   const dueNow = quote ? dueNowFor(quote) : undefined;
+  const gift = quote?.donation_options.find((o) => o.percent === donation);
+  // What this payment charges: the booking part plus any donation. Paying in
+  // one go uses the server's figure; a per-guest split previews the sum.
+  const payNow = gift ? (separately ? (parseFloat(dueNow!) + parseFloat(gift.amount)).toFixed(2) : gift.due_today) : dueNow;
 
   if (state === undefined) return <Centered><Spinner /></Centered>;
   if (!state || !state.details) {
@@ -129,12 +134,11 @@ export default function CheckoutPaymentPage() {
         savePendingBooking({
           bookingId: booking.id, reference: booking.reference, email: d.email, packageTitle: current.packageTitle,
           amountDueToday: booking.amount_due_today, currency: booking.currency,
-          expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+          expiresAt: hoursFromNow(24),
         });
       }
-      savePendingDonation(donation && site?.donations_open
-        ? { bookingId: current.booking!.id, name: d.fullName, email: d.email, choice: donation } : null);
       const payment = await initializePayment({
+        ...(gift ? { donation_percent: gift.percent } : {}),
         booking_id: current.booking!.id,
         intent: current.booking!.plan === "installment" || current.booking!.paySeparately ? "deposit" : "balance",
         channel: "any", // Paystack's page collects card or mobile money
@@ -193,9 +197,10 @@ export default function CheckoutPaymentPage() {
             })}
           </div>
           {quote ? (
-            <dl className="grid grid-cols-3 gap-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/60 p-3.5 text-[13px]">
+            <dl className={`grid ${gift ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"} gap-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/60 p-3.5 text-[13px]`}>
               <div className="flex flex-col gap-0.5"><dt className="text-gray-500 dark:text-gray-400">Trip total</dt><dd className="font-montserrat font-bold text-text-primary">{fmtMoney(quote.total, c)}</dd></div>
-              <div className="flex flex-col gap-0.5"><dt className="text-gray-500 dark:text-gray-400">Paying now</dt><dd className="font-montserrat font-bold text-[#8A6420] dark:text-primary">{fmtMoney(dueNow!, c)}</dd></div>
+              {gift && <div className="flex flex-col gap-0.5"><dt className="text-gray-500 dark:text-gray-400">Academy donation ({gift.percent}%)</dt><dd className="font-montserrat font-bold text-text-primary">+{fmtMoney(gift.amount, c)}</dd></div>}
+              <div className="flex flex-col gap-0.5"><dt className="text-gray-500 dark:text-gray-400">Paying now</dt><dd className="font-montserrat font-bold text-[#8A6420] dark:text-primary">{fmtMoney(payNow!, c)}</dd></div>
               <div className="flex flex-col gap-0.5"><dt className="text-gray-500 dark:text-gray-400">Balance after</dt><dd className="font-montserrat font-bold text-text-primary">{fmtMoney((parseFloat(quote.total) - parseFloat(dueNow!)).toFixed(2), c)}</dd></div>
             </dl>
           ) : <Spinner />}
@@ -236,8 +241,13 @@ export default function CheckoutPaymentPage() {
           </section>
         )}
 
-        {site?.donations_open && quote && (
-          <DonationPicker total={quote.total} currency={c} value={donation} onChange={setDonation} disabled={phase !== "idle"} />
+        {quote && quote.donation_options.length > 0 && (
+          <DonationPicker options={quote.donation_options} currency={c} value={donation} onChange={setDonation} disabled={phase !== "idle"} />
+        )}
+        {gift && (
+          <p className="-mt-2 px-1 text-[13px] text-gray-700 dark:text-gray-300">
+            Total with your donation: <strong className="text-text-primary">{fmtMoney(gift.total, c)}</strong>
+          </p>
         )}
 
         {error && (
@@ -253,7 +263,7 @@ export default function CheckoutPaymentPage() {
         {phase === "idle" ? (
           <div className="flex flex-col gap-3">
             <button type="button" onClick={pay} disabled={!quote} className="bg-primary text-white font-montserrat font-semibold text-base py-4 rounded-2xl transition hover:-translate-y-0.5 hover:brightness-95 motion-reduce:transform-none disabled:opacity-50">
-              {quote ? `Pay ${fmtMoney(dueNow!, c)} securely` : "Pricing…"}
+              {quote ? `Pay ${fmtMoney(payNow!, c)} securely` : "Pricing…"}
             </button>
             <span className="text-center text-xs text-gray-500 dark:text-gray-400">Card or mobile money · You&apos;ll confirm on the secure payment page</span>
           </div>

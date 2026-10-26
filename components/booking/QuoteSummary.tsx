@@ -28,7 +28,8 @@ export function quoteLines(q: ComponentQuote) {
   }
   exps.forEach((x) => lines.push({ label: `${x.label} × ${x.count}`, amount: x.amount }));
   for (const tr of q.transfers) {
-    lines.push({ label: `${tr.name} · ${tr.vehicles} vehicle${tr.vehicles === 1 ? "" : "s"}`, amount: tr.charge });
+    const [count, word] = tr.vehicle_capacity === 1 ? [tr.guests.length, "guest"] : [tr.vehicles, "vehicle"];
+    lines.push({ label: `${tr.name} · ${count} ${word}${count === 1 ? "" : "s"}`, amount: tr.charge });
   }
   return lines;
 }

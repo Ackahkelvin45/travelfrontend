@@ -195,6 +195,8 @@ export interface ComponentMatrix {
   on_sale: boolean
   note: string
   units_available: number
+  /** Sellable units of this type in total (blocked units excluded). */
+  units_total: number
   /** Stays page details (display only). */
   bedding: string
   breakfast: string
@@ -204,7 +206,7 @@ export interface ComponentMatrix {
  }[]
  experiences: {
   code: string; name: string; description: string | null; price: string; refundable: boolean
-  /** per_vehicle = airport transfer, shared by up to vehicle_capacity guests. */
+  /** per_vehicle = airport transfer, shared by up to vehicle_capacity guests (1 = per guest). */
   unit: 'per_person' | 'per_vehicle'
   adults_only: boolean
   requires_stay: boolean

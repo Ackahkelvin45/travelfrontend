@@ -9,6 +9,11 @@ import { logout, updateToken } from '../features/auth/authSlice'
 
 export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://azuratravelsbackend.cc/api/'
 
+/** Sign-in endpoints go through the site's own domain (/api/auth/ is routed
+ * to the backend), so the httpOnly refresh cookie is first-party. */
+export const authUrl = (path: string) =>
+  `${typeof window === 'undefined' ? '' : window.location.origin}/api/auth/${path}`
+
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: (headers, { getState }) => {
@@ -25,11 +30,26 @@ const rawBaseQuery = fetchBaseQuery({
 // Prevents several concurrent 401s from each firing their own refresh.
 let refreshing: Promise<string | null> | null = null
 
+/** A new access token from the refresh cookie, or null. Tried twice: another
+ * tab may have just rotated the cookie under this request. */
+export async function refreshAccess(): Promise<string | null> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt) await new Promise((r) => setTimeout(r, 400))
+    try {
+      const resp = await fetch(authUrl('token/refresh/'), { method: 'POST', credentials: 'same-origin' })
+      if (resp.ok) return ((await resp.json()) as { access?: string }).access ?? null
+      if (resp.status !== 401) return null
+    } catch {
+      return null
+    }
+  }
+  return null
+}
+
 /**
- * Wraps the base query: on a 401 it transparently refreshes the access token
- * using the stored refresh token, then retries the original request once. If
- * there's no refresh token or the refresh fails, it clears the session so the
- * UI reflects a logged-out state instead of looping on 401s.
+ * Wraps the base query: on a 401 it refreshes the access token from the
+ * cookie, then retries the original request once. If that fails it clears
+ * the session so the UI shows signed out instead of looping on 401s.
  */
 const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
@@ -38,39 +58,15 @@ const baseQueryWithReauth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   let result = await rawBaseQuery(args, api, extraOptions)
 
-  if (result.error?.status !== 401) return result
-
-  // localStorage first: another tab may already have rotated the token.
-  const stored = () => { try { return localStorage.getItem('refreshToken') } catch { return null } }
-  const refresh = stored() || (api.getState() as RootState).auth.refreshToken
-  if (!refresh) {
-    api.dispatch(logout())
-    return result
-  }
+  // Signed out (e.g. a wrong password on sign-in): nothing to refresh.
+  if (result.error?.status !== 401 || !(api.getState() as RootState).auth.token) return result
 
   // Single in-flight refresh shared across concurrent 401s.
   if (!refreshing) {
-    refreshing = (async () => {
-      const resp = await rawBaseQuery(
-        { url: '/auth/token/refresh/', method: 'POST', body: { refresh } },
-        api,
-        extraOptions,
-      )
-      const data = resp.data as { access?: string; refresh?: string } | undefined
-      if (data?.access) {
-        api.dispatch(updateToken({ token: data.access, refreshToken: data.refresh }))
-        return data.access
-      }
-      // Refused because another tab rotated it in the meantime: adopt that tab's tokens.
-      const latest = stored()
-      const latestAccess = localStorage.getItem('token')
-      if (latest && latest !== refresh && latestAccess) {
-        api.dispatch(updateToken({ token: latestAccess, refreshToken: latest }))
-        return latestAccess
-      }
-      api.dispatch(logout())
-      return null
-    })()
+    refreshing = refreshAccess().then((access) => {
+      api.dispatch(access ? updateToken({ token: access }) : logout())
+      return access
+    })
   }
 
   const newAccess = await refreshing

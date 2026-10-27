@@ -13,66 +13,55 @@ export interface User {
 
 interface AuthState {
   user: User | null
-  token: string | null        // simplejwt access token
-  refreshToken: string | null // simplejwt refresh token
+  token: string | null        // simplejwt access token, in memory only
   isAuthenticated: boolean
+  /** The startup session check (cookie refresh) has finished. */
   hydrated: boolean
 }
 
-// Tokens are hydrated from localStorage in a client effect (StoreProvider) —
-// reading it at module init causes SSR/client hydration mismatches.
+// The refresh token is an httpOnly cookie the browser sends to /api/auth/
+// (never readable here); the access token lives only in memory and is
+// restored from the cookie on each page load (StoreProvider).
 const initialState: AuthState = {
   user: null,
   token: null,
-  refreshToken: null,
   isAuthenticated: false,
   hydrated: false,
+}
+
+// Not a secret: only spares signed-out visitors a refresh call on every load.
+export const SIGNED_IN_KEY = 'azura.signedIn'
+const remember = (on: boolean) => {
+  try { if (on) localStorage.setItem(SIGNED_IN_KEY, '1'); else localStorage.removeItem(SIGNED_IN_KEY) } catch { /* storage blocked */ }
 }
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    hydrateFromStorage: (state) => {
-      if (typeof window !== 'undefined') {
-        state.token = localStorage.getItem('token')
-        state.refreshToken = localStorage.getItem('refreshToken')
-      }
+    sessionChecked: (state) => {
       state.hydrated = true
     },
-    setCredentials: (
-      state,
-      action: PayloadAction<{ token: string; refreshToken: string }>
-    ) => {
+    setCredentials: (state, action: PayloadAction<{ token: string }>) => {
       state.token = action.payload.token
-      state.refreshToken = action.payload.refreshToken
       state.isAuthenticated = true
-      localStorage.setItem('token', action.payload.token)
-      localStorage.setItem('refreshToken', action.payload.refreshToken)
+      remember(true)
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload
       state.isAuthenticated = true
     },
-    /** After a refresh: the server rotates the refresh token too (the old one is revoked). */
-    updateToken: (state, action: PayloadAction<{ token: string; refreshToken?: string }>) => {
+    updateToken: (state, action: PayloadAction<{ token: string }>) => {
       state.token = action.payload.token
-      localStorage.setItem('token', action.payload.token)
-      if (action.payload.refreshToken) {
-        state.refreshToken = action.payload.refreshToken
-        localStorage.setItem('refreshToken', action.payload.refreshToken)
-      }
     },
     logout: (state) => {
       state.user = null
       state.token = null
-      state.refreshToken = null
       state.isAuthenticated = false
-      localStorage.removeItem('token')
-      localStorage.removeItem('refreshToken')
+      remember(false)
     },
   },
 })
 
-export const { hydrateFromStorage, setCredentials, setUser, updateToken, logout } = authSlice.actions
+export const { sessionChecked, setCredentials, setUser, updateToken, logout } = authSlice.actions
 export default authSlice.reducer

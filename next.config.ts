@@ -10,6 +10,13 @@ const nextConfig: NextConfig = {
  output: "standalone",
  // Ghana-only site (Change Request v2): old multi-country listing URLs go to
  // the Ghana experiences page. Temporary until the client signs off the IA.
+ // Production routes /api/auth/ to the backend in the host nginx (so the
+ // refresh cookie is first-party). Locally, set AUTH_PROXY_TARGET to the
+ // Django server to get the same thing from Next.
+ async rewrites() {
+  const target = process.env.AUTH_PROXY_TARGET;
+  return target ? [{ source: "/api/auth/:path*", destination: `${target.replace(/\/$/, "")}/api/auth/:path*/` }] : [];
+ },
  async redirects() {
   return [
    { source: "/explore", destination: "/experiences", permanent: false },

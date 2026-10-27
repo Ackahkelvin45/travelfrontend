@@ -8,7 +8,7 @@ export interface DonationRequest {
   email: string
   /** Custom USD amount, or `percent` of `booking_id`'s total (checkout). */
   amount?: string
-  percent?: 5 | 10
+  percent?: number
   booking_id?: string
 }
 

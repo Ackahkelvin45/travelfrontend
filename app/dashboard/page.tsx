@@ -15,8 +15,10 @@ import type { RootState } from "@/lib/store/store";
 import { BASE_URL } from "@/lib/api/baseApi";
 import {
   useGetMyBookingsQuery,
+  useGetMyTripsQuery,
   useInitializePaymentMutation,
   type BookingDetail,
+  type GuestTrip,
   type PaymentRow,
 } from "@/lib/api/bookingsApi";
 import { useGetTripUpdatesQuery, useGetPackageDetailQuery } from "@/lib/api/packagesApi";
@@ -638,6 +640,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { token, hydrated } = useSelector((state: RootState) => state.auth);
   const { data: bookings, isLoading, isError } = useGetMyBookingsQuery(undefined, { skip: !token });
+  const { data: trips } = useGetMyTripsQuery(undefined, { skip: !token });
   const [selected, setSelected] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -670,7 +673,9 @@ export default function DashboardPage() {
         <SupportAndPrivacy />
       </div>
 
-      {!bookings || bookings.length === 0 ? (
+      {trips && trips.length > 0 && !activeBooking && <GuestTrips trips={trips} />}
+
+      {(!bookings || bookings.length === 0) && trips && trips.length > 0 ? null : !bookings || bookings.length === 0 ? (
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-10 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-300 font-open-sans mb-2">
             No bookings on this account yet.
@@ -773,6 +778,67 @@ export default function DashboardPage() {
   );
 }
 
+
+/** Trips the user joined as an invited guest: only their own ticket, room,
+ * experiences and payments (client feedback, Oct 2026). The lead booker sees
+ * the whole reservation in their own bookings. */
+function GuestTrips({ trips }: { trips: GuestTrip[] }) {
+  return (
+    <section className="mb-8 flex flex-col gap-4" aria-label="Trips you're a guest on">
+      <h2 className="font-raleway font-bold text-xl text-text-primary">Trips you&apos;re a guest on</h2>
+      {trips.map((t) => {
+        const owes = parseFloat(t.outstanding) > 0;
+        return (
+          <article key={t.traveller_id} className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 flex flex-col gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">Booking {t.reference} · booked by {t.lead_name}</p>
+                <h3 className="font-raleway font-bold text-lg text-text-primary mt-0.5">{t.package_title}</h3>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{fmtDate(t.travel_date)} · {t.full_name}</p>
+              </div>
+              <span className="rounded-full bg-[#FAF5EB] dark:bg-gray-800 px-3 py-1.5 text-xs font-bold uppercase text-[#6B4E1A] dark:text-primary">{t.status}</span>
+            </div>
+            <dl className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+              <div><dt className="text-xs text-gray-500 dark:text-gray-400">Your ticket</dt><dd className="font-semibold text-text-primary">{t.ticket}</dd></div>
+              <div><dt className="text-xs text-gray-500 dark:text-gray-400">Accommodation</dt><dd className="font-semibold text-text-primary">{t.unit ?? "Own stay"}</dd></div>
+              <div><dt className="text-xs text-gray-500 dark:text-gray-400">Your experiences</dt><dd className="font-semibold text-text-primary">{t.experiences.length ? t.experiences.join(", ") : "None added"}</dd></div>
+            </dl>
+            <div className="rounded-xl bg-gray-50 dark:bg-gray-800/60 px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-sm">
+              <span className="text-gray-700 dark:text-gray-300">
+                Your share {fmtMoney(t.share, t.currency)} · paid {fmtMoney(t.paid, t.currency)}
+                {owes ? <> · <strong className="text-text-primary">{fmtMoney(t.outstanding, t.currency)} to pay</strong></> : " · nothing to pay"}
+              </span>
+              {owes && t.pay_separately && (t.status === "pending" || t.status === "confirmed") && (
+                <Link href={`/pay/${t.traveller_id}`} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white">Pay my share</Link>
+              )}
+            </div>
+            {owes && !t.pay_separately && (
+              <p className="text-[13px] text-gray-600 dark:text-gray-400">{t.lead_name} pays for this booking.</p>
+            )}
+            {t.payments.length > 0 && (
+              <ul className="flex flex-col gap-1.5 text-sm">
+                {t.payments.map((p, i) => (
+                  <li key={p.reference ?? i} className="flex justify-between gap-3 text-gray-700 dark:text-gray-300">
+                    <span>{p.paid_at ? fmtDate(p.paid_at) : "—"} · your payment{p.status === "refunded" ? " (refunded)" : ""}</span>
+                    <span className="font-semibold text-text-primary">{fmtMoney(p.amount, p.currency)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="flex flex-wrap gap-3 text-sm">
+              {t.invite_token && (
+                <Link href={`/invite/${t.invite_token}`} className="font-semibold text-[#8A6420] dark:text-primary underline underline-offset-2">
+                  {t.travel_info_submitted ? "Update my details" : "Complete my details"}
+                </Link>
+              )}
+              {t.coordinator_name && <span className="text-gray-600 dark:text-gray-400">Coordinator: {t.coordinator_name}</span>}
+            </div>
+          </article>
+        );
+      })}
+    </section>
+  );
+}
 
 /** Appendix C: the account shows how to reach us, and the Privacy Policy right to ask for deletion. */
 function SupportAndPrivacy() {

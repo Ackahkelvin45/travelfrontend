@@ -48,7 +48,7 @@ function LoginContent() {
     setUnverified(false);
     try {
       const tokens = await login({ email, password }).unwrap();
-      dispatch(setCredentials({ token: tokens.access, refreshToken: tokens.refresh }));
+      dispatch(setCredentials({ token: tokens.access }));
       const me = await store.dispatch(authApi.endpoints.getMe.initiate(undefined, { forceRefetch: true })).unwrap();
       dispatch(setUser(me));
       // A guest who came from a confirmation-email claim link and had to

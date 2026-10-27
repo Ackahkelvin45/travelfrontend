@@ -5,9 +5,9 @@ import { fmtMoney } from "@/lib/format";
  * Amounts are the server's; grouping only adds server line values together. */
 export function quoteLines(q: ComponentQuote) {
   const add = (a: string, b: string) => (parseFloat(a) + parseFloat(b)).toFixed(2);
-  const lines: { label: string; amount: string; saving?: boolean }[] = [
-    { label: `Core experience × ${q.num_guests}`, amount: q.core_total },
-  ];
+  const lines: { label: string; amount: string; saving?: boolean }[] = parseFloat(q.core_total) > 0
+    ? [{ label: `Core experience × ${q.num_guests}`, amount: q.core_total }]
+    : [];  // stay only: no Core ticket
 
   const stays = new Map<string, { label: string; count: number; amount: string; nights: number }>();
   for (const r of q.rooms) {
@@ -16,7 +16,7 @@ export function quoteLines(q: ComponentQuote) {
   }
   stays.forEach((s) => lines.push({ label: `${s.label} × ${s.count} · ${s.nights} nights`, amount: s.amount }));
   if (parseFloat(q.discount_total) > 0) {
-    lines.push({ label: `${q.discount_name} · ${parseFloat(q.discount_percent)}% off accommodation`, amount: q.discount_total, saving: true });
+    lines.push({ label: `${q.discount_name} · ${parseFloat(q.discount_percent)}% off the total`, amount: q.discount_total, saving: true });
   }
 
   const exps = new Map<string, { label: string; count: number; amount: string }>();
@@ -28,7 +28,8 @@ export function quoteLines(q: ComponentQuote) {
   }
   exps.forEach((x) => lines.push({ label: `${x.label} × ${x.count}`, amount: x.amount }));
   for (const tr of q.transfers) {
-    lines.push({ label: `${tr.name} · ${tr.vehicles} vehicle${tr.vehicles === 1 ? "" : "s"}`, amount: tr.charge });
+    const [count, word] = tr.vehicle_capacity === 1 ? [tr.guests.length, "guest"] : [tr.vehicles, "vehicle"];
+    lines.push({ label: `${tr.name} · ${count} ${word}${count === 1 ? "" : "s"}`, amount: tr.charge });
   }
   return lines;
 }

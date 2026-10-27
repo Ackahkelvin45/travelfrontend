@@ -23,11 +23,21 @@ export const CONTACT = {
 
 export const whatsappHref = CONTACT.whatsappDigits ? `https://wa.me/${CONTACT.whatsappDigits}` : "/about#contact";
 
-export const NAV_LINKS = [
+export interface NavLink { href: string; label: string; children?: { href: string; label: string; note?: string }[] }
+
+// Ghana Experience categories (client feedback, Oct 2026). The Michael
+// Blackson Ghana Experience stays first. Table Reservations, Group Share and
+// Creator Packages belong to EnqoreAccess, not this site.
+export const NAV_LINKS: NavLink[] = [
   { href: "/", label: "Home" },
-  { href: "/december-in-ghana", label: "December in Ghana" },
-  { href: "/ghana-experience-2027", label: "Ghana Experience 2027" },
-  { href: "/stays", label: "Stays" },
+  {
+    href: "/ghana-experience-2027", label: "Ghana Experience", children: [
+      { href: "/ghana-experience-2027", label: "Michael Blackson Ghana Experience", note: "6–11 January 2027 · featured" },
+      { href: "/stays", label: "Airbnbs", note: "Stay in Accra, with or without the event" },
+      { href: "/december-in-ghana", label: "December Tour Packages" },
+      { href: "/experiences", label: "Experiences" },
+    ],
+  },
   { href: "/faqs", label: "FAQs" },
   { href: "/about", label: "About Us" },
 ];
@@ -72,10 +82,11 @@ export const FAQS: Faq[] = [
   { topic: "Trip", q: "Will Michael Blackson be there the whole time?", a: "Michael's planned appearances are the Wednesday welcome dinner, the Thursday Academy visit and the Friday ENZO VIP night. Timings are subject to final confirmation, and a Jubilee House visit is possible but not confirmed." },
   { topic: "Stays", q: "Do I have to book accommodation with you?", a: "No. You can arrange your own. If you add an Airbnb or a Four Points room, every guest in it needs their own Core ticket." },
   { topic: "Stays", q: "How is accommodation priced?", a: "Per unit, for a fixed package. Airbnb is five nights, 6 to 11 January, and stays yours on the Crown Forest night for your luggage. Four Points is four paid nights, 6 and 8 to 10 January. A one-bedroom Airbnb sleeps up to 2 and a two-bedroom up to 4, and the unit is charged once however many guests share it." },
+  { topic: "Stays", q: "Can I book just an Airbnb, without the event?", a: "Yes. Stay-only Airbnbs are for 20 to 31 January, eleven nights, at the same nightly rate. They don't include a Core ticket or event experiences, and you can add an airport transfer." },
   { topic: "Stays", q: "Is breakfast included?", a: "Breakfast at Crown Forest on 7 January is included in Core. Four Points breakfast is still being confirmed with the hotel." },
-  { topic: "Prices", q: "Are there any discounts?", a: "Not at the moment. The $899 Core ticket is never discounted." },
+  { topic: "Prices", q: "Are there any discounts?", a: "Yes. Groups of 4 to 9 get 5% off the total price and groups of 10 or more get 7%. Bookings linked to the same lead count as one group, and the discount is shown before you pay. A booking keeps the discount it was paid at: if your group grows later, the new booking gets the higher rate and earlier ones stay as they are." },
   { topic: "Prices", q: "Can my partner and I choose different experiences?", a: "Yes. Experiences are chosen per guest. ENZO VIP is for guests aged 18 and over." },
-  { topic: "Prices", q: "Do you offer airport transfers?", a: "Yes, for guests staying in Azura accommodation: $40 for an arrival pickup or $70 for pickup and drop-off, per vehicle of up to two guests." },
+  { topic: "Prices", q: "Do you offer airport transfers?", a: "Yes, for guests staying in Azura accommodation: $100 per guest for an arrival pickup or $200 per guest for pickup and drop-off." },
   { topic: "Payments", q: "How do deposits and payments work?", a: "Core tickets, experiences and transfers are paid in full when you book. For accommodation you can pay at least 50% to secure the room and the rest in instalments. Everything must be paid before the first activity on 6 January, and we remind you 30, 14 and 7 days before." },
   { topic: "Payments", q: "Can each member of our group pay separately?", a: "Yes. One organiser can pay for everyone, or each guest can pay their own share under the same group booking." },
   { topic: "Payments", q: "What happens if a balance isn't paid?", a: "Every guest's share must be paid before the first activity on 6 January. Guests with an unpaid balance at the start can't receive a badge or join activities, and unpaid bookings are forfeited under the booking terms. We never cancel early just because one instalment was missed." },

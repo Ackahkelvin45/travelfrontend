@@ -14,6 +14,8 @@ export interface TripChoices {
   units: number;
   /** Experience code → how many guests take it (guests 1..count). */
   counts: Record<string, number>;
+  /** Airport transfer code for the whole party, or "" for none. */
+  transfer?: string;
   names: string[];
   /** The guests taking adults-only experiences are confirmed 18+. */
   adultsConfirmed?: boolean;
@@ -21,14 +23,26 @@ export interface TripChoices {
 
 export const DEFAULT_CHOICES: TripChoices = { mode: "couple", groupSize: 3, stay: "", units: 0, counts: {}, names: [], adultsConfirmed: false };
 
+/** [first night, checkout] of a stay-only Airbnb; the tour's dates otherwise. */
+export function tripDates(matrix: ComponentMatrix, stay?: Stay): [string | null, string | null] {
+  if (!stay?.check_in) return [matrix.tour_start, matrix.tour_end];
+  const out = new Date(`${stay.check_in}T00:00:00Z`);
+  out.setUTCDate(out.getUTCDate() + stay.nights);
+  return [stay.check_in, out.toISOString().slice(0, 10)];
+}
+
 export function guestCount(c: TripChoices): number {
+  if (c.mode === "stay") return Math.max(1, c.groupSize);
   return c.mode === "single" ? 1 : c.mode === "couple" ? 2 : Math.max(3, c.groupSize);
 }
 
 type Stay = ComponentMatrix["stay_types"][number];
 
-/** Valid unit counts for n guests: enough beds, and every unit filled to its minimum. */
+/** Valid unit counts for n guests: enough beds, and every unit filled to its
+ * minimum. An Airbnb is one unit per booking, so a party it can't fit gets
+ * an empty range. */
 export function unitRange(stay: Stay, n: number): [number, number] {
+  if (stay.kind === "airbnb") return n <= stay.capacity ? [1, 1] : [1, 0];
   return [Math.ceil(n / stay.capacity), Math.floor(n / Math.max(stay.min_occupancy, 1))];
 }
 
@@ -39,20 +53,15 @@ export function unitsFor(c: TripChoices, stay: Stay | undefined, n: number): num
 }
 
 /** Guests spread evenly over the units (guest i → unit ⌊i·units/n⌋); the
- * first `count` guests take each experience. Airport transfers (one per
- * guest, stay guests only) go to consecutive guests: pickup first, then the
- * return package. */
+ * first `count` guests take each experience. The airport transfer is one
+ * choice for the whole party (stay guests only). */
 export function toSelection(packageId: string, c: TripChoices, matrix: ComponentMatrix, plan: PaymentPlan = "full"): TripSelection {
   const n = guestCount(c);
   const stay = matrix.stay_types.find((s) => s.code === c.stay);
   const units = unitsFor(c, stay, n);
   const rooms = Array.from({ length: units }, () => ({ stay_type: c.stay, occupants: [] as number[] }));
   for (let i = 0; i < n && units; i++) rooms[Math.floor((i * units) / n)].occupants.push(i);
-  const transferOf: Record<number, string> = {};
-  let next = 0;
-  for (const e of matrix.experiences.filter((x) => x.unit === "per_vehicle" && units)) {
-    for (let k = 0; k < Math.min(c.counts[e.code] ?? 0, n - next); k++) transferOf[next++] = e.code;
-  }
+  const transfer = units && matrix.experiences.some((x) => x.unit === "per_vehicle" && x.code === c.transfer) ? c.transfer! : "";
   const adultsOnly = new Set(matrix.experiences.filter((e) => e.adults_only).map((e) => e.code));
   return {
     package_id: packageId,
@@ -61,8 +70,8 @@ export function toSelection(packageId: string, c: TripChoices, matrix: Component
     rooms,
     travellers: Array.from({ length: n }, (_, i) => {
       const experiences = matrix.experiences
-        .filter((e) => e.unit !== "per_vehicle" && i < Math.min(n, c.counts[e.code] ?? 0)).map((e) => e.code)
-        .concat(transferOf[i] ? [transferOf[i]] : []);
+        .filter((e) => c.mode !== "stay" && e.unit !== "per_vehicle" && i < Math.min(n, c.counts[e.code] ?? 0)).map((e) => e.code)
+        .concat(transfer ? [transfer] : []);
       return {
         name: c.names[i] ?? "", experiences,
         adult: !!c.adultsConfirmed && experiences.some((code) => adultsOnly.has(code)),
@@ -82,6 +91,8 @@ export interface CheckoutState {
     fullName: string; email: string; phone: string; country: string;
     acceptedPolicies: string[]; marketingConsent: boolean; whatsappUpdates?: boolean;
   };
+  /** A big group's extra Airbnb: the first booking's reference (same lead email). */
+  linkedTo?: string;
   /** Set once the booking exists, so a payment retry never creates a second one. */
   booking?: { id: string; reference: string; plan: PaymentPlan; paySeparately?: boolean };
 }

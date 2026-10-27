@@ -1,4 +1,4 @@
-import { baseApi } from './baseApi'
+import { authUrl, baseApi } from './baseApi'
 import type { User } from '../features/auth/authSlice'
 
 interface LoginRequest {
@@ -6,10 +6,9 @@ interface LoginRequest {
   password: string
 }
 
-/** simplejwt token pair — /api/auth/token/ */
+/** /api/auth/token/ — the refresh token is set as an httpOnly cookie. */
 interface TokenPairResponse {
   access: string
-  refresh: string
 }
 
 interface RegisterRequest {
@@ -26,7 +25,7 @@ export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<TokenPairResponse, LoginRequest>({
       query: (credentials) => ({
-        url: '/auth/token/',
+        url: authUrl('token/'),
         method: 'POST',
         body: credentials,
       }),
@@ -40,21 +39,9 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
 
-    refreshToken: builder.mutation<{ access: string; refresh?: string }, { refresh: string }>({
-      query: (body) => ({
-        url: '/auth/token/refresh/',
-        method: 'POST',
-        body,
-      }),
-    }),
-
-    /** Sign out: revokes the refresh token server-side. */
-    revokeToken: builder.mutation<void, { refresh: string }>({
-      query: (body) => ({
-        url: '/auth/token/blacklist/',
-        method: 'POST',
-        body,
-      }),
+    /** Sign out: revokes the refresh cookie server-side and clears it. */
+    revokeToken: builder.mutation<void, void>({
+      query: () => ({ url: authUrl('token/blacklist/'), method: 'POST' }),
     }),
 
     getMe: builder.query<User, void>({
@@ -78,7 +65,6 @@ export const authApi = baseApi.injectEndpoints({
 export const {
   useLoginMutation,
   useRegisterMutation,
-  useRefreshTokenMutation,
   useRevokeTokenMutation,
   useGetMeQuery,
   useResendVerificationMutation,

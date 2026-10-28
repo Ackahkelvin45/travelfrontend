@@ -54,7 +54,7 @@ export function TripHero({ booking }: { booking: BookingDetail }) {
         </span>
         <span className="font-raleway text-2xl md:text-3xl font-bold">{booking.package_title}</span>
         <span className="text-sm text-white/90">
-          {tripDates(booking.travel_date, pkg?.available_to)} · {booking.num_guests} traveller{booking.num_guests === 1 ? "" : "s"}
+          {tripDates(booking.travel_date, booking.check_out ?? pkg?.available_to)} · {booking.num_guests} traveller{booking.num_guests === 1 ? "" : "s"}
           {rooms ? ` · ${rooms}` : ""}
         </span>
       </div>

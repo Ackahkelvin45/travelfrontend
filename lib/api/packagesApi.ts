@@ -194,9 +194,11 @@ export interface ComponentMatrix {
   unit_total: string
   on_sale: boolean
   note: string
-  /** Sold only without the event, on its own dates (check_in + nights). */
+  /** Sold only without the event: the guest picks nights between check_in
+   * and check_out_by, at least `nights`. */
   stay_only: boolean
   check_in: string | null
+  check_out_by: string | null
   units_available: number
   /** Sellable units of this type in total (blocked units excluded). */
   units_total: number

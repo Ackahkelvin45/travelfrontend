@@ -44,7 +44,7 @@ export default function BuildTrip({ id }: { id: string }) {
           <span aria-current="page">Build your trip</span>
         </nav>
         <p className="text-sm text-gray-700 dark:text-gray-300">
-          {trip.matrix && trip.choices.mode === "stay" ? `Accra stay · ${fmtDateRange(...tripDates(trip.matrix, trip.stay))}`
+          {trip.matrix && trip.choices.mode === "stay" ? `Accra stay · ${fmtDateRange(...tripDates(trip.matrix, trip.stay, trip.choices))}`
             : `${pkg.title} · ${fmtDateRange(pkg.available_from, pkg.available_to)}`}
         </p>
         {trip.linkedTo && (

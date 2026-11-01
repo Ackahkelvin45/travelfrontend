@@ -355,6 +355,7 @@ export interface ComponentCheckoutRequest extends TripSelection {
   marketing_consent: boolean
   /** Group only: each member pays their own share under this reference. */
   pay_separately?: boolean
+  referral_code?: string
   /** Opt in to booking confirmations and receipts on WhatsApp (needs a phone with country code). */
   whatsapp_updates?: boolean
   expected_total?: string
@@ -425,6 +426,9 @@ export interface GuestTrip {
 }
 
 export interface LeadRequest {
+  /** Site chat: links this lead to the conversation's record. */
+  chat_session?: string
+  referral_code?: string
   name: string
   email: string
   phone?: string
@@ -566,8 +570,8 @@ export const bookingsApi = baseApi.injectEndpoints({
     /** Site chat: send the conversation so far, get the next reply. `handoff`
      * is a staff summary when the guest should be passed to a person. */
     askAssistant: builder.mutation<
-      { reply: string; handoff: string | null },
-      { messages: { role: 'user' | 'assistant'; content: string }[] }
+      { reply: string; handoff: string | null; session: string },
+      { messages: { role: 'user' | 'assistant'; content: string }[]; session?: string; referral_code?: string }
     >({
       query: (body) => ({ url: '/assistant/', method: 'POST', body }),
     }),

@@ -7,6 +7,7 @@
  * optional Academy donation (a server-priced % of the trip) rides on that
  * first payment as its own line, split to the Academy at settlement. */
 
+import { referralCode } from "@/lib/referral";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -117,7 +118,7 @@ export default function CheckoutPaymentPage() {
           travellers: baseSelection.travellers.map((t, i) => ({ ...t, name: current.choices.names[i] })),
           hold_token: token,
           first_name: first, last_name: last, email: d.email, phone: d.phone || undefined, country: d.country || undefined,
-          accepted_policies: d.acceptedPolicies, marketing_consent: d.marketingConsent,
+          accepted_policies: d.acceptedPolicies, marketing_consent: d.marketingConsent, referral_code: referralCode(),
           pay_separately: separately, whatsapp_updates: !!d.whatsappUpdates,
           expected_total: quote.total,
         }).unwrap();

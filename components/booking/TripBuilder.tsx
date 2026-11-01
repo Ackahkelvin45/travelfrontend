@@ -23,6 +23,7 @@ import {
   type TripChoices,
 } from "@/lib/trip";
 import { fmtDateRange, fmtMoney } from "@/lib/format";
+import { referralCode } from "@/lib/referral";
 import QuoteSummary from "./QuoteSummary";
 
 function errorDetail(err: unknown, fallback: string) {
@@ -370,7 +371,7 @@ export function TripSummary({ trip }: { trip: TripBuilderState }) {
     try {
       await createLead({
         name: lead.name, email: lead.email, source: "saved_quote",
-        marketing_consent: lead.consent, selection: trip.selection,
+        marketing_consent: lead.consent, selection: trip.selection, referral_code: referralCode(),
       }).unwrap();
       setLeadState("sent");
     } catch (err) {

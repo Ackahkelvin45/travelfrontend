@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FAQS } from "@/lib/content/site";
 import { useAskAssistantMutation, useCreateLeadMutation } from "@/lib/api/bookingsApi";
+import { referralCode } from "@/lib/referral";
 import logo from "../../assets/logo/logodark.png";
 import { BlackStar } from "./Decor";
 
@@ -22,6 +23,7 @@ export default function ChatFab() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [turns, setTurns] = useState<Turn[]>([]);
+  const session = useRef("");  // this chat's record in the CRM
   const [draft, setDraft] = useState("");
   const [askAssistant, { isLoading: thinking }] = useAskAssistantMutation();
   const endRef = useRef<HTMLDivElement>(null);
@@ -43,7 +45,8 @@ export default function ChatFab() {
     setTurns(next);
     setDraft("");
     try {
-      const res = await askAssistant({ messages: next }).unwrap();
+      const res = await askAssistant({ messages: next, session: session.current, referral_code: referralCode() }).unwrap();
+      session.current = res.session;
       setTurns([...next, { role: "assistant", content: res.reply }]);
       if (res.handoff && handoff === null) {
         setMsg((m) => ({ ...m, message: m.message || question }));
@@ -61,7 +64,7 @@ export default function ChatFab() {
     const transcript = turns.map((t) => `${t.role === "user" ? "Guest" : "Assistant"}: ${t.content}`).join("\n");
     const message = transcript ? `${msg.message}\n\n--- Chat ---\n${transcript}` : msg.message;
     try {
-      await createLead({ name: msg.name, email: msg.email, message, source: "chat", marketing_consent: msg.consent }).unwrap();
+      await createLead({ name: msg.name, email: msg.email, message, source: "chat", marketing_consent: msg.consent, chat_session: session.current, referral_code: referralCode() }).unwrap();
       setHandoff("sent");
     } catch (err) {
       setHandoff((err as { data?: { detail?: string } }).data?.detail ?? "We couldn't send that. Please try WhatsApp instead.");
@@ -141,6 +144,11 @@ export default function ChatFab() {
                 <span className="typing-dot h-2 w-2 rounded-full bg-[#BD8F3A]" />
               </span>
             </div>
+          )}
+          {turns.filter((t) => t.role === "user").length >= 2 && !thinking && (
+            <button type="button" onClick={() => setHandoff("form")} className="msg-in-left self-start ml-9 text-left text-xs font-semibold text-[#6B4E1A] dark:text-[#E9D3A3] bg-white dark:bg-gray-900 border border-[#E9D3A3] dark:border-[#6B4E1A] hover:border-primary rounded-xl px-3 py-2 transition-colors">
+              Want the team to follow up? Leave your email →
+            </button>
           )}
           {turns.length === 0 && (
             <div className="mt-1 flex flex-col gap-2">
@@ -244,7 +252,7 @@ export default function ChatFab() {
             </form>
           )}
           <p className="text-[11px] text-center text-gray-600 dark:text-gray-400">
-            Our team replies during {contact.staffedHours}.{whatsappHref.startsWith("https://wa.me/") && <> <Link href="/faqs" className="text-primary font-semibold">All FAQs</Link></>}
+            Chats are saved so our team can help. Our team replies during {contact.staffedHours}.{whatsappHref.startsWith("https://wa.me/") && <> <Link href="/faqs" className="text-primary font-semibold">All FAQs</Link></>}
           </p>
         </div>
       </div>

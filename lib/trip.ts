@@ -19,16 +19,24 @@ export interface TripChoices {
   names: string[];
   /** The guests taking adults-only experiences are confirmed 18+. */
   adultsConfirmed?: boolean;
+  /** Stay only: the guest's nights (ISO dates). */
+  checkIn?: string;
+  checkOut?: string;
 }
 
 export const DEFAULT_CHOICES: TripChoices = { mode: "couple", groupSize: 3, stay: "", units: 0, counts: {}, names: [], adultsConfirmed: false };
 
-/** [first night, checkout] of a stay-only Airbnb; the tour's dates otherwise. */
-export function tripDates(matrix: ComponentMatrix, stay?: Stay): [string | null, string | null] {
-  if (!stay?.check_in) return [matrix.tour_start, matrix.tour_end];
-  const out = new Date(`${stay.check_in}T00:00:00Z`);
-  out.setUTCDate(out.getUTCDate() + stay.nights);
-  return [stay.check_in, out.toISOString().slice(0, 10)];
+/** [check-in, check-out] of a stay-only Airbnb: the guest's dates, else the
+ * window they can choose from. The tour's dates otherwise. */
+export function tripDates(matrix: ComponentMatrix, stay?: Stay, c?: TripChoices): [string | null, string | null] {
+  if (!stay?.stay_only) return [matrix.tour_start, matrix.tour_end];
+  return [c?.checkIn || stay.check_in, c?.checkOut || stay.check_out_by];
+}
+
+/** Nights between two ISO dates (0 when either is missing or out of order). */
+export function nightsBetween(checkIn?: string, checkOut?: string): number {
+  if (!checkIn || !checkOut) return 0;
+  return Math.max(0, Math.round((Date.parse(checkOut) - Date.parse(checkIn)) / 86_400_000));
 }
 
 export function guestCount(c: TripChoices): number {
@@ -59,7 +67,8 @@ export function toSelection(packageId: string, c: TripChoices, matrix: Component
   const n = guestCount(c);
   const stay = matrix.stay_types.find((s) => s.code === c.stay);
   const units = unitsFor(c, stay, n);
-  const rooms = Array.from({ length: units }, () => ({ stay_type: c.stay, occupants: [] as number[] }));
+  const dates = stay?.stay_only ? { check_in: c.checkIn ?? "", check_out: c.checkOut ?? "" } : {};
+  const rooms = Array.from({ length: units }, () => ({ stay_type: c.stay, occupants: [] as number[], ...dates }));
   for (let i = 0; i < n && units; i++) rooms[Math.floor((i * units) / n)].occupants.push(i);
   const transfer = units && matrix.experiences.some((x) => x.unit === "per_vehicle" && x.code === c.transfer) ? c.transfer! : "";
   const adultsOnly = new Set(matrix.experiences.filter((e) => e.adults_only).map((e) => e.code));
@@ -70,7 +79,7 @@ export function toSelection(packageId: string, c: TripChoices, matrix: Component
     rooms,
     travellers: Array.from({ length: n }, (_, i) => {
       const experiences = matrix.experiences
-        .filter((e) => c.mode !== "stay" && e.unit !== "per_vehicle" && i < Math.min(n, c.counts[e.code] ?? 0)).map((e) => e.code)
+        .filter((e) => e.unit !== "per_vehicle" && i < Math.min(n, c.counts[e.code] ?? 0)).map((e) => e.code)
         .concat(transfer ? [transfer] : []);
       return {
         name: c.names[i] ?? "", experiences,

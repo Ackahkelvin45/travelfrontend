@@ -193,6 +193,8 @@ export interface BookingDetail {
   package_id: string
   num_guests: number
   travel_date: string
+  /** Stay-only Airbnb: the check-out date. */
+  check_out?: string | null
   unit_price: string
   total_amount: string
   amount_paid: string
@@ -267,7 +269,8 @@ export interface TripSelection {
   mode: TravelMode
   /** adult: the guest confirmed they are 18+ (needed for adults-only experiences). */
   travellers: { name?: string; experiences: string[]; adult?: boolean }[]
-  rooms: { stay_type: string; occupants: number[] }[]
+  /** Stay-only Airbnbs carry the guest's dates. */
+  rooms: { stay_type: string; occupants: number[]; check_in?: string; check_out?: string }[]
   payment_plan?: PaymentPlan
   /** This checkout's hold: its own held rooms don't count as sold out. */
   hold_token?: string
@@ -505,7 +508,9 @@ export const bookingsApi = baseApi.injectEndpoints({
     componentQuote: builder.mutation<ComponentQuote, TripSelection>({
       query: (body) => ({ url: '/bookings/quote/', method: 'POST', body }),
     }),
-    createHold: builder.mutation<RoomHold, { package_id: string; stay_types: string[]; replace_token?: string }>({
+    createHold: builder.mutation<RoomHold, {
+      package_id: string; stay_types: string[]; replace_token?: string; check_in?: string; check_out?: string
+    }>({
       query: (body) => ({ url: '/bookings/holds/', method: 'POST', body }),
     }),
     releaseHold: builder.mutation<void, string>({

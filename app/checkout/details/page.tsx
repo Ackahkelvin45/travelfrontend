@@ -223,7 +223,7 @@ export default function CheckoutDetailsPage() {
         <aside className="flex-[1_1_340px] min-w-0 lg:sticky lg:top-[100px] rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-md p-6 flex flex-col gap-3">
           <div className="flex flex-col gap-0.5">
             <span className="font-raleway font-bold text-[15px] text-text-primary">{state.packageTitle}</span>
-            <span className="text-xs text-gray-700 dark:text-gray-300">{matrix ? fmtDateRange(...tripDates(matrix, matrix.stay_types.find((s) => s.code === rooms[0]?.stay_type))) : ""} · <span className="capitalize">{state.choices.mode === "stay" ? "Stay only" : state.choices.mode}</span></span>
+            <span className="text-xs text-gray-700 dark:text-gray-300">{matrix ? fmtDateRange(...tripDates(matrix, matrix.stay_types.find((s) => s.code === rooms[0]?.stay_type), state.choices)) : ""} · <span className="capitalize">{state.choices.mode === "stay" ? "Stay only" : state.choices.mode}</span></span>
           </div>
           {quote ? <QuoteSummary quote={quote} /> : <Spinner />}
           <p className="text-[11px] text-center text-gray-500 dark:text-gray-400">No promo codes. Group discounts are applied automatically.</p>
